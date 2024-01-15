@@ -27,7 +27,6 @@ jobs:
       uses: kishikawakatsumi/xcresulttool@v1.7.1
       with:
         path: TestResults.xcresult
-        token: ${{ secrets.GITHUB_TOKEN }}
         show-code-coverage: true
       if: success() || failure()
 
