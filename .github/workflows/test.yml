@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
 
@@ -17,7 +21,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      run: xcodebuild build test -scheme "jose-swift-Package" -destination "platform=macOS" -resultBundlePath TestResults
+
+    - name: Publish tests results
+      uses: kishikawakatsumi/xcresulttool@v1.7.1
+      with:
+        path: TestResults.xcresult
+        token: ${{ secrets.GITHUB_TOKEN }}
+        show-code-coverage: true
+      if: success() || failure()
 
