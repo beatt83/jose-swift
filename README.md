@@ -1,6 +1,9 @@
 # Jose Swift Library
 
+[![Swift](https://img.shields.io/badge/swift-brightgreen.svg)]() [![iOS](https://img.shields.io/badge/ios-brightgreen.svg)]() [![MacOS](https://img.shields.io/badge/macos-brightgreen.svg)]() [![WatchOS](https://img.shields.io/badge/watchos-brightgreen.svg)]() [![TvOS](https://img.shields.io/badge/tvos-brightgreen.svg)]()
+
 This library provides comprehensive support for the Jose suite of standards, including JWA (JSON Web Algorithms), JWK (JSON Web Key), JWE (JSON Web Encryption), JWS (JSON Web Signature), and JWT (JSON Web Token). These standards are integral to modern security protocols on the web, offering methods for secure key management, data encryption, signing, and representation of claims among different parties.
+
 
 ## References
 - [JSON Web Signature (JWS) - RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515)
@@ -41,7 +44,7 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | A128KW          |:white_check_mark:|
 | A192KW          |:white_check_mark:|
 | A256KW          |:white_check_mark:|
-| DIR             |:white_check_mark:|
+| DIRECT          |:white_check_mark:|
 | ECDH-ES         |:white_check_mark:|
 | ECDH-ES+A128KW  |:white_check_mark:|
 | ECDH-ES+A192KW  |:white_check_mark:|
@@ -72,8 +75,12 @@ This library provides comprehensive support for the Jose suite of standards, inc
 - Mac Catalyst 15.0 or later
 - tvOS 15.0 or later
 - watchOS 8.0 or later
+- Dependencies:
+    - [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift)
+    - [OpenSSL](https://github.com/krzyzanowskim/OpenSSL)
+    - [secp256k1.swift](https://github.com/GigaBitcoin/secp256k1.swift)
 
-## How to Use jose-swift
+## Swift Package Manager (SPM)
 
 To use the `jose-swift` package in your project, you need to add it as a dependency in your `Package.swift` file.
 
