@@ -26,17 +26,12 @@ struct AESGCM {
         initializationVector: Data = Data(),
         additionalAuthenticatedData: Data = Data()
     ) throws -> (cipher: Data, authenticationData: Data) {
-        print("payload: \(Base64URL.encode(payload))")
-        print("initializationVector: \(Base64URL.encode(initializationVector))")
-        print("additionalAuthenticatedData: \(Base64URL.encode(additionalAuthenticatedData))")
-        print("cek: \(Base64URL.encode(cek))")
         let sealedBox = try AES.GCM.seal(
             payload,
             using: .init(data: cek),
             nonce: .init(data: initializationVector),
             authenticating: additionalAuthenticatedData
         )
-        print("tag: \(Base64URL.encode(sealedBox.tag))")
         return (sealedBox.ciphertext, sealedBox.tag)
     }
     
@@ -47,11 +42,6 @@ struct AESGCM {
         authenticationTag: Data = Data(),
         additionalAuthenticatedData: Data = Data()
     ) throws -> Data {
-        print("cipher: \(Base64URL.encode(cipher))")
-        print("initializationVector: \(Base64URL.encode(initializationVector))")
-        print("additionalAuthenticatedData: \(Base64URL.encode(additionalAuthenticatedData))")
-        print("tag: \(Base64URL.encode(authenticationTag))")
-        print("cek: \(Base64URL.encode(using))")
         return try AES.GCM.open(
             .init(
                 nonce: .init(data: initializationVector),

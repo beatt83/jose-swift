@@ -76,7 +76,6 @@ struct JWSJson<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader>: Coda
             try? jwk.keyID == $0.getKid()
             || jwk.algorithm == $0.validateAlg()?.rawValue
         ) ?? false
-            print(result)
             return result
         }
     }

@@ -28,9 +28,7 @@ struct AESKeyUnwrap: KeyUnwrapping {
         guard let key = using.key else {
             throw CryptoError.missingOctetSequenceKey
         }
-        print("encryptedKey: \(Base64URL.encode(encryptedKey))")
-        print("keyEncryptionKey: \(Base64URL.encode(key))")
-        
+
         return try AES.KeyWrap.unwrap(
             encryptedKey,
             using: .init(data: key)

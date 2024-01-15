@@ -51,14 +51,6 @@ struct AESCBC_SHA<H: HashFunction> {
             .withUnsafeBytes { Data($0) }
             .prefix(authenticationTagLength)
         
-        print("cek: \(Base64URL.encode(cek))")
-        print("cipher: \(Base64URL.encode(Data(ciphertext)))")
-        print("encKey: \(Base64URL.encode(encKey))")
-        print("macKey: \(Base64URL.encode(macKey))")
-        print("computedTag: \(Base64URL.encode(authenticationTag))")
-        print("initializationVector: \(Base64URL.encode(initializationVector))")
-        print("aad: \(Base64URL.encode(additionalAuthenticatedData))")
-        
         return (Data(ciphertext), authenticationTag)
     }
     
@@ -84,16 +76,7 @@ struct AESCBC_SHA<H: HashFunction> {
             )
             .withUnsafeBytes { Data($0) }
             .prefix(authenticationTagLength)
-        
-        print("cek: \(Base64URL.encode(cek))")
-        print("cipher: \(Base64URL.encode(cipher))")
-        print("encKey: \(Base64URL.encode(encKey))")
-        print("macKey: \(Base64URL.encode(macKey))")
-        print("computedTag: \(Base64URL.encode(computedTag))")
-        print("authenticationTag: \(Base64URL.encode(authenticationTag))")
-        print("initializationVector: \(Base64URL.encode(initializationVector))")
-        print("aad: \(Base64URL.encode(additionalAuthenticatedData))")
-        
+
         guard authenticationTag == computedTag else {
             throw CryptoError.decryptionFailedAuthenticationTagDoesntMatch
         }

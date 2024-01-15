@@ -34,13 +34,6 @@ extension ECDHES: KeyDerivation {
         let suppPubInfoData = UInt32(keyLengthInBits).bigEndian.dataRepresentation
         let suppPrivInfoData = Data()
         let tagData = Data()
-        
-        print("keyZ: \(Base64URL.encode(key))")
-        print("algorithmIDData: \(Base64URL.encode(algorithmIDData))")
-        print("partyUInfo: \(Base64URL.encode(partyUInfoData))")
-        print("partyVInfo: \(Base64URL.encode(partyVInfoData))")
-        print("suppPubInfoData: \(Base64URL.encode(suppPubInfoData))")
-        print("tagData: \(Base64URL.encode(tagData))")
 
         return try ConcatKDF<CryptoKit.SHA256>.deriveKey(
             z: key,

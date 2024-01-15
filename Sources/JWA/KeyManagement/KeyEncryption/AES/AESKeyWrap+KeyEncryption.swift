@@ -37,8 +37,6 @@ struct AESKeyWrap: KeyWrapping {
             .init(data: cek),
             using: .init(data: key)
         )
-        print("encryptedKey: \(Base64URL.encode(encryptedKey))")
-        print("keyEncryptionKey: \(Base64URL.encode(key))")
         
         return .init(
             encryptedKey: encryptedKey,
