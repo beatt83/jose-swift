@@ -146,5 +146,9 @@ JWT is a compact, URL-safe means of representing claims to be transferred betwee
 ## Contributing
 Contributions to the library are welcome. Please ensure that your contributions adhere to the Jose standards and add value to the existing functionalities.
 
+## Acknowledgments
+
+Special thanks to the [`swift-jose`](https://github.com/proxyco/swift-jose) repository by [Zsombor Szabo](https://github.com/zssz) for serving as an inspiration for this project. I have adopted parts of the `JWK` implementation and several test vectors from their work, which have been instrumental in shaping aspects of this library. Their contributions to the open-source community are sincerely appreciated.
+
 ## License
 This project is licensed under the Apache License 2.0. See the LICENSE file for details.
