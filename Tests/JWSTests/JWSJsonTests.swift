@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import JWK
-@testable import JWS
+import JSONWebKey
+@testable import JSONWebSignature
 import Tools
 import XCTest
 

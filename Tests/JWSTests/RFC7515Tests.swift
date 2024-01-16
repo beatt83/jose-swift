@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import JWA
-import JWK
-@testable import JWS
+import JSONWebAlgorithms
+import JSONWebKey
+@testable import JSONWebSignature
 import Tools
 import XCTest
 

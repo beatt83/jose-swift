@@ -114,16 +114,16 @@ targets: [
 
 ### Step 3: Import and Use in Your Project
 
-Once you've added the package as a dependency, you can import JWE, JWS, JWA, or JWK in your Swift files depending on what functionality you need:
+Once you've added the package as a dependency, you can import JSONWebEncryption, JWS, JWA, or JWK in your Swift files depending on what functionality you need:
 
 ```swift
-import JWE
+import JSONWebEncryption
 // or
-import JWS
+import JSONWebSignature
 // or
-import JWA
+import JSONWebAlgorithms
 // or
-import JWK
+import JSONWebKey
 ```
 
 ## Modules

@@ -15,7 +15,7 @@ let package = Package(
     products: [
         .library(
             name: "jose-swift",
-            targets: ["JWK"]
+            targets: ["JSONWebKey", "JSONWebAlgorithms", "JSONWebEncryption", "JSONWebSignature"]
         ),
         .library(
             name: "Jose",
@@ -35,49 +35,49 @@ let package = Package(
         .target(
             name: "Jose",
             dependencies: [
-                "JWK",
-                "JWS",
-                "JWA",
-                "JWE"
+                "JSONWebKey",
+                "JSONWebSignature",
+                "JSONWebAlgorithms",
+                "JSONWebEncryption"
             ]
         ),
         .target(
-            name: "JWA",
+            name: "JSONWebAlgorithms",
             dependencies: [
-                "JWK",
+                "JSONWebKey",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
                 .product(name: "CryptoSwift", package: "CryptoSwift")
             ]
         ),
         .testTarget(
             name: "JWATests",
-            dependencies: ["JWA", "Tools"]
+            dependencies: ["JSONWebAlgorithms", "Tools"]
         ),
         .target(
-            name: "JWS",
+            name: "JSONWebSignature",
             dependencies: [
-                "JWK",
-                "JWA"
+                "JSONWebKey",
+                "JSONWebAlgorithms"
             ]
         ),
         .testTarget(
             name: "JWSTests",
-            dependencies: ["JWS", "Tools"]
+            dependencies: ["JSONWebSignature", "Tools"]
         ),
         .target(
-            name: "JWE",
+            name: "JSONWebEncryption",
             dependencies: [
-                "JWA",
-                "JWK",
+                "JSONWebAlgorithms",
+                "JSONWebKey",
                 "CryptoSwift"
             ]
         ),
         .testTarget(
             name: "JWETests",
-            dependencies: ["JWE", "Tools"]
+            dependencies: ["JSONWebEncryption", "Tools"]
         ),
         .target(
-            name: "JWK",
+            name: "JSONWebKey",
             dependencies: [
                 "OpenSSL",
                 "CryptoSwift",
@@ -87,7 +87,7 @@ let package = Package(
         ),
         .testTarget(
             name: "JWKTests",
-            dependencies: ["JWK", "Tools"]
+            dependencies: ["JSONWebKey", "Tools"]
         ),
         .target(
             name: "Tools"

@@ -17,7 +17,7 @@
 import CryptoSwift
 import CryptoKit
 import Foundation
-import JWK
+import JSONWebKey
 import secp256k1
 
 extension JWK {

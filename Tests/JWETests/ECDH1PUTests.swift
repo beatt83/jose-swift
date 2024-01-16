@@ -15,9 +15,9 @@
  */
 
 import XCTest
-@testable import JWE
-import JWA
-import JWK
+@testable import JSONWebEncryption
+import JSONWebAlgorithms
+import JSONWebKey
 import Tools
 
 final class ECDH1PUTests: XCTestCase {
@@ -164,5 +164,41 @@ final class ECDH1PUTests: XCTestCase {
         )
         
         XCTAssertEqual(payload, decrypted)
+    }
+    
+    func testECDH1PUA256KWCurve25519Cycle() throws {
+        let payload = try "Test".tryToData()
+        let aliceKey = JWK.testingCurve25519KPair
+        let bobKey = JWK.testingCurve25519KPair
+        
+        let keyAlg = KeyManagementAlgorithm.ecdh1PUA256KW
+        let encAlg = ContentEncryptionAlgorithm.a256CBCHS512
+        
+        let header = try DefaultJWEHeaderImpl(
+            keyManagementAlgorithm: keyAlg,
+            encodingAlgorithm: encAlg,
+            agreementPartyUInfo: Base64URL.encode("Alice".tryToData()).tryToData(),
+            agreementPartyVInfo: Base64URL.encode("Bob".tryToData()).tryToData()
+        )
+        
+        let jwe = try ECDH1PUJWEEncryptor().encrypt(
+            payload: payload,
+            senderKey: aliceKey,
+            recipientKey: bobKey,
+            protectedHeader: header
+        )
+        
+        let decrypted = try ECDH1PUJWEDecryptor().decrypt(
+            protectedHeader: jwe.protectedHeader!,
+            cipher: jwe.cipherText,
+            encryptedKey: jwe.encryptedKey,
+            initializationVector: jwe.initializationVector,
+            authenticationTag: jwe.authenticationTag,
+            additionalAuthenticationData: jwe.additionalAuthenticationData,
+            senderKey: aliceKey,
+            recipientKey: bobKey
+        )
+        
+        XCTAssertEqual(payload.toHexString(), decrypted.toHexString())
     }
 }

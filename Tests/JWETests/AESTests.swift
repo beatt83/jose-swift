@@ -15,9 +15,9 @@
  */
 
 import XCTest
-@testable import JWE
-import JWA
-import JWK
+@testable import JSONWebEncryption
+import JSONWebAlgorithms
+import JSONWebKey
 import Tools
 
 final class AESTests: XCTestCase {
