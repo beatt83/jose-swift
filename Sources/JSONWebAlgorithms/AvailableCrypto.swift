@@ -30,6 +30,7 @@ public enum AvailableCrypto {
     case RSASSA_PSS_WithSHA256_MGF1_WithSHA256
     case RSASSA_PSS_WithSHA384_MGF1_WithSHA384
     case RSASSA_PSS_WithSHA512_MGF1_WithSHA512
+    case EdDSA
     
     public var algorithm: String {
         switch self {
@@ -59,6 +60,8 @@ public enum AvailableCrypto {
             return "ES512"
         case .SECP256K1_ECDSA_WithSHA256:
             return "ES256K"
+        case .EdDSA:
+            return "EdDSA"
         }
     }
     
@@ -72,6 +75,8 @@ public enum AvailableCrypto {
             return "P-521"
         case .SECP256K1_ECDSA_WithSHA256:
             return "secp256k1"
+        case .EdDSA:
+            return "Ed25519"
         default:
             return nil
         }
@@ -105,6 +110,8 @@ public enum AvailableCrypto {
             return "RSASSA-PSS using SHA-384 and MGF1 with SHA-384"
         case .RSASSA_PSS_WithSHA512_MGF1_WithSHA512:
             return "RSASSA-PSS using SHA-512 and MGF1 with SHA-512"
+        case .EdDSA:
+            return "EdDSA using Ed25519"
         }
     }
     
@@ -136,6 +143,8 @@ public enum AvailableCrypto {
             return PS384Signer()
         case .RSASSA_PSS_WithSHA512_MGF1_WithSHA512:
             return PS512Signer()
+        case .EdDSA:
+            return EdDSASigner()
         }
     }
     
@@ -167,6 +176,8 @@ public enum AvailableCrypto {
             return PS384Verifier()
         case .RSASSA_PSS_WithSHA512_MGF1_WithSHA512:
             return PS512Verifier()
+        case .EdDSA:
+            return EdDSAVerifier()
         }
     }
 }

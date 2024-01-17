@@ -65,6 +65,9 @@ public enum SigningAlgorithm: String, Codable {
     /// RSASSA-PSS using SHA-512 and MGF1 with SHA-512
     case PS512 = "PS512"
     
+    /// EdDSA using Ed25519
+    case EdDSA = "EdDSA"
+    
     /// No digital signature or MAC performed
     case none = "none"
     
@@ -99,6 +102,8 @@ public enum SigningAlgorithm: String, Codable {
             return AvailableCrypto.RSASSA_PSS_WithSHA384_MGF1_WithSHA384.signer
         case .PS512:
             return AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.signer
+        case .EdDSA:
+            return AvailableCrypto.EdDSA.signer
         case .none:
             return nil
         case .invalid:
@@ -134,6 +139,8 @@ public enum SigningAlgorithm: String, Codable {
             return AvailableCrypto.RSASSA_PSS_WithSHA384_MGF1_WithSHA384.verifier
         case .PS512:
             return AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.verifier
+        case .EdDSA:
+            return AvailableCrypto.EdDSA.verifier
         case .none:
             return nil
         case .invalid:
