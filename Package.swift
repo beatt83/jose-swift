@@ -15,7 +15,13 @@ let package = Package(
     products: [
         .library(
             name: "jose-swift",
-            targets: ["JSONWebKey", "JSONWebAlgorithms", "JSONWebEncryption", "JSONWebSignature"]
+            targets: [
+                "JSONWebKey",
+                "JSONWebAlgorithms",
+                "JSONWebEncryption",
+                "JSONWebSignature",
+                "JSONWebToken"
+            ]
         ),
         .library(
             name: "Jose",
@@ -38,7 +44,8 @@ let package = Package(
                 "JSONWebKey",
                 "JSONWebSignature",
                 "JSONWebAlgorithms",
-                "JSONWebEncryption"
+                "JSONWebEncryption",
+                "JSONWebToken"
             ]
         ),
         .target(
@@ -88,6 +95,19 @@ let package = Package(
         .testTarget(
             name: "JWKTests",
             dependencies: ["JSONWebKey", "Tools"]
+        ),
+        .target(
+            name: "JSONWebToken",
+            dependencies: [
+                "JSONWebKey",
+                "JSONWebSignature",
+                "JSONWebEncryption",
+                "Tools"
+            ]
+        ),
+        .testTarget(
+            name: "JWTTests",
+            dependencies: ["JSONWebToken", "Tools"]
         ),
         .target(
             name: "Tools"

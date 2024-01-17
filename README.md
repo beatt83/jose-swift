@@ -124,6 +124,8 @@ import JSONWebSignature
 import JSONWebAlgorithms
 // or
 import JSONWebKey
+// or
+import JSONWebToken
 ```
 
 ## Modules
@@ -140,7 +142,7 @@ JWE represents encrypted content using JSON-based data structures. This module i
 ### JWS (JSON Web Signature)
 JWS is a standard for digitally signing arbitrary content. This module supports creating and verifying digital signatures, ensuring the integrity and authenticity of signed data.
 
-### JWT (JSON Web Token) (WIP)
+### JWT (JSON Web Token)
 JWT is a compact, URL-safe means of representing claims to be transferred between two parties. This module offers tools for creating, parsing, validating, and manipulating JWTs, with support for various signing and encryption methods.
 
 ## Contributing
