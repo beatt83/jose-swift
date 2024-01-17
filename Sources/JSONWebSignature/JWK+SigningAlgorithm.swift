@@ -52,6 +52,18 @@ extension JWK {
             default:
                 throw JWS.JWSError.unsupportedAlgorithm(keyType: keyType.rawValue, algorithm: algorithm, curve: curve.rawValue)
             }
+        case .octetKeyPair:
+            guard let curve else { throw JWS.JWSError.missingCurve }
+            switch curve {
+            case .ed25519:
+                return SigningAlgorithm.EdDSA
+            default:
+                throw JWS.JWSError.unsupportedAlgorithm(
+                    keyType: keyType.rawValue,
+                    algorithm: algorithm,
+                    curve: curve.rawValue
+                )
+            }
         case .octetSequence:
             switch algorithm {
             case SigningAlgorithm.HS256.rawValue:
@@ -63,8 +75,6 @@ extension JWK {
             default:
                 throw JWS.JWSError.unsupportedAlgorithm(keyType: keyType.rawValue, algorithm: algorithm, curve: curve?.rawValue)
             }
-        default:
-            throw JWS.JWSError.unsupportedAlgorithm(keyType: keyType.rawValue, algorithm: algorithm, curve: curve?.rawValue)
         }
     }
 }

@@ -126,4 +126,21 @@ final class JWSJsonTests: XCTestCase {
         
         XCTAssertThrowsError(try JWS.verify(jwsJson: jws.data(using: .utf8)!, jwk: jwkWithoutKid))
     }
+    
+    func testJsonSerializationOneKeyOnlyEdDSA() throws {
+        var keyJWK = JWK.testingCurve25519KPair
+        keyJWK.keyID = "1"
+        
+        let payload = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}"
+        
+        let jws: Data = try JWS.jsonSerialization(payload: payload.data(using: .utf8)!, keys: [keyJWK])
+        
+        let jsonSerilization = try JSONDecoder()
+            .decode(JWSJson<DefaultJWSHeaderImpl, DefaultJWSHeaderImpl>.self, from: jws)
+        
+        XCTAssertEqual(jsonSerilization.signatures.count, 1)
+        XCTAssertEqual(try jsonSerilization.signatures.first!.validateAlg(), .EdDSA)
+        XCTAssertEqual(try jsonSerilization.signatures.first!.getKid(), "1")
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: keyJWK))
+    }
 }
