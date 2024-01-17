@@ -42,7 +42,7 @@ extension JWS {
         self.protectedHeader = protectedHeader
         self.data = data
         self.signature = signature
-        self.compactSerilization = try JWS.buildJWSString(header: header, data: data, signature: signature)
+        self.compactSerialization = try JWS.buildJWSString(header: header, data: data, signature: signature)
     }
     
     /// Initializes a new `JWS` instance using a `JWSProtectedFieldsHeader` instance, payload data, and a JSON Web Key (JWK).
@@ -67,7 +67,7 @@ extension JWS {
         self.protectedHeader = protectedHeader
         self.data = data
         self.signature = signature
-        self.compactSerilization = try JWS.buildJWSString(header: headerData, data: data, signature: signature)
+        self.compactSerialization = try JWS.buildJWSString(header: headerData, data: data, signature: signature)
     }
     
     /// Convenience initializer to create a `JWS` instance using payload data and a JSON Web Key (JWK).

@@ -22,8 +22,8 @@ struct HS384Verifier: Verifier {
     var algorithm: String { AvailableCrypto.HMAC_SHA384.algorithm }
     var algorithmDescription: String { AvailableCrypto.HMAC_SHA384.algorithmDescription }
     
-    func verify(data: Data, signature: Data, key: JWK) throws -> Bool {
-        guard let k = key.key else { throw CryptoError.notValidPrivateKey }
+    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
+        guard let k = key?.key else { throw CryptoError.notValidPrivateKey }
         let symmetryKey = SymmetricKey(data: k)
         return HMAC<SHA384>.isValidAuthenticationCode(signature, authenticating: data, using: symmetryKey)
     }

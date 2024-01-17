@@ -22,20 +22,20 @@ struct PS512Verifier: Verifier {
     var algorithm: String { AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.algorithm }
     var algorithmDescription: String { AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.algorithmDescription }
     
-    func verify(data: Data, signature: Data, key: JWK) throws -> Bool {
+    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
-            let n = key.n,
-            let e = key.e
+            let n = key?.n,
+            let e = key?.e
         else { throw CryptoError.notValidPrivateKey }
         let publicKey: RSA
         if
-            let p = key.p,
-            let q = key.q,
-            let d = key.d
+            let p = key?.p,
+            let q = key?.q,
+            let d = key?.d
         {
             publicKey = try RSA(n: BigUInteger(n), e: BigUInteger(e), d: BigUInteger(d), p: BigUInteger(p), q: BigUInteger(q))
         } else {
-            publicKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key.d.map {BigUInteger($0)})
+            publicKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key?.d.map {BigUInteger($0)})
         }
         
         let secKey = try publicKey.getSecKey()

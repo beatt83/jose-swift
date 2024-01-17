@@ -22,10 +22,10 @@ struct ES256Verifier: Verifier {
     var algorithm: String { AvailableCrypto.P256_ECDSA_WithSHA256.algorithm }
     var algorithmDescription: String { AvailableCrypto.P256_ECDSA_WithSHA256.algorithmDescription }
     
-    func verify(data: Data, signature: Data, key: JWK) throws -> Bool {
+    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
-            let x = key.x,
-            let y = key.y
+            let x = key?.x,
+            let y = key?.y
         else { throw CryptoError.notValidPublicKey }
         let publicKey = try P256.Signing.PublicKey(rawRepresentation: x + y)
         let hash = SHA256.hash(data: data)

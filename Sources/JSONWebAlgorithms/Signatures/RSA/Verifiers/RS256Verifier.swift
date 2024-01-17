@@ -22,20 +22,20 @@ struct RS256Verifier: Verifier {
     var algorithm: String { AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA256.algorithm }
     var algorithmDescription: String { AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA256.algorithmDescription }
     
-    func verify(data: Data, signature: Data, key: JWK) throws -> Bool {
+    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
-            let n = key.n,
-            let e = key.e
+            let n = key?.n,
+            let e = key?.e
         else { throw CryptoError.notValidPrivateKey }
         let publicKey: RSA
         if
-            let p = key.p,
-            let q = key.q,
-            let d = key.d
+            let p = key?.p,
+            let q = key?.q,
+            let d = key?.d
         {
             publicKey = try RSA(n: BigUInteger(n), e: BigUInteger(e), d: BigUInteger(d), p: BigUInteger(p), q: BigUInteger(q))
         } else {
-            publicKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key.d.map {BigUInteger($0)})
+            publicKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key?.d.map {BigUInteger($0)})
         }
         
         return try publicKey.verify(signature: signature.bytes, for: data.bytes, variant: .message_pkcs1v15_SHA256)

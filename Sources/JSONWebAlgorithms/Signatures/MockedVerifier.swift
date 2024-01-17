@@ -20,7 +20,7 @@ import JSONWebKey
 struct MockedVerifier: Verifier {
     let algorithm: String
     let algorithmDescription: String
-    func verify(data: Data, signature: Data, key: JWK) throws -> Bool {
+    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         false
     }
 }

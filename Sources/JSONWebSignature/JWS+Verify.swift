@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import JSONWebAlgorithms
 import JSONWebKey
 
 extension JWS {
@@ -24,7 +25,13 @@ extension JWS {
     /// - Returns: `true` if the signature is valid, `false` otherwise.
     /// - Throws: `JWSError` if there's a mismatch in algorithms between the key and the header,
     ///           if the algorithm is unsupported, or other errors encountered during verification.
-    public func verify(key: JWK) throws -> Bool {
+    public func verify(key: JWK?) throws -> Bool {
+        guard SigningAlgorithm.none != protectedHeader.algorithm else {
+            return true
+        }
+        guard let key else {
+            throw JWSError.missingKey
+        }
         try key.algorithm.map {
             guard $0 == protectedHeader.algorithm?.rawValue else {
                 throw JWSError.keyAlgorithmAndHeaderAlgorithmAreNotEqual(

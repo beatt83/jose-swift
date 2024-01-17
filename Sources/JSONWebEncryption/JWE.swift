@@ -21,31 +21,31 @@ import Tools
 /// It provides mechanisms to encrypt content, represented as the `cipher`, along with various headers and authentication data.
 public struct JWE {
     /// The `protectedHeader` is a JWE header with registered fields that are integrity protected.
-    let protectedHeader: JWERegisteredFieldsHeader
+    public let protectedHeader: JWERegisteredFieldsHeader
 
     /// `protectedHeaderData` represents the raw binary data of the protected header.
-    let protectedHeaderData: Data
+    public  let protectedHeaderData: Data
 
     /// The `cipher` contains the encrypted payload.
-    let cipher: Data
+    public let cipher: Data
 
     /// `unprotectedHeader` is an optional JWE header with registered fields that are not integrity protected.
-    let unprotectedHeader: JWERegisteredFieldsHeader?
+    public let unprotectedHeader: JWERegisteredFieldsHeader?
 
     /// `unprotectedHeaderData` represents the raw binary data of the shared unprotected header, if available.
-    let unprotectedHeaderData: Data?
+    public let unprotectedHeaderData: Data?
 
     /// `encryptedKey` is an optional field containing the encrypted key used to encrypt the payload.
-    let encryptedKey: Data?
+    public let encryptedKey: Data?
 
     /// `initializationVector` is an optional field used in certain encryption algorithms to provide additional randomness.
-    let initializationVector: Data?
+    public let initializationVector: Data?
 
     /// `authenticationTag` is an optional field used to store integrity information about the payload and headers.
-    let authenticationTag: Data?
+    public let authenticationTag: Data?
 
     /// `additionalAuthenticatedData` is optional extra data that can be authenticated along with the payload but is not encrypted.
-    let additionalAuthenticatedData: Data?
+    public let additionalAuthenticatedData: Data?
     
     /// Initializes a new `JWE` object with the specified parameters.
     /// - Parameters:

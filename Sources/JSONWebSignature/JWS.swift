@@ -36,7 +36,7 @@ public struct JWS {
     
     /// The compact serialization of the JWS as a string, following the format outlined in RFC 7515.
     /// This string is a Base64URL encoded representation of the header, payload, and signature.
-    public let compactSerilization: String
+    public let compactSerialization: String
     
     /// The raw header data, as used in the JWS structure.
     public let header: Data
@@ -54,7 +54,7 @@ public struct JWS {
         self.protectedHeader = try JSONDecoder().decode(DefaultJWSHeaderImpl.self, from: header)
         self.data = data
         self.signature = signature
-        self.compactSerilization = try JWS.buildJWSString(header: header, data: data, signature: signature)
+        self.compactSerialization = try JWS.buildJWSString(header: header, data: data, signature: signature)
     }
     
     /// Initializes a new JWS object using a `JWSProtectedFieldsHeader` instance, payload data, and signature,
@@ -70,7 +70,7 @@ public struct JWS {
         self.protectedHeader = header
         self.data = data
         self.signature = signature
-        self.compactSerilization = try JWS.buildJWSString(header: headerData, data: data, signature: signature)
+        self.compactSerialization = try JWS.buildJWSString(header: headerData, data: data, signature: signature)
     }
     
     /// Initializes a new JWS object from a compact serialization string.
@@ -90,7 +90,7 @@ public struct JWS {
         self.signature = try Base64URL.decode(components[2])
         self.header = headerDecoded
         self.protectedHeader = try JSONDecoder().decode(headerType, from: headerDecoded)
-        self.compactSerilization = jwsString
+        self.compactSerialization = jwsString
     }
     
     /// Initializes a new JWS object from a compact serialization string using a default header type,

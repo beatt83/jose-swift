@@ -22,9 +22,9 @@ struct EdDSAVerifier: Verifier {
     var algorithm: String { AvailableCrypto.EdDSA.algorithm }
     var algorithmDescription: String { AvailableCrypto.EdDSA.algorithmDescription }
     
-    func verify(data: Data, signature: Data, key: JWK) throws -> Bool {
+    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
-            let x = key.x
+            let x = key?.x
         else { throw CryptoError.notValidPublicKey }
         let publicKey = try Curve25519.Signing.PublicKey(rawRepresentation: x)
         return publicKey.isValidSignature(signature, for: data)

@@ -22,10 +22,10 @@ struct ES384Verifier: Verifier {
     var algorithm: String { AvailableCrypto.P384_ECDSA_WithSHA384.algorithm }
     var algorithmDescription: String { AvailableCrypto.P384_ECDSA_WithSHA384.algorithmDescription }
     
-    func verify(data: Data, signature: Data, key: JWK) throws -> Bool {
+    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
-            let x = key.x,
-            let y = key.y
+            let x = key?.x,
+            let y = key?.y
         else { throw CryptoError.notValidPublicKey }
         let publicKey = try P384.Signing.PublicKey(rawRepresentation: x + y)
         let hash = SHA384.hash(data: data)

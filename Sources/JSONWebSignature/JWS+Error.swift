@@ -42,6 +42,9 @@ extension JWS {
 
         /// Indicates that the Key ID ('kid') is missing, which is often crucial for identifying the correct key for processing.
         case missingKid
+        
+        /// Represents an error where the necessary key information is missing.
+        case missingKey
 
         /// Indicates that no signature with algorithm or kid that matches the provided JSON Web Key (JWK).
         case noSignatureForJWK(jwkAlg: String?, jwkKid: String?)
