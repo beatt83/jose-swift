@@ -148,7 +148,7 @@ extension JWS {
     static func jsonSerialization<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader>(
         payload: Data,
         protectedHeader: P,
-        header: H,
+        header: H? = nil as DefaultJWSHeaderImpl?,
         keys: [JWK]
     ) throws -> JWSJson<P, H> {
         let signatures = try keys
@@ -184,7 +184,7 @@ extension JWS {
     public static func jsonSerialization<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader>(
         payload: Data,
         protectedHeader: P,
-        header: H,
+        header: H? = nil as DefaultJWSHeaderImpl?,
         keys: [JWK]
     ) throws -> Data {
         let json: JWSJson<P, H> = try jsonSerialization(
@@ -238,7 +238,7 @@ extension JWS {
     public static func jsonSerializationFlattened<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader>(
         payload: Data,
         protectedHeader: P,
-        header: H,
+        header: H? = nil as DefaultJWSHeaderImpl?,
         key: JWK
     ) throws -> Data {
         let json: JWSJson<P, H> = try jsonSerialization(
@@ -263,7 +263,7 @@ extension JWS {
     public static func jsonSerializationFlattened<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader>(
         payload: Data,
         protectedHeader: P,
-        header: H,
+        header: H? = nil as DefaultJWSHeaderImpl?,
         key: JWK
     ) throws -> JWSJsonFlattened<P, H> {
         let json: JWSJson<P, H> = try jsonSerialization(

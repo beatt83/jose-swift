@@ -108,4 +108,14 @@ public struct DefaultJWSHeaderImpl: JWSRegisteredFieldsHeader {
         self.contentType = contentType
         self.critical = critical
     }
+    
+    public init(from: JWK) {
+        self.init(
+            keyID: from.keyID,
+            x509URL: from.x509URL,
+            x509CertificateChain: from.x509CertificateChain,
+            x509CertificateSHA1Thumbprint: from.x509CertificateSHA1Thumbprint,
+            x509CertificateSHA256Thumbprint: from.x509CertificateSHA256Thumbprint
+        )
+    }
 }
