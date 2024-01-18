@@ -40,8 +40,7 @@ extension JWE {
         recipientKey: JWK? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
-        additionalAuthenticationData: Data? = nil,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        additionalAuthenticationData: Data? = nil
     ) throws {
         let protectedHeader = DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyManagementAlg,
@@ -49,7 +48,7 @@ extension JWE {
             compressionAlgorithm: nil
         )
         
-        let parts = try encryptionModule.encryptor(alg: keyManagementAlg).encrypt(
+        let parts = try JWE.encryptionModule.encryptor(alg: keyManagementAlg).encrypt(
             payload: payload,
             senderKey: senderKey,
             recipientKey: recipientKey,
@@ -90,8 +89,7 @@ extension JWE {
         recipientKey: JWK? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
-        additionalAuthenticationData: Data? = nil,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        additionalAuthenticationData: Data? = nil
     ) throws {
         guard
             let alg = getKeyAlgorithm(
@@ -103,7 +101,7 @@ extension JWE {
             throw JWE.JWEError.missingKeyAlgorithm
         }
         
-        let parts = try encryptionModule.encryptor(alg: alg).encrypt(
+        let parts = try JWE.encryptionModule.encryptor(alg: alg).encrypt(
             payload: payload,
             senderKey: senderKey,
             recipientKey: recipientKey,
@@ -150,8 +148,7 @@ extension JWE {
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
         cek: Data? = nil,
-        additionalAuthenticationData: Data? = nil,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        additionalAuthenticationData: Data? = nil
     ) throws {
         let protectedHeader = DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyManagementAlg,
@@ -195,9 +192,7 @@ extension JWE {
         recipients: [(header: R, key: JWK)],
         cek: Data? = nil,
         initializationVector: Data? = nil,
-        additionalAuthenticationData: Data? = nil,
-        masterEphemeralKey: Bool = false,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        additionalAuthenticationData: Data? = nil
     ) throws -> JWEJson<P, U, R> {
         let recipientParts = try encryptionModule.multiEncryptor.encrypt(
             payload: payload,
@@ -208,7 +203,6 @@ extension JWE {
             cek: cek,
             initializationVector: initializationVector,
             additionalAuthenticationData: additionalAuthenticationData, 
-            masterEphemeralKey: masterEphemeralKey,
             encryptionModule: encryptionModule
         )
         
@@ -258,9 +252,7 @@ extension JWE {
         recipients: [(alg: KeyManagementAlgorithm, key: JWK)],
         cek: Data? = nil,
         initializationVector: Data? = nil,
-        additionalAuthenticationData: Data? = nil,
-        masterEphemeralKey: Bool = false,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        additionalAuthenticationData: Data? = nil
     ) throws -> JWEJson<DefaultJWEHeaderImpl, U, DefaultJWEHeaderImpl> {
         let protectedHeader = DefaultJWEHeaderImpl(
             encodingAlgorithm: encryptionAlgorithm,
@@ -277,8 +269,7 @@ extension JWE {
             },
             cek: cek,
             initializationVector: initializationVector,
-            additionalAuthenticationData: additionalAuthenticationData,
-            masterEphemeralKey: masterEphemeralKey
+            additionalAuthenticationData: additionalAuthenticationData
         )
     }
     
@@ -302,9 +293,7 @@ extension JWE {
         recipients: [(alg: KeyManagementAlgorithm, key: JWK)],
         cek: Data? = nil,
         initializationVector: Data? = nil,
-        additionalAuthenticationData: Data? = nil,
-        masterEphemeralKey: Bool = false,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        additionalAuthenticationData: Data? = nil
     ) throws -> JWEJson<DefaultJWEHeaderImpl, DefaultJWEHeaderImpl, DefaultJWEHeaderImpl> {
         return try jsonSerialization(
             payload: payload,
@@ -314,8 +303,7 @@ extension JWE {
             recipients: recipients,
             cek: cek,
             initializationVector: initializationVector,
-            additionalAuthenticationData: additionalAuthenticationData,
-            masterEphemeralKey: masterEphemeralKey
+            additionalAuthenticationData: additionalAuthenticationData
         )
     }
     
@@ -343,9 +331,7 @@ extension JWE {
         recipientKeys: [JWK],
         cek: Data? = nil,
         initializationVector: Data? = nil,
-        additionalAuthenticationData: Data? = nil,
-        masterEphemeralKey: Bool = false,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        additionalAuthenticationData: Data? = nil
     ) throws -> JWEJson<P, U, DefaultJWEHeaderImpl> {
         return try jsonSerialization(
             payload: payload,
@@ -355,9 +341,7 @@ extension JWE {
             recipients: recipientKeys.map { (DefaultJWEHeaderImpl(from: $0), $0)},
             cek: cek,
             initializationVector: initializationVector,
-            additionalAuthenticationData: additionalAuthenticationData,
-            masterEphemeralKey: masterEphemeralKey,
-            encryptionModule: encryptionModule
+            additionalAuthenticationData: additionalAuthenticationData
         )
     }
 }

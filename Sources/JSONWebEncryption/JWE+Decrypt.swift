@@ -27,8 +27,7 @@ extension JWE {
     ///   - encryptionModule: The encryption module to use, defaulting to the standard module.
     /// - Throws: `JWEError.invalidJWECompactString` if the compact string format is invalid.
     public init(
-        compactString: String,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        compactString: String
     ) throws {
         let components = compactString.components(separatedBy: ".")
         guard components.count == 5 else {
@@ -55,8 +54,7 @@ extension JWE {
     public func decrypt(
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        sharedKey: JWK? = nil
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
             protectedHeader: protectedHeader,
@@ -66,7 +64,7 @@ extension JWE {
             throw JWEError.missingKeyAlgorithm
         }
         
-        return try encryptionModule.decryptor(alg: alg).decrypt(
+        return try JWE.encryptionModule.decryptor(alg: alg).decrypt(
             encodedProtectedHeader: protectedHeaderData,
             encodedUnprotectedHeaderData: unprotectedHeaderData,
             cipher: cipher,
@@ -93,8 +91,7 @@ extension JWE {
         compactString: String,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        sharedKey: JWK? = nil
     ) throws -> Data {
         try JWE(compactString: compactString)
             .decrypt(
@@ -118,8 +115,7 @@ extension JWE {
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
         sharedKey: JWK? = nil,
-        tryAllRecipients: Bool = false,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        tryAllRecipients: Bool = false
     ) throws -> Data {
         let jsonObj = try JSONDecoder().decode(JWEJson<DefaultJWEHeaderImpl, DefaultJWEHeaderImpl, DefaultJWEHeaderImpl>.self, from: jweJson)
         return try decrypt(
@@ -149,8 +145,7 @@ extension JWE {
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
         sharedKey: JWK? = nil,
-        tryAllRecipients: Bool = false,
-        encryptionModule: JWEEncryptionModule = JWEEncryptionModule.default
+        tryAllRecipients: Bool = false
     ) throws -> Data {
         let aad = try AAD.computeAAD(
             header: jweJson.protectedData,
