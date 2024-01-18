@@ -10,7 +10,7 @@ final class JWTTests: XCTestCase {
         eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.
         """
         
-        let jwt = try JWT<DefaultJWTClaims>.verify(jwtString: jwtString)
+        let jwt = try JWT<DefaultJWTClaimsImpl>.verify(jwtString: jwtString)
         switch jwt.format {
         case .jws(let jws):
             XCTAssertEqual(jws.protectedHeader.algorithm!, .none)
@@ -63,7 +63,7 @@ final class JWTTests: XCTestCase {
     
     func testFailExpirationValidation() throws {
         let expiredAt = Date(timeIntervalSince1970: 0)
-        let mockClaims = DefaultJWTClaims(
+        let mockClaims = DefaultJWTClaimsImpl(
             issuer: "testAlice",
             subject: "Alice",
             expirationTime: expiredAt
@@ -79,12 +79,12 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT<DefaultJWTClaims>.verify(jwtString: jwtString, senderKey: key))
+        XCTAssertThrowsError(try JWT<DefaultJWTClaimsImpl>.verify(jwtString: jwtString, senderKey: key))
     }
     
     func testFailNotBeforeValidation() throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
-        let mockClaims = DefaultJWTClaims(
+        let mockClaims = DefaultJWTClaimsImpl(
             issuer: "testAlice",
             subject: "Alice",
             notBeforeTime: nbf
@@ -100,12 +100,12 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT<DefaultJWTClaims>.verify(jwtString: jwtString, senderKey: key))
+        XCTAssertThrowsError(try JWT<DefaultJWTClaimsImpl>.verify(jwtString: jwtString, senderKey: key))
     }
     
     func testFailIssuedAtValidation() throws {
         let issuedAt = Date(timeIntervalSinceNow: 1000)
-        let mockClaims = DefaultJWTClaims(
+        let mockClaims = DefaultJWTClaimsImpl(
             issuer: "testAlice",
             subject: "Alice",
             issuedAt: issuedAt
@@ -121,12 +121,12 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT<DefaultJWTClaims>.verify(jwtString: jwtString, senderKey: key))
+        XCTAssertThrowsError(try JWT<DefaultJWTClaimsImpl>.verify(jwtString: jwtString, senderKey: key))
     }
     
     func testFailIssuerValidation() throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
-        let mockClaims = DefaultJWTClaims(
+        let mockClaims = DefaultJWTClaimsImpl(
             issuer: "testAlice",
             subject: "Alice",
             notBeforeTime: nbf
@@ -142,7 +142,7 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT<DefaultJWTClaims>.verify(
+        XCTAssertThrowsError(try JWT<DefaultJWTClaimsImpl>.verify(
             jwtString: jwtString,
             senderKey: key,
             expectedIssuer: "Bob"
@@ -151,7 +151,7 @@ final class JWTTests: XCTestCase {
     
     func testFailAudienceValidation() throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
-        let mockClaims = DefaultJWTClaims(
+        let mockClaims = DefaultJWTClaimsImpl(
             issuer: "testAlice",
             subject: "Alice",
             audience: ["Test"]
@@ -167,7 +167,7 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT<DefaultJWTClaims>.verify(
+        XCTAssertThrowsError(try JWT<DefaultJWTClaimsImpl>.verify(
             jwtString: jwtString,
             senderKey: key,
             expectedAudience: "Bob"
