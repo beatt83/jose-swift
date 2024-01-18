@@ -35,7 +35,8 @@ let package = Package(
         // For `secp256k1` support
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.8.1"))
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.8.1")),
+        .package(url: "https://github.com/apple/swift-docc-plugin.git", from: "1.3.0")
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
     ],
     targets: [
