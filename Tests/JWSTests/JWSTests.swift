@@ -23,25 +23,25 @@ final class JWSTests: XCTestCase {
 
     func testAutomaticHeaderAlgorithmES256() throws {
         let keyPair = JWK.testingES256Pair
-        let testJWS = try JWS(data: "test".data(using: .utf8)!, key: keyPair)
+        let testJWS = try JWS(payload: "test".data(using: .utf8)!, key: keyPair)
         XCTAssertEqual(testJWS.protectedHeader.algorithm, .ES256)
     }
     
     func testAutomaticHeaderAlgorithmES384() throws {
         let keyPair = JWK.testingES384Pair
-        let testJWS = try JWS(data: "test".data(using: .utf8)!, key: keyPair)
+        let testJWS = try JWS(payload: "test".data(using: .utf8)!, key: keyPair)
         XCTAssertEqual(testJWS.protectedHeader.algorithm, .ES384)
     }
     
     func testAutomaticHeaderAlgorithmES521() throws {
         let keyPair = JWK.testingES521Pair
-        let testJWS = try JWS(data: "test".data(using: .utf8)!, key: keyPair)
+        let testJWS = try JWS(payload: "test".data(using: .utf8)!, key: keyPair)
         XCTAssertEqual(testJWS.protectedHeader.algorithm, .ES512)
     }
     
     func testAutomaticHeaderAlgorithmES256K() throws {
         let keyPair = JWK.testingES256KPair
-        let testJWS = try JWS(data: "test".data(using: .utf8)!, key: keyPair)
+        let testJWS = try JWS(payload: "test".data(using: .utf8)!, key: keyPair)
         XCTAssertEqual(testJWS.protectedHeader.algorithm, .ES256K)
     }
     

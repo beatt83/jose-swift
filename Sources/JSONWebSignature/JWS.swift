@@ -27,8 +27,8 @@ public struct JWS {
     /// This header contains metadata about the type of signature and algorithm used.
     public let protectedHeader: JWSRegisteredFieldsHeader
     
-    /// The payload data that is signed or encrypted, conforming to RFC 7515 specifications.
-    public let data: Data
+    /// The payload data that is signed, conforming to RFC 7515 specifications.
+    public let payload: Data
     
     /// The signature of the JWS
     /// It is computed based on the protected header and the payload data.
@@ -39,7 +39,7 @@ public struct JWS {
     public let compactSerialization: String
     
     /// The raw header data, as used in the JWS structure.
-    public let header: Data
+    public let protectedHeaderData: Data
     
     /// Initializes a new JWS object using raw header data, payload data, and signature,
     /// as per the structure and encoding rules.
@@ -49,12 +49,16 @@ public struct JWS {
     ///   - header: The raw header data.
     ///   - data: The payload data.
     ///   - signature: The signature data.
-    public init(header: Data, data: Data, signature: Data) throws {
-        self.header = header
-        self.protectedHeader = try JSONDecoder().decode(DefaultJWSHeaderImpl.self, from: header)
-        self.data = data
+    public init(protectedHeaderData: Data, data: Data, signature: Data) throws {
+        self.protectedHeaderData = protectedHeaderData
+        self.protectedHeader = try JSONDecoder().decode(DefaultJWSHeaderImpl.self, from: protectedHeaderData)
+        self.payload = data
         self.signature = signature
-        self.compactSerialization = try JWS.buildJWSString(header: header, data: data, signature: signature)
+        self.compactSerialization = try JWS.buildJWSString(
+            header: protectedHeaderData,
+            data: data,
+            signature: signature
+        )
     }
     
     /// Initializes a new JWS object using a `JWSProtectedFieldsHeader` instance, payload data, and signature,
@@ -64,11 +68,11 @@ public struct JWS {
     ///   - header: The `JWSProtectedFieldsHeader` instance.
     ///   - data: The payload data.
     ///   - signature: The signature data.
-    public init(header: JWSRegisteredFieldsHeader, data: Data, signature: Data) throws {
-        let headerData = try JSONEncoder().encode(header)
-        self.header = headerData
-        self.protectedHeader = header
-        self.data = data
+    public init(protectedHeader: JWSRegisteredFieldsHeader, data: Data, signature: Data) throws {
+        let headerData = try JSONEncoder().encode(protectedHeader)
+        self.protectedHeaderData = headerData
+        self.protectedHeader = protectedHeader
+        self.payload = data
         self.signature = signature
         self.compactSerialization = try JWS.buildJWSString(header: headerData, data: data, signature: signature)
     }
@@ -86,9 +90,9 @@ public struct JWS {
             throw JWSError.invalidString
         }
         let headerDecoded = try Base64URL.decode(components[0])
-        self.data = try Base64URL.decode(components[1])
+        self.payload = try Base64URL.decode(components[1])
         self.signature = try Base64URL.decode(components[2])
-        self.header = headerDecoded
+        self.protectedHeaderData = headerDecoded
         self.protectedHeader = try JSONDecoder().decode(headerType, from: headerDecoded)
         self.compactSerialization = jwsString
     }

@@ -33,14 +33,14 @@ final class RFC7515Tests: XCTestCase {
         let payload = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}"
         
         let jws = try JWS(
-            header: DefaultJWSHeaderImpl(algorithm: .HS256, type: "JWT"),
-            data: payload.data(using: .utf8)!,
+            payload: payload.data(using: .utf8)!,
+            protectedHeader: DefaultJWSHeaderImpl(algorithm: .HS256, type: "JWT"),
             key: jwk
         )
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .HS256)
         XCTAssertEqual(jws.protectedHeader.type, "JWT")
-        XCTAssertEqual(payload, String(data: jws.data, encoding: .utf8))
+        XCTAssertEqual(payload, String(data: jws.payload, encoding: .utf8))
         XCTAssertTrue(try jws.verify(key: jwk))
     }
     
@@ -58,7 +58,7 @@ final class RFC7515Tests: XCTestCase {
         let jws = try JWS(jwsString: inputJwsString)
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .HS256)
-        XCTAssertEqual(payload, String(data: jws.data, encoding: .utf8))
+        XCTAssertEqual(payload, String(data: jws.payload, encoding: .utf8))
         XCTAssertTrue(try jws.verify(key: jwk))
     }
     
@@ -81,13 +81,13 @@ final class RFC7515Tests: XCTestCase {
         let payload = "{\"iss\":\"joe\",\r\n \"exp\":1300819380,\r\n \"http://example.com/is_root\":true}"
         
         let jws = try JWS(
-            header: DefaultJWSHeaderImpl(algorithm: .RS256),
-            data: payload.data(using: .utf8)!,
+            payload: payload.data(using: .utf8)!,
+            protectedHeader: DefaultJWSHeaderImpl(algorithm: .RS256),
             key: keyJWK
         )
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .RS256)
-        XCTAssertEqual(payload, String(data: jws.data, encoding: .utf8))
+        XCTAssertEqual(payload, String(data: jws.payload, encoding: .utf8))
         
         XCTAssertTrue(try jws.verify(key: keyJWK))
     }
@@ -114,7 +114,7 @@ final class RFC7515Tests: XCTestCase {
         let jws = try JWS(jwsString: inputJWSString)
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .RS256)
-        XCTAssertEqual(payload, String(data: jws.data, encoding: .utf8))
+        XCTAssertEqual(payload, String(data: jws.payload, encoding: .utf8))
         
         XCTAssertTrue(try jws.verify(key: keyJWK))
     }
@@ -128,10 +128,10 @@ final class RFC7515Tests: XCTestCase {
         
         let payload = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}"
         
-        let jws = try JWS(data: payload.data(using: .utf8)!, key: jwk)
+        let jws = try JWS(payload: payload.data(using: .utf8)!, key: jwk)
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .ES256)
-        XCTAssertEqual(payload, String(data: jws.data, encoding: .utf8))
+        XCTAssertEqual(payload, String(data: jws.payload, encoding: .utf8))
         
         XCTAssertTrue(try jws.verify(key: jwk))
     }
@@ -149,7 +149,7 @@ final class RFC7515Tests: XCTestCase {
         let jws = try JWS(jwsString: inputJWS)
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .ES256)
-        XCTAssertEqual(payload, String(data: jws.data, encoding: .utf8)!)
+        XCTAssertEqual(payload, String(data: jws.payload, encoding: .utf8)!)
         
         XCTAssertTrue(try jws.verify(key: jwk))
     }
@@ -164,13 +164,13 @@ final class RFC7515Tests: XCTestCase {
         let payload = "Payload"
         
         let jws = try JWS(
-            header: DefaultJWSHeaderImpl(algorithm: .ES512),
-            data: payload.data(using: .utf8)!,
+            payload: payload.data(using: .utf8)!,
+            protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES512),
             key: jwk
         )
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .ES512)
-        XCTAssertEqual(payload.data(using: .ascii)!, jws.data)
+        XCTAssertEqual(payload.data(using: .ascii)!, jws.payload)
         
         XCTAssertTrue(try jws.verify(key: jwk))
     }
@@ -188,7 +188,7 @@ final class RFC7515Tests: XCTestCase {
         let jws = try JWS(jwsString: inputJWS)
         
         XCTAssertEqual(jws.protectedHeader.algorithm, .ES512)
-        XCTAssertEqual(payload.data(using: .ascii)!, jws.data)
+        XCTAssertEqual(payload.data(using: .ascii)!, jws.payload)
         
         XCTAssertTrue(try jws.verify(key: jwk))
     }
@@ -203,7 +203,7 @@ final class RFC7515Tests: XCTestCase {
         let jws = try JWS(jwsString: inputJWS)
         
         XCTAssertEqual(.none ,jws.protectedHeader.algorithm!)
-        XCTAssertEqual(payload.data(using: .utf8)!, jws.data)
+        XCTAssertEqual(payload.data(using: .utf8)!, jws.payload)
     }
     
     func testJWS_RFC7515_A6() throws {
@@ -241,11 +241,11 @@ final class RFC7515Tests: XCTestCase {
         
         XCTAssertNotNil(rsaSignature)
         XCTAssertNotNil(esSignature)
-        XCTAssertEqual(Base64URL.encode(rsaSignature!.protectedData!), "eyJhbGciOiJSUzI1NiJ9")
-        XCTAssertEqual(rsaSignature!.header!.keyID, "2010-12-29")
+        XCTAssertEqual(Base64URL.encode(rsaSignature!.protectedHeaderData!), "eyJhbGciOiJSUzI1NiJ9")
+        XCTAssertEqual(rsaSignature!.unprotectedHeader!.keyID, "2010-12-29")
         XCTAssertEqual(Base64URL.encode(rsaSignature!.signature), "cC4hiUPoj9Eetdgtv3hF80EGrhuB__dzERat0XF9g2VtQgr9PJbu3XOiZj5RZmh7AAuHIm4Bh-0Qc_lF5YKt_O8W2Fp5jujGbds9uJdbF9CUAr7t1dnZcAcQjbKBYNX4BAynRFdiuB--f_nZLgrnbyTyWzO75vRK5h6xBArLIARNPvkSjtQBMHlb1L07Qe7K0GarZRmB_eSN9383LcOLn6_dO--xi12jzDwusC-eOkHWEsqtFZESc6BfI7noOPqvhJ1phCnvWh6IeYI2w9QOYEUipUTI8np6LbgGY9Fs98rqVt5AXLIhWkWywlVmtVrBp0igcN_IoypGlUPQGe77Rw")
-        XCTAssertEqual(Base64URL.encode(esSignature!.protectedData!), "eyJhbGciOiJFUzI1NiJ9")
-        XCTAssertEqual(esSignature!.header!.keyID, "e9bc097a-ce51-4036-9562-d2ade882db0d")
+        XCTAssertEqual(Base64URL.encode(esSignature!.protectedHeaderData!), "eyJhbGciOiJFUzI1NiJ9")
+        XCTAssertEqual(esSignature!.unprotectedHeader!.keyID, "e9bc097a-ce51-4036-9562-d2ade882db0d")
         // We cannot test if the ES256 signature is equal since the value is always different,
         // instead we verify with the key
         XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: es256KeyJWK))
@@ -267,8 +267,8 @@ final class RFC7515Tests: XCTestCase {
         let jsonSerilization = try JSONDecoder()
             .decode(JWSJsonFlattened<DefaultJWSHeaderImpl, DefaultJWSHeaderImpl>.self, from: jws)
         
-        XCTAssertEqual(Base64URL.encode(jsonSerilization.protectedData!), "eyJhbGciOiJFUzI1NiJ9")
-        XCTAssertEqual(jsonSerilization.header!.keyID, "e9bc097a-ce51-4036-9562-d2ade882db0d")
+        XCTAssertEqual(Base64URL.encode(jsonSerilization.protectedHeaderData!), "eyJhbGciOiJFUzI1NiJ9")
+        XCTAssertEqual(jsonSerilization.unprotectedHeader!.keyID, "e9bc097a-ce51-4036-9562-d2ade882db0d")
         // We cannot test if the ES256 signature is equal since the value is always different,
         // instead we verify with the key
         XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: es256KeyJWK))

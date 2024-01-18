@@ -50,7 +50,7 @@ extension JWS {
                 curve: protectedHeader.jwk?.curve?.rawValue
             )
         }
-        let signingData = try JWS.buildSigningData(header: header, data: data)
+        let signingData = try JWS.buildSigningData(header: protectedHeaderData, data: payload)
         return try verifier.verify(data: signingData, signature: signature, key: key)
     }
     
