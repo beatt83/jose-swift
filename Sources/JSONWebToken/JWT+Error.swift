@@ -24,6 +24,11 @@ extension JWT {
 
         /// Error indicating that the sender's key is missing. This is typically required for operations like signing or key agreement.
         case missingSenderKey
+        
+        /// Error indicating that a key required for verifying a nested JWT is missing.
+        /// This error is thrown when the necessary key for a nested JWT layer is not provided,
+        /// making it impossible to verify the integrity or authenticity of the nested JWT.
+        case missingNestedJWTKey
 
         /// Error indicating that the signature of the JWT is invalid. This can occur during verification if the signature does not match the payload or is malformed.
         case invalidSignature

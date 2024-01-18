@@ -29,24 +29,64 @@ extension JWT {
     ///   - key: The `JWK` (JSON Web Key) used for signing the payload.
     /// - Returns: A `JWT` instance in JWS format with the signed payload.
     /// - Throws: An error if the signing process fails.
-    static func signed<P: JWSRegisteredFieldsHeader>(
+    public static func signed<P: JWSRegisteredFieldsHeader>(
         payload: C,
         protectedHeader: P,
-        key: JWK
+        key: JWK?
     ) throws -> JWT {
-        JWT(
+        var protectedHeader = protectedHeader
+        protectedHeader.type = "JWT"
+        
+        return JWT(
             payload: payload,
             format: .jws(try JWS(
+                payload: JSONEncoder.jose.encode(payload),
                 protectedHeader: protectedHeader,
-                data: JSONEncoder.jose.encode(payload),
                 key: key
             ))
+        )
+    }
+    
+    /// Signs a JWT payload as a nested JWT in JWS format with distinct inner and outer JWS headers.
+    ///
+    /// This method creates a nested JWS structure where the payload is first signed using the inner header and key,
+    /// then the resulting JWT string is signed again using the outer header and key.
+    ///
+    /// - Parameters:
+    ///   - payload: The payload to be signed, conforming to `JWTRegisteredFieldsClaims`.
+    ///   - protectedHeader: A `JWSRegisteredFieldsHeader` containing header fields for the outer JWS layer.
+    ///   - key: The `JWK` used for signing the outer JWT string.
+    ///   - nestedProtectedHeader: A `JWSRegisteredFieldsHeader` containing header fields for the inner JWS layer.
+    ///   - nestedKey: The `JWK` used for signing the inner JWT payload.
+    /// - Returns: A `JWS` instance representing the doubly signed nested JWT.
+    /// - Throws: An error if the signing process fails.
+    public static func signedAsNested<
+        P: JWSRegisteredFieldsHeader,
+        NP: JWSRegisteredFieldsHeader
+    >(
+        payload: C,
+        protectedHeader: P,
+        key: JWK?,
+        nestedProtectedHeader: NP,
+        nestedKey: JWK?
+    ) throws -> JWS {
+        let jwt = try signed(
+            payload: payload,
+            protectedHeader: nestedProtectedHeader,
+            key: nestedKey
+        )
+        
+        return try signedAsNested(
+            jwtString: jwt.jwtString,
+            protectedHeader: protectedHeader,
+            key: key
         )
     }
     
     /// Signs a JWT string as a nested JWT in JWS format.
     ///
     /// This method is used for creating a nested JWT, where the payload is another JWT string.
+    /// It signs the provided JWT string and wraps it in a new JWS structure.
     ///
     /// - Parameters:
     ///   - jwtString: The JWT string to be signed.
@@ -54,18 +94,18 @@ extension JWT {
     ///   - key: The `JWK` used for signing the JWT string.
     /// - Returns: A string representing the signed JWT in JWS format.
     /// - Throws: An error if the signing process fails.
-    static func signedAsNested<P: JWSRegisteredFieldsHeader>(
+    public static func signedAsNested<P: JWSRegisteredFieldsHeader>(
         jwtString: String,
         protectedHeader: P,
-        key: JWK
-    ) throws -> String {
+        key: JWK?
+    ) throws -> JWS {
         var protectedHeader = protectedHeader
         protectedHeader.contentType = "JWT"
         
         return try JWS(
+            payload: JSONEncoder.jose.encode(jwtString.tryToData()),
             protectedHeader: protectedHeader,
-            data: JSONEncoder.jose.encode(jwtString.tryToData()),
             key: key
-        ).compactSerialization
+        )
     }
 }

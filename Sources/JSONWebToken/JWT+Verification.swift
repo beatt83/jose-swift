@@ -23,20 +23,22 @@ extension JWT {
     
     /// Verifies a JWT string and returns a decoded JWT if successful.
     ///
-    /// This method supports both JWS (JSON Web Signature) and JWE (JSON Web Encryption) formats. It first determines the format of the JWT based on the number of components separated by dots in the JWT string.
+    /// This method supports both JWS (JSON Web Signature) and JWE (JSON Web Encryption) formats. It first determines the format of the JWT based on the number of components separated by dots in the JWT string. The method also handles nested JWTs, verifying each layer as needed.
     ///
     /// - Parameters:
     ///   - jwtString: The JWT string to be verified and decoded.
     ///   - senderKey: An optional `JWK` representing the sender's key, used for verifying a JWS.
     ///   - recipientKey: An optional `JWK` representing the recipient's key, used for decrypting a JWE.
+    ///   - nestedKeys: An array of `JWK` used for verifying nested JWTs.
     ///   - expectedIssuer: An optional expected issuer (`iss` claim) to validate.
     ///   - expectedAudience: An optional expected audience (`aud` claim) to validate.
     /// - Returns: A `JWT` instance containing the payload and format.
-    /// - Throws: `JWTError` if verification fails, the signature is invalid, claims validation fails, or the JWT format is incorrect.
+    /// - Throws: `JWTError` if verification fails, the signature is invalid, claims validation fails, the JWT format is incorrect, or if nested JWT keys are missing.
     public static func verify(
         jwtString: String,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
+        nestedKeys: [JWK] = [],
         expectedIssuer: String? = nil,
         expectedAudience: String? = nil
     ) throws -> JWT {
@@ -44,7 +46,22 @@ extension JWT {
         switch components.count {
         case 3:
             let jws = try JWS(jwsString: jwtString)
-            let payload = try JSONDecoder().decode(C.self, from: jws.data)
+            if jws.protectedHeader.contentType == "JWT" {
+                guard let key = getKeyForJWSHeader(
+                    keys: nestedKeys,
+                    header: jws.protectedHeader
+                ) else { throw JWTError.missingNestedJWTKey }
+                
+                return try verify(
+                    jwtString: jws.payload.tryToString(),
+                    senderKey: key,
+                    recipientKey: nil,
+                    nestedKeys: nestedKeys,
+                    expectedIssuer: expectedIssuer,
+                    expectedAudience: expectedAudience
+                )
+            }
+            let payload = try JSONDecoder().decode(C.self, from: jws.payload)
             
             guard try jws.verify(key: senderKey) else {
                 throw JWTError.invalidSignature
@@ -57,10 +74,27 @@ extension JWT {
             return .init(payload: payload, format: .jws(jws))
         case 5:
             let jwe = try JWE(compactString: jwtString)
+            
             let decryptedPayload = try jwe.decrypt(
                 senderKey: senderKey,
                 recipientKey: recipientKey
             )
+            
+            if jwe.protectedHeader.contentType == "JWT" {
+                guard let key = getKeyForJWEHeader(
+                    keys: nestedKeys,
+                    header: jwe.protectedHeader
+                ) else { throw JWTError.missingNestedJWTKey }
+                
+                return try verify(
+                    jwtString: decryptedPayload.tryToString(),
+                    senderKey: senderKey,
+                    recipientKey: key,
+                    nestedKeys: nestedKeys,
+                    expectedIssuer: expectedIssuer,
+                    expectedAudience: expectedAudience
+                )
+            }
             let payload = try JSONDecoder().decode(C.self, from: decryptedPayload)
             return .init(payload: payload, format: .jwe(jwe))
         default:
@@ -112,4 +146,70 @@ public func validateClaims(
     }
     
     try claims.validateExtraClaims()
+}
+
+private func getKeyForJWSHeader(keys: [JWK], header: JWSRegisteredFieldsHeader?) -> JWK? {
+    keys.first {
+        if let thumbprint = try? $0.thumbprint() {
+            if thumbprint == header?.keyID {
+                return true
+            }
+            
+            if
+                let hThumbprint = try? header?.jwk?.thumbprint(),
+                hThumbprint == thumbprint
+            {
+                return true
+            }
+        }
+        guard let header else { return false }
+        
+        if let x509Url = header.x509URL, x509Url == $0.x509URL { return true }
+        if
+            let x509CertificateSHA256Thumbprint = header.x509CertificateSHA256Thumbprint,
+            x509CertificateSHA256Thumbprint == $0.x509CertificateSHA256Thumbprint
+        { return true }
+        
+        if
+            let x509CertificateSHA1Thumbprint = header.x509CertificateSHA1Thumbprint,
+            x509CertificateSHA1Thumbprint == $0.x509CertificateSHA1Thumbprint
+        { return true }
+        
+        if let keyID = header.keyID, keyID == $0.keyID { return true }
+        
+        return false
+    }
+}
+
+private func getKeyForJWEHeader(keys: [JWK], header: JWERegisteredFieldsHeader?) -> JWK? {
+    keys.first {
+        if let thumbprint = try? $0.thumbprint() {
+            if thumbprint == header?.keyID {
+                return true
+            }
+            
+            if
+                let hThumbprint = try? header?.jwk?.thumbprint(),
+                hThumbprint == thumbprint
+            {
+                return true
+            }
+        }
+        guard let header else { return false }
+        
+        if let x509Url = header.x509URL, x509Url == $0.x509URL { return true }
+        if
+            let x509CertificateSHA256Thumbprint = header.x509CertificateSHA256Thumbprint,
+            x509CertificateSHA256Thumbprint == $0.x509CertificateSHA256Thumbprint
+        { return true }
+        
+        if
+            let x509CertificateSHA1Thumbprint = header.x509CertificateSHA1Thumbprint,
+            x509CertificateSHA1Thumbprint == $0.x509CertificateSHA1Thumbprint
+        { return true }
+        
+        if let keyID = header.keyID, keyID == $0.keyID { return true }
+        
+        return false
+    }
 }
