@@ -54,7 +54,6 @@ public protocol JWEMultiEncryptor {
         cek: Data?,
         initializationVector: Data?,
         additionalAuthenticationData: Data?,
-        masterEphemeralKey: Bool,
         encryptionModule: JWEEncryptionModule
     ) throws -> [JWEParts<P, R>]
 }
@@ -104,7 +103,6 @@ extension JWEMultiEncryptor {
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
-        masterEphemeralKey: Bool = false,
         encryptionModule: JWEEncryptionModule = .default
     ) throws -> [JWEParts<P, DefaultJWEHeaderImpl>] {
         try self.encrypt(
@@ -118,7 +116,6 @@ extension JWEMultiEncryptor {
             cek: cek,
             initializationVector: initializationVector,
             additionalAuthenticationData: additionalAuthenticationData,
-            masterEphemeralKey: masterEphemeralKey,
             encryptionModule: encryptionModule
         )
     }

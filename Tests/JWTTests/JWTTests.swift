@@ -21,7 +21,6 @@ final class JWTTests: XCTestCase {
         }
         
         let expirationTime = jwt.payload.expirationTime?.timeIntervalSince1970
-        print(expirationTime!)
         XCTAssertEqual(jwt.payload.issuer, "joe")
         XCTAssertEqual(jwt.payload.expirationTime!, Date(timeIntervalSince1970: 2279126580.0))
     }

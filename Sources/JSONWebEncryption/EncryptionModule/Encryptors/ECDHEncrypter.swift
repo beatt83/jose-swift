@@ -19,15 +19,16 @@ import JSONWebAlgorithms
 import JSONWebKey
 
 struct ECDHJWEEncryptor: JWEEncryptor {
+    let masterEphemeralKey: Bool
     
-    var supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] = [
+    let supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] = [
         .ecdhES,
         .ecdhESA128KW,
         .ecdhESA192KW,
         .ecdhESA256KW
     ]
     
-    var supportedContentEncryptionAlgorithms: [ContentEncryptionAlgorithm] = [
+    let supportedContentEncryptionAlgorithms: [ContentEncryptionAlgorithm] = [
         .a128GCM,
         .a192GCM,
         .a256GCM,
@@ -35,6 +36,10 @@ struct ECDHJWEEncryptor: JWEEncryptor {
         .a192CBCHS384,
         .a256CBCHS512
     ]
+    
+    init(masterEphemeralKey: Bool = false) {
+        self.masterEphemeralKey = masterEphemeralKey
+    }
     
     func encrypt<
         P: JWERegisteredFieldsHeader,
@@ -103,10 +108,10 @@ struct ECDHJWEEncryptor: JWEEncryptor {
         ?? protectedHeader.map { R.init(key: recipientKey, header: $0) }
         ?? R.init(from: recipientKey)
         
-        if hasMultiRecipients {
-            finalRecipientHeader.ephemeralPublicKey = ephemeralKeyPair.publicKey
-        } else {
+        if masterEphemeralKey || !hasMultiRecipients {
             finalProtectedHeader.ephemeralPublicKey = ephemeralKeyPair.publicKey
+        } else {
+            finalRecipientHeader.ephemeralPublicKey = ephemeralKeyPair.publicKey
         }
         
         guard

@@ -32,7 +32,6 @@ struct MultiEncryptor: JWEMultiEncryptor {
         cek: Data?,
         initializationVector: Data?,
         additionalAuthenticationData: Data?,
-        masterEphemeralKey: Bool,
         encryptionModule: JWEEncryptionModule = .default
     ) throws -> [JWEParts<P, R>] {
         guard let enc = getEncoding(
@@ -65,8 +64,7 @@ struct MultiEncryptor: JWEMultiEncryptor {
             cek: cek,
             initializationVector: initializationVector,
             additionalAuthenticationData: additionalAuthenticationData,
-            // Force the ephemeral key to be shared by all recipients.
-            multiRecipients: masterEphemeralKey ? false : true
+            hasMultiRecipients: true
         )
         
         return try [firstEncryption] + recipients.map { recipientHeader, key in
@@ -88,8 +86,7 @@ struct MultiEncryptor: JWEMultiEncryptor {
                 cek: cek,
                 initializationVector: initializationVector,
                 additionalAuthenticationData: additionalAuthenticationData,
-                // Force the ephemeral key to be shared by all recipients.
-                multiRecipients: masterEphemeralKey ? false : true
+                hasMultiRecipients: true
             )
         }
     }
