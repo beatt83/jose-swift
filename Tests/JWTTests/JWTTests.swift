@@ -43,8 +43,8 @@ final class JWTTests: XCTestCase {
         )
         
         let jwtString = jwt.jwtString
-
-        XCTAssertTrue(jwtString.contains("eyJhbGciOiJFUzI1NiJ9"))
+        
+        XCTAssertTrue(jwtString.contains("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9"))
         XCTAssertTrue(jwtString.contains("eyJpc3N1ZWRBdCI6LTk3ODMwNzIwMCwiaXNzdWVyIjoidGVzdEFsaWNlIiwic3ViamVjdCI6IkFsaWNlIiwidGVzdENsYWltIjoidGVzdGVkQ2xhaW0ifQ"))
         
         let verifiedJWT = try JWT<MockExampleClaims>.verify(jwtString: jwtString, senderKey: key)

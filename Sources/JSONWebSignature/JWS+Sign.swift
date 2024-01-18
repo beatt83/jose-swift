@@ -59,7 +59,7 @@ extension JWS {
     /// - Throws: An error if the signing process fails, or if the key is missing.
     public init(payload: Data, protectedHeader: JWSRegisteredFieldsHeader, key: JWK?) throws {
         let signature: Data
-        let headerData = try JSONEncoder().encode(protectedHeader)
+        let headerData = try JSONEncoder.jose.encode(protectedHeader)
         let header = try prepareHeaderForJWK(header: headerData, jwk: key)
         if let signer = protectedHeader.algorithm?.cryptoSigner {
             guard let key else {

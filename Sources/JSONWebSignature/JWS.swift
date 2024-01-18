@@ -69,7 +69,7 @@ public struct JWS {
     ///   - data: The payload data.
     ///   - signature: The signature data.
     public init(protectedHeader: JWSRegisteredFieldsHeader, data: Data, signature: Data) throws {
-        let headerData = try JSONEncoder().encode(protectedHeader)
+        let headerData = try JSONEncoder.jose.encode(protectedHeader)
         self.protectedHeaderData = headerData
         self.protectedHeader = protectedHeader
         self.payload = data
