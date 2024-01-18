@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct HS256Signer: Signer {
-    var algorithm: String { AvailableCrypto.HMAC_SHA256.algorithm }
-    var algorithmDescription: String { AvailableCrypto.HMAC_SHA256.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.HS256.rawValue }
     
     func sign(data: Data, key: JWK) throws -> Data {
         guard let k = key.key else { throw CryptoError.notValidPrivateKey }

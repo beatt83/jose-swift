@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct HS384Verifier: Verifier {
-    var algorithm: String { AvailableCrypto.HMAC_SHA384.algorithm }
-    var algorithmDescription: String { AvailableCrypto.HMAC_SHA384.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.HS384.rawValue }
     
     func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard let k = key?.key else { throw CryptoError.notValidPrivateKey }

@@ -19,6 +19,5 @@ import JSONWebKey
 
 public protocol Signer {
     var algorithm: String { get }
-    var algorithmDescription: String { get }
     func sign(data: Data, key: JWK) throws -> Data
 }

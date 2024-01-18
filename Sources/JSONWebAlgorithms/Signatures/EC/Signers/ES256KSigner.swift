@@ -19,8 +19,7 @@ import JSONWebKey
 import secp256k1
 
 struct ES256KSigner: Signer {
-    var algorithm: String { AvailableCrypto.SECP256K1_ECDSA_WithSHA256.algorithm }
-    var algorithmDescription: String { AvailableCrypto.SECP256K1_ECDSA_WithSHA256.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.ES256K.rawValue }
     
     func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }

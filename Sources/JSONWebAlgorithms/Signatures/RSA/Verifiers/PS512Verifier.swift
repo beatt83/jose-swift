@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct PS512Verifier: Verifier {
-    var algorithm: String { AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.algorithm }
-    var algorithmDescription: String { AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.PS512.rawValue }
     
     func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard

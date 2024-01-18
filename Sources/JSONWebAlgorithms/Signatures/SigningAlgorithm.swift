@@ -77,33 +77,33 @@ public enum SigningAlgorithm: String, Codable {
     public var cryptoSigner: Signer? {
         switch self {
         case .HS256:
-            return AvailableCrypto.HMAC_SHA256.signer
+            return HS256Signer()
         case .HS384:
-            return AvailableCrypto.HMAC_SHA384.signer
+            return HS384Signer()
         case .HS512:
-            return AvailableCrypto.HMAC_SHA512.signer
+            return HS512Signer()
         case .RS256:
-            return AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA256.signer
+            return RS256Signer()
         case .RS384:
-            return AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA384.signer
+            return RS384Signer()
         case .RS512:
-            return AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA512.signer
+            return RS512Signer()
         case .ES256:
-            return AvailableCrypto.P256_ECDSA_WithSHA256.signer
+            return ES256Signer()
         case .ES384:
-            return AvailableCrypto.P384_ECDSA_WithSHA384.signer
+            return ES384Signer()
         case .ES512:
-            return AvailableCrypto.P521_ECDSA_WithSHA512.signer
+            return ES512Signer()
         case .ES256K:
-            return AvailableCrypto.SECP256K1_ECDSA_WithSHA256.signer
+            return ES256KSigner()
         case .PS256:
-            return AvailableCrypto.RSASSA_PSS_WithSHA256_MGF1_WithSHA256.signer
+            return PS256Signer()
         case .PS384:
-            return AvailableCrypto.RSASSA_PSS_WithSHA384_MGF1_WithSHA384.signer
+            return PS384Signer()
         case .PS512:
-            return AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.signer
+            return PS512Signer()
         case .EdDSA:
-            return AvailableCrypto.EdDSA.signer
+            return EdDSASigner()
         case .none:
             return nil
         case .invalid:
@@ -114,33 +114,33 @@ public enum SigningAlgorithm: String, Codable {
     public var cryptoVerifier: Verifier? {
         switch self {
         case .HS256:
-            return AvailableCrypto.HMAC_SHA256.verifier
+            return HS256Verifier()
         case .HS384:
-            return AvailableCrypto.HMAC_SHA384.verifier
+            return HS384Verifier()
         case .HS512:
-            return AvailableCrypto.HMAC_SHA512.verifier
+            return HS512Verifier()
         case .RS256:
-            return AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA256.verifier
+            return RS256Verifier()
         case .RS384:
-            return AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA384.verifier
+            return RS384Verifier()
         case .RS512:
-            return AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA512.verifier
+            return RS512Verifier()
         case .ES256:
-            return AvailableCrypto.P256_ECDSA_WithSHA256.verifier
+            return ES256Verifier()
         case .ES384:
-            return AvailableCrypto.P384_ECDSA_WithSHA384.verifier
+            return ES384Verifier()
         case .ES512:
-            return AvailableCrypto.P521_ECDSA_WithSHA512.verifier
+            return ES521Verifier()
         case .ES256K:
-            return AvailableCrypto.SECP256K1_ECDSA_WithSHA256.verifier
+            return ES256KVerifier()
         case .PS256:
-            return AvailableCrypto.RSASSA_PSS_WithSHA256_MGF1_WithSHA256.verifier
+            return PS256Verifier()
         case .PS384:
-            return AvailableCrypto.RSASSA_PSS_WithSHA384_MGF1_WithSHA384.verifier
+            return PS384Verifier()
         case .PS512:
-            return AvailableCrypto.RSASSA_PSS_WithSHA512_MGF1_WithSHA512.verifier
+            return PS512Verifier()
         case .EdDSA:
-            return AvailableCrypto.EdDSA.verifier
+            return EdDSAVerifier()
         case .none:
             return nil
         case .invalid:

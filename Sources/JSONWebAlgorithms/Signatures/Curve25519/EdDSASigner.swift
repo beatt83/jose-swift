@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct EdDSASigner: Signer {
-    var algorithm: String { AvailableCrypto.EdDSA.algorithm }
-    var algorithmDescription: String { AvailableCrypto.EdDSA.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
     
     func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }

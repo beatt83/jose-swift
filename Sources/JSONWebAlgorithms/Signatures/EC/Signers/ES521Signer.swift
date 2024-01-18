@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct ES512Signer: Signer {
-    var algorithm: String { AvailableCrypto.P521_ECDSA_WithSHA512.algorithm }
-    var algorithmDescription: String { AvailableCrypto.P521_ECDSA_WithSHA512.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.ES512.rawValue }
     
     func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }

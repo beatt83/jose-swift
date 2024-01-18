@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct PS384Signer: Signer {
-    var algorithm: String { AvailableCrypto.RSASSA_PSS_WithSHA384_MGF1_WithSHA384.algorithm }
-    var algorithmDescription: String { AvailableCrypto.RSASSA_PSS_WithSHA384_MGF1_WithSHA384.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.PS384.rawValue }
     
     func sign(data: Data, key: JWK) throws -> Data {
         guard

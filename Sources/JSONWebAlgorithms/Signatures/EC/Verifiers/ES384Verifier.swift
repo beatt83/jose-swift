@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct ES384Verifier: Verifier {
-    var algorithm: String { AvailableCrypto.P384_ECDSA_WithSHA384.algorithm }
-    var algorithmDescription: String { AvailableCrypto.P384_ECDSA_WithSHA384.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.ES384.rawValue }
     
     func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard

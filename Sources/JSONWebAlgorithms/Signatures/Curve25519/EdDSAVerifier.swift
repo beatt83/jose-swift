@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct EdDSAVerifier: Verifier {
-    var algorithm: String { AvailableCrypto.EdDSA.algorithm }
-    var algorithmDescription: String { AvailableCrypto.EdDSA.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
     
     func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard

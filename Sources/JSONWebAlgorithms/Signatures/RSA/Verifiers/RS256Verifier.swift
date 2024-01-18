@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct RS256Verifier: Verifier {
-    var algorithm: String { AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA256.algorithm }
-    var algorithmDescription: String { AvailableCrypto.RSASSA_PKCS1_V1_5_WithSHA256.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.RS256.rawValue }
     
     func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard

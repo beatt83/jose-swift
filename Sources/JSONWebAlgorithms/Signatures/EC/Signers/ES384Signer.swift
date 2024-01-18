@@ -19,8 +19,7 @@ import Foundation
 import JSONWebKey
 
 struct ES384Signer: Signer {
-    var algorithm: String { AvailableCrypto.P384_ECDSA_WithSHA384.algorithm }
-    var algorithmDescription: String { AvailableCrypto.P384_ECDSA_WithSHA384.algorithmDescription }
+    var algorithm: String { SigningAlgorithm.ES384.rawValue }
     
     func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }

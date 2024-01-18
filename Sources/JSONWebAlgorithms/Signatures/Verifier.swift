@@ -19,6 +19,5 @@ import JSONWebKey
 
 public protocol Verifier {
     var algorithm: String { get }
-    var algorithmDescription: String { get }
     func verify(data: Data, signature: Data, key: JWK?) throws -> Bool
 }
