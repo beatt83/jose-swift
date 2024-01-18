@@ -23,9 +23,10 @@ let package = Package(
                 "JSONWebToken"
             ]
         ),
+        // A library just to build full documentation
         .library(
-            name: "Jose",
-            targets: ["Jose"]
+            name: "JoseDocs",
+            targets: ["JoseDocs"]
         ),
     ],
     dependencies: [
@@ -38,16 +39,6 @@ let package = Package(
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
     ],
     targets: [
-        .target(
-            name: "Jose",
-            dependencies: [
-                "JSONWebKey",
-                "JSONWebSignature",
-                "JSONWebAlgorithms",
-                "JSONWebEncryption",
-                "JSONWebToken"
-            ]
-        ),
         .target(
             name: "JSONWebAlgorithms",
             dependencies: [
@@ -111,6 +102,17 @@ let package = Package(
         ),
         .target(
             name: "Tools"
+        ),
+        // This target exists just to build documentation it should not be used for development
+        .target(
+            name: "JoseDocs",
+            dependencies: [
+                "JSONWebKey",
+                "JSONWebSignature",
+                "JSONWebAlgorithms",
+                "JSONWebEncryption",
+                "JSONWebToken"
+            ]
         ),
     ]
 )

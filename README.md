@@ -130,20 +130,100 @@ import JSONWebToken
 
 ## Modules
 
-### JWA (JSON Web Algorithms)
-JWA specifies cryptographic algorithms used in the context of Jose to perform digital signing and content encryption. It includes standards for various types of algorithms like RSA, AES, HMAC, and more.
-
 ### JWK (JSON Web Key)
 JWK is a standard way to represent cryptographic keys in a JSON format. This module provides functionalities for generating, parsing, and managing JWKs, which are essential for encryption, decryption, and signing processes.
-
-### JWE (JSON Web Encryption)
-JWE represents encrypted content using JSON-based data structures. This module includes comprehensive functionalities for encrypting and decrypting data, managing encryption keys, and handling various encryption algorithms and methods as specified in the standard.
 
 ### JWS (JSON Web Signature)
 JWS is a standard for digitally signing arbitrary content. This module supports creating and verifying digital signatures, ensuring the integrity and authenticity of signed data.
 
+Example:
+
+```swift
+let payload = "Hello world".data(using: .utf8)!
+let keyJWK = ... //JWK key
+
+let jws = try JWS(payload: payload, key: keyJWK)
+
+let jwsString = jws.compactSerialization
+
+try JWS(jwsString: jwsString).verify(key: keyJWK)
+
+```
+
+### JWE (JSON Web Encryption)
+JWE represents encrypted content using JSON-based data structures. This module includes comprehensive functionalities for encrypting and decrypting data, managing encryption keys, and handling various encryption algorithms and methods as specified in the standard.
+
+Example:
+
+```swift
+let payload = "Hello world".data(using: .utf8)!
+let keyJWK = ... //JWK key
+
+
+let serialization = try JWE(
+    payload: payload,
+    keyManagementAlg: .a256KW,
+    encryptionAlgorithm: .a256GCM,
+    recipientKey: keyJWK
+)
+
+let compact = serialization.compactSerialization()
+
+let jwe = try JWE(compactString: compact)
+let decrypted = try jwe.decrypt(recipientKey: recipientJWK)
+```
+
 ### JWT (JSON Web Token)
 JWT is a compact, URL-safe means of representing claims to be transferred between two parties. This module offers tools for creating, parsing, validating, and manipulating JWTs, with support for various signing and encryption methods.
+
+Example:
+
+- Signed JWT
+
+```swift
+let keyJWK = ... //JWK key
+let mockClaims = DefaultJWTClaims(
+    issuer: "testAlice",
+    subject: "Alice",
+    expirationTime: expiredAt
+)
+
+let jwt = try JWT.signed(
+    payload: mockClaims,
+    protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256),
+    key: key
+)
+
+let jwtString = jwt.jwtString
+
+let verifiedJWT = try JWT<MockExampleClaims>.verify(jwtString: jwtString, senderKey: key)
+let verifiedPayload = verifiedJWT.payload
+```
+
+- Encrypted JWT
+
+```swift
+let keyJWK = ... //JWK key
+let mockClaims = DefaultJWTClaims(
+    issuer: "testAlice",
+    subject: "Alice",
+    expirationTime: expiredAt
+)
+
+let jwt = try JWT.encrypt(
+    payload: payload,
+    protectedHeader: DefaultJWSHeaderImpl(keyManagementAlgorithm: .a128KW, encodingAlgorithm: .a128CBCHS256),
+    recipientKey: keyJWK
+)
+
+let jwtString = jwt.jwtString
+
+let verifiedJWT = try JWT<MockExampleClaims>.verify(jwtString: jwtString, recipientKey: key)
+let verifiedPayload = verifiedJWT.payload
+```
+
+### JWA (JSON Web Algorithms)
+JWA specifies cryptographic algorithms used in the context of Jose to perform digital signing and content encryption. It includes standards for various types of algorithms like RSA, AES, HMAC, and more.
 
 ## Contributing
 Contributions to the library are welcome. Please ensure that your contributions adhere to the Jose standards and add value to the existing functionalities.
