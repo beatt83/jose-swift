@@ -113,4 +113,21 @@ extension JWEEncryptionModule {
         multiEncryptor: MultiEncryptor(),
         multiDecryptor: MultiDecryptor()
     )
+    
+    /// The default `JWEEncryptionModule` instance with a predefined set of encryption providers, were ECDH-1PU and ECDH-ES
+    /// use a master ephemeral key for multiple recipients.
+    public static var defaultWithMasterEphemeralKey: JWEEncryptionModule = .init(
+        registeredEncryptions: Set(
+            [
+                .init(family: .aes, encryptor: AESJWEEncryptor(), decryptor: AESJWEDecryptor()),
+                .init(family: .direct, encryptor: DirectJWEEncryptor(), decryptor: DirectJWEDecryptor()),
+                .init(family: .ecdh1pu, encryptor: ECDH1PUJWEEncryptor(masterEphemeralKey: true), decryptor: ECDH1PUJWEDecryptor()),
+                .init(family: .ecdhes, encryptor: ECDHJWEEncryptor(masterEphemeralKey: true), decryptor: ECDHJWEDecryptor()),
+                .init(family: .rsa, encryptor: RSAJWEEncryptor(), decryptor: RSAJWEDecryptor()),
+                .init(family: .aes, encryptor: AESJWEEncryptor(), decryptor: AESJWEDecryptor()),
+            ]
+        ),
+        multiEncryptor: MultiEncryptor(),
+        multiDecryptor: MultiDecryptor()
+    )
 }
