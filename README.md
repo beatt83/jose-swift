@@ -68,6 +68,16 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | PBES2-HS384+A192KW |       |
 | PBES2-HS512+A256KW |       |
 
+
+| Encoding Algorithm | Supported |
+|-----------------|-----------|
+| A128CBC-HS256   |:white_check_mark:|
+| A128CBC-HS384   |:white_check_mark:|
+| A128CBC-HS512   |:white_check_mark:|
+| A128GCMKW       |:white_check_mark:|
+| A192GCMKW       |:white_check_mark:|
+| A256GCMKW       |:white_check_mark:|
+
 </td><td valign="top">
 
 | Key Type | Supported |
