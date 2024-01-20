@@ -19,7 +19,7 @@ import JSONWebAlgorithms
 import JSONWebKey
 
 extension JWK {
-    func signingAlgorithm() throws -> SigningAlgorithm {
+    public func signingAlgorithm() throws -> SigningAlgorithm {
         switch keyType {
         case .rsa:
             switch algorithm {
