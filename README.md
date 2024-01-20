@@ -6,7 +6,7 @@
 This library provides comprehensive support for the Jose suite of standards, including JWA (JSON Web Algorithms), JWK (JSON Web Key), JWE (JSON Web Encryption), JWS (JSON Web Signature), and JWT (JSON Web Token). These standards are integral to modern security protocols on the web, offering methods for secure key management, data encryption, signing, and representation of claims among different parties.
 
 ## Table of Contents
-1. [Available Algorithms](#available-algorithms)
+1. [Available Features and Algorithms](#available-features-and-algorithms)
 2. [Requirements](#requirements)
 3. [Swift Package Manager (SPM)](#swift-package-manager-spm)
    - [Step 1: Add the Dependency](#step-1-add-the-dependency)
@@ -24,14 +24,106 @@ This library provides comprehensive support for the Jose suite of standards, inc
 8. [Acknowledgments](#acknowledgments)
 9. [License](#license)
 
-## Available Algorithms
+## Available Features and Algorithms
+
+### JWT
 
 <table>
-<tr><th>JWS Supported Algorithms </th><th>JWE Supported Algorithms</th><th>JWK Supported Key Types</th></tr>
+<tr><th>JWT supported algorithms</th><th>JWT supported types</th><th>JWT supported claims validations</th></tr>
+</td><td valign="top">
+
+| Algorithms         | Supported        |
+|--------------------|------------------|
+| All JWE algorithms |:white_check_mark:|
+| All JWS algorithms |:white_check_mark:|
+
+</td><td valign="top">
+
+| Types            | Supported        |
+|------------------|------------------|
+| Signed           |:white_check_mark:|
+| Encrypted        |:white_check_mark:|
+| Nested Signed    |:white_check_mark:|
+| Nested Encrypted |:white_check_mark:|
+
+</td><td valign="top">
+
+| Claims            | Supported        |
+|-------------------|------------------|
+| iss               |:white_check_mark:|
+| sub               |:white_check_mark:|
+| aud               |:white_check_mark:|
+| nbf               |:white_check_mark:|
+| exp               |:white_check_mark:|
+| iat               |:white_check_mark:|
+| typ               |:white_check_mark:|
+| cty               |:white_check_mark:|
+
+</td></tr> </table>
+
+### JWE
+
+<table>
+<tr><th>JWE Supported Types</th><th>JWE Supported Algorithms</th><th>JWE Supported Encodings</th></tr>
 <tr><td valign="top">
 
-| Algorithm       | Supported |
-|-----------------|-----------|
+| Type           | Supported        |
+|----------------|------------------|
+| Compact String |:white_check_mark:|
+| JSON           |:white_check_mark:|
+| JSON Flattened |:white_check_mark:|
+
+</td><td valign="top">
+
+| Algorithm          | Supported        |
+|--------------------|------------------|
+| RSA1_5             |:white_check_mark:|
+| RSA-OAEP           |:white_check_mark:|
+| RSA-OAEP-256       |:white_check_mark:|
+| A128KW             |:white_check_mark:|
+| A192KW             |:white_check_mark:|
+| A256KW             |:white_check_mark:|
+| DIRECT             |:white_check_mark:|
+| ECDH-ES            |:white_check_mark:|
+| ECDH-ES+A128KW     |:white_check_mark:|
+| ECDH-ES+A192KW     |:white_check_mark:|
+| ECDH-ES+A256KW     |:white_check_mark:|
+| A128GCMKW          |:white_check_mark:|
+| A192GCMKW          |:white_check_mark:|
+| A256GCMKW          |:white_check_mark:|
+| PBES2-HS256+A128KW |                  |
+| PBES2-HS384+A192KW |                  |
+| PBES2-HS512+A256KW |                  |
+
+</td><td valign="top">
+
+| Encoding Algorithm | Supported     |
+|-----------------|------------------|
+| A128CBC-HS256   |:white_check_mark:|
+| A128CBC-HS384   |:white_check_mark:|
+| A128CBC-HS512   |:white_check_mark:|
+| A128GCMKW       |:white_check_mark:|
+| A192GCMKW       |:white_check_mark:|
+| A256GCMKW       |:white_check_mark:|
+
+</td></tr> </table>
+
+### JWS
+
+<table>
+<tr><th>JWS Supported Types</th><th>JWS Supported Algorithms</th></tr>
+<tr><td valign="top">
+
+| Type           | Supported        |
+|----------------|------------------|
+| Compact String |:white_check_mark:|
+| JSON           |:white_check_mark:|
+| JSON Flattened |:white_check_mark:|
+
+</td><td valign="top">
+
+| Algorithm       | Supported        |
+|-----------------|------------------|
 | HS256           |:white_check_mark:|
 | HS384           |:white_check_mark:|
 | HS512           |:white_check_mark:|
@@ -46,42 +138,16 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | PS512           |:white_check_mark:|
 | EdDSA           |:white_check_mark:|
 
-</td><td valign="top">
+</td></tr> </table>
 
-| Algorithm       | Supported |
-|-----------------|-----------|
-| RSA1_5          |:white_check_mark:|
-| RSA-OAEP        |:white_check_mark:|
-| RSA-OAEP-256    |:white_check_mark:|
-| A128KW          |:white_check_mark:|
-| A192KW          |:white_check_mark:|
-| A256KW          |:white_check_mark:|
-| DIRECT          |:white_check_mark:|
-| ECDH-ES         |:white_check_mark:|
-| ECDH-ES+A128KW  |:white_check_mark:|
-| ECDH-ES+A192KW  |:white_check_mark:|
-| ECDH-ES+A256KW  |:white_check_mark:|
-| A128GCMKW       |:white_check_mark:|
-| A192GCMKW       |:white_check_mark:|
-| A256GCMKW       |:white_check_mark:|
-| PBES2-HS256+A128KW |       |
-| PBES2-HS384+A192KW |       |
-| PBES2-HS512+A256KW |       |
+### JWK
 
+<table>
+<tr><th>JWK Supported Key Types</th></tr>
+<tr><td valign="top">
 
-| Encoding Algorithm | Supported |
-|-----------------|-----------|
-| A128CBC-HS256   |:white_check_mark:|
-| A128CBC-HS384   |:white_check_mark:|
-| A128CBC-HS512   |:white_check_mark:|
-| A128GCMKW       |:white_check_mark:|
-| A192GCMKW       |:white_check_mark:|
-| A256GCMKW       |:white_check_mark:|
-
-</td><td valign="top">
-
-| Key Type | Supported |
-|----------|-----------|
+| Key Type | Supported        |
+|----------|------------------|
 | EC       |:white_check_mark:|
 | RSA      |:white_check_mark:|
 | OKT      |:white_check_mark:|
