@@ -17,11 +17,17 @@
 import Foundation
 import JSONWebAlgorithms
 import JSONWebKey
+import Tools
 
-struct DirectJWEEncryptor: JWEEncryptor {
-    
+struct PasswordBasedJWEEncryptor: JWEEncryptor {
+    // Min byte size of a salt input
+    let minSaltByteLength = 8
+    // Min recommended interation count
+    let minInterationCount = 1000
     var supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] = [
-        .direct
+        .pbes2HS256A128KW,
+        .pbes2HS384A192KW,
+        .pbes2HS512A256KW
     ]
     
     var supportedContentEncryptionAlgorithms: [ContentEncryptionAlgorithm] = [
@@ -52,6 +58,34 @@ struct DirectJWEEncryptor: JWEEncryptor {
         iterationCount: Int?,
         hasMultiRecipients: Bool
     ) throws -> JWEParts<P, R> {
+        let iterationCount = getSaltCount(
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            recipientHeader: recipientHeader
+        ) ?? iterationCount ?? 1000
+        
+        guard iterationCount >= minInterationCount else {
+            throw JWE.JWEError.invalidSaltCount
+        }
+        
+        let saltInput = try getSaltInput(
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            recipientHeader: recipientHeader
+        ) ?? SecureRandom.secureRandomData(count: saltLength ?? 8)
+        
+        guard saltInput.count >= minSaltByteLength else {
+            throw JWE.JWEError.invalidSaltLength
+        }
+        
+        guard let alg = getKeyAlgorithm(
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            recipientHeader: recipientHeader
+        ) else {
+            throw JWE.JWEError.missingKeyAlgorithm
+        }
+        
         guard let enc = getEncoding(
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
@@ -68,20 +102,56 @@ struct DirectJWEEncryptor: JWEEncryptor {
             supportedContentEncryptionAlgorithms: supportedContentEncryptionAlgorithms
         ) else {
             throw JWE.JWEError.encryptionNotSupported(
-                alg: nil,
+                alg: alg,
                 enc: enc,
                 supportedAlgs: supportedKeyManagmentAlgorithms,
                 supportedEnc: supportedContentEncryptionAlgorithms
             )
         }
         
+        var finalRecipientHeader = recipientHeader
+        ?? protectedHeader.map { R.init(from: $0) }
+        ?? R.init()
+        
+        var finalProtectedHeader = protectedHeader
+        ?? recipientHeader.map { P.init(from: $0) }
+        ?? P.init()
+        
+        guard let derivator = alg.derivation else {
+            throw JWE.JWEError.internalErrorDerivationNotAvailableFor(alg: alg)
+        }
+        
+        let salt = try alg.rawValue.tryToData() + [0x00] + saltInput
+        
+        let derivedKey = try derivator.deriveKey(arguments: [
+            .password(password ?? .init()),
+            .saltInput(salt),
+            .saltCount(iterationCount)
+        ])
+        
+        if hasMultiRecipients {
+            finalRecipientHeader.pbes2SaltInput = saltInput
+            finalRecipientHeader.pbes2SaltCount = iterationCount
+        } else {
+            finalProtectedHeader.pbes2SaltInput = saltInput
+            finalProtectedHeader.pbes2SaltCount = iterationCount
+        }
+        
         let cek = try cek ?? enc.encryptor.generateCEK()
+        
+        guard let wrapper = alg.wrapper else {
+            throw JWE.JWEError.internalErrorWrapperMissingFor(alg: alg)
+        }
+        
+        let encryptedKey = try wrapper.contentKeyEncrypt(
+            cek: cek,
+            using: .init(keyType: .octetSequence, key: derivedKey),
+            arguments: []
+        ).encryptedKey
+        
         let contentIv = try initializationVector
         ?? enc.encryptor.generateInitializationVector()
-        let aad = try AAD.computeAAD(
-            header: protectedHeader,
-            aad: additionalAuthenticationData
-        )
+        let aad = try AAD.computeAAD(header: finalProtectedHeader, aad: additionalAuthenticationData)
         
         let finalPayload: Data
         if let compressAlg = getContentCompressionAlg(
@@ -102,15 +172,20 @@ struct DirectJWEEncryptor: JWEEncryptor {
                 .additionalAuthenticationData(aad)
             ]
         )
-        
+
         return .init(
-            protectedHeader: protectedHeader,
-            recipientHeader: recipientHeader,
+            protectedHeader: finalProtectedHeader,
+            recipientHeader: finalRecipientHeader,
             cipherText: encryption.cipher,
-            encryptedKey: nil,
+            encryptedKey: encryptedKey,
             additionalAuthenticationData: aad,
             initializationVector: contentIv,
             authenticationTag: encryption.authenticationData
         )
     }
+}
+
+private func formatSalt(keyAlgorithm: KeyManagementAlgorithm, salt: Data) throws -> Data {
+    let algData = try keyAlgorithm.rawValue.tryToData()
+    return algData + [0x00] + salt
 }

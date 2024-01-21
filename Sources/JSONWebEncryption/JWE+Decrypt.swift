@@ -44,17 +44,22 @@ extension JWE {
     }
     
     /// Decrypts the `JWE` object and returns the decrypted data.
+    ///
+    /// This method decrypts a `JWE` object using the provided keys and optional password.
+    /// It determines the appropriate decryption algorithm based on the JWE headers.
+    ///
     /// - Parameters:
-    ///   - senderKey: The sender's key, if applicable.
-    ///   - recipientKey: The recipient's key, if applicable.
-    ///   - sharedKey: A shared key, if applicable.
-    ///   - encryptionModule: The encryption module to use, defaulting to the standard module.
+    ///   - senderKey: The sender's key, if applicable. Used in certain key agreement protocols.
+    ///   - recipientKey: The recipient's key, if applicable. Typically used for asymmetric decryption.
+    ///   - sharedKey: A shared key, if applicable. Used for symmetric decryption.
+    ///   - password: An optional password for decryption algorithms that require it.
     /// - Returns: The decrypted data as `Data`.
-    /// - Throws: Relevant decryption errors.
+    /// - Throws: `JWEError` for errors related to missing algorithms, keys, or failed decryption.
     public func decrypt(
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil
+        sharedKey: JWK? = nil,
+        password: Data? = nil
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
             protectedHeader: protectedHeader,
@@ -74,47 +79,58 @@ extension JWE {
             additionalAuthenticationData: additionalAuthenticatedData,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey
+            sharedKey: sharedKey,
+            password: password
         )
     }
     
     /// Static method to decrypt a JWE from a compact serialization string.
+    ///
+    /// This method is used to decrypt a `JWE` that is represented as a compact serialization string.
+    ///
     /// - Parameters:
     ///   - compactString: The compact serialization string of the JWE.
     ///   - senderKey: The sender's key, if applicable.
     ///   - recipientKey: The recipient's key, if applicable.
     ///   - sharedKey: A shared key, if applicable.
-    ///   - encryptionModule: The encryption module to use, defaulting to the standard module.
+    ///   - password: An optional password for decryption algorithms that require it.
     /// - Returns: The decrypted data as `Data`.
-    /// - Throws: Relevant decryption errors.
+    /// - Throws: `JWEError` for errors related to parsing the compact string, missing algorithms, keys, or failed decryption.
     public static func decrypt(
         compactString: String,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil
+        sharedKey: JWK? = nil,
+        password: Data? = nil
     ) throws -> Data {
         try JWE(compactString: compactString)
             .decrypt(
                 senderKey: senderKey,
                 recipientKey: recipientKey,
-                sharedKey: sharedKey
+                sharedKey: sharedKey,
+                password: password
             )
     }
     
     /// Static method to decrypt a JWE from a JSON representation.
+    ///
+    /// This method is used to decrypt a `JWE` that is represented as JSON data.
+    ///
     /// - Parameters:
     ///   - jweJson: The JSON data representing the JWE.
     ///   - senderKey: The sender's key, if applicable.
     ///   - recipientKey: The recipient's key, if applicable.
     ///   - sharedKey: A shared key, if applicable.
-    ///   - encryptionModule: The encryption module to use, defaulting to the standard module.
+    ///   - password: An optional password for decryption algorithms that require it.
+    ///   - tryAllRecipients: A flag to try all recipient keys in the JSON data for decryption.
     /// - Returns: The decrypted data as `Data`.
-    /// - Throws: Relevant decryption errors.
+    /// - Throws: `JWEError` for errors related to parsing the JSON data, missing algorithms, keys, or failed decryption.
     public static func decrypt(
         jweJson: Data,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
         sharedKey: JWK? = nil,
+        password: Data? = nil,
         tryAllRecipients: Bool = false
     ) throws -> Data {
         let jsonObj = try JSONDecoder().decode(JWEJson<DefaultJWEHeaderImpl, DefaultJWEHeaderImpl, DefaultJWEHeaderImpl>.self, from: jweJson)
@@ -123,19 +139,24 @@ extension JWE {
             senderKey: senderKey,
             recipientKey: recipientKey,
             sharedKey: sharedKey,
+            password: password,
             tryAllRecipients: tryAllRecipients
         )
     }
     
-    // Static method to decrypt a JWE from a JSON representation.
+    /// Static method to decrypt a JWE from a JSON representation using custom header types.
+    ///
+    /// This method allows for decryption of a `JWE` represented as a `JWEJson` object with custom header types.
+    ///
     /// - Parameters:
     ///   - jweJson: The `JWEJson` object representing the JWE.
     ///   - senderKey: The sender's key, if applicable.
     ///   - recipientKey: The recipient's key, if applicable.
     ///   - sharedKey: A shared key, if applicable.
-    ///   - encryptionModule: The encryption module to use, defaulting to the standard module.
+    ///   - password: An optional password for decryption algorithms that require it.
+    ///   - tryAllRecipients: A flag to try all recipient keys in the `JWEJson` object for decryption.
     /// - Returns: The decrypted data as `Data`.
-    /// - Throws: Relevant decryption errors.
+    /// - Throws: `JWEError` for errors related to missing algorithms, keys, or failed decryption.
     public static func decrypt<
         P: JWERegisteredFieldsHeader, 
         U: JWERegisteredFieldsHeader,
@@ -145,6 +166,7 @@ extension JWE {
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
         sharedKey: JWK? = nil,
+        password: Data? = nil,
         tryAllRecipients: Bool = false
     ) throws -> Data {
         let aad = try AAD.computeAAD(
@@ -163,7 +185,8 @@ extension JWE {
             recipientKey: recipientKey,
             sharedKey: sharedKey,
             additionalAuthenticationData: aad,
-            tryAllRecipients: tryAllRecipients
+            tryAllRecipients: tryAllRecipients, 
+            password: password
         )
     }
 }

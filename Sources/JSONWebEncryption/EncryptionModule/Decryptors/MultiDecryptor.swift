@@ -35,6 +35,7 @@ struct MultiDecryptor: JWEMultiDecryptor {
         sharedKey: JWK?,
         additionalAuthenticationData: Data?,
         tryAllRecipients: Bool,
+        password: Data? = nil,
         encryptionModule: JWEEncryptionModule
     ) throws -> Data {
         let aad = try AAD.computeAAD(header: protectedHeader, aad: additionalAuthenticationData)

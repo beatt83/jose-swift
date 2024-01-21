@@ -18,15 +18,31 @@ import Foundation
 import JSONWebAlgorithms
 import JSONWebKey
 
+/// `JWEDecryptor` protocol defines functionality for decrypting JWE objects.
 public protocol JWEDecryptor {
-    var supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] { get }
+    /// Supported key management algorithms by this decryptor.
+    var supportedKeyManagementAlgorithms: [KeyManagementAlgorithm] { get }
+
+    /// Supported content encryption algorithms by this decryptor.
     var supportedContentEncryptionAlgorithms: [ContentEncryptionAlgorithm] { get }
     
-    func decrypt<
-        P: JWERegisteredFieldsHeader, 
-        U: JWERegisteredFieldsHeader,
-        R: JWERegisteredFieldsHeader
-    >(
+    /// Decrypts a JWE object given various headers and cryptographic components.
+    /// - Parameters:
+    ///   - protectedHeader: Protected header, conforming to `JWERegisteredFieldsHeader`.
+    ///   - unprotectedHeader: Unprotected header, conforming to `JWERegisteredFieldsHeader`.
+    ///   - cipher: Encrypted content data.
+    ///   - recipientHeader: Recipient-specific header, conforming to `JWERegisteredFieldsHeader`.
+    ///   - encryptedKey: Encrypted content encryption key.
+    ///   - initializationVector: Initialization vector for the encryption algorithm.
+    ///   - authenticationTag: Authentication tag for verifying the integrity of the decrypted data.
+    ///   - additionalAuthenticationData: Additional authenticated data.
+    ///   - senderKey: Optional sender's key.
+    ///   - recipientKey: Optional recipient's key.
+    ///   - sharedKey: Optional shared key.
+    ///   - password: Optional password for key derivation.
+    /// - Returns: Decrypted data as `Data`.
+    /// - Throws: Encryption related errors.
+    func decrypt<P: JWERegisteredFieldsHeader, U: JWERegisteredFieldsHeader, R: JWERegisteredFieldsHeader>(
         protectedHeader: P?,
         unprotectedHeader: U?,
         cipher: Data,
@@ -37,16 +53,31 @@ public protocol JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?
+        sharedKey: JWK?,
+        password: Data?
     ) throws -> Data
 }
 
+/// `JWEMultiDecryptor` protocol defines functionality for decrypting JWE objects with multiple recipients.
 public protocol JWEMultiDecryptor {
-    func decrypt<
-        P: JWERegisteredFieldsHeader,
-        U: JWERegisteredFieldsHeader,
-        R: JWERegisteredFieldsHeader
-    >(
+    /// Decrypts a JWE object with multiple recipients given various headers and cryptographic components.
+    /// - Parameters:
+    ///   - protectedHeader: Protected header, conforming to `JWERegisteredFieldsHeader`.
+    ///   - unprotectedHeader: Unprotected header, conforming to `JWERegisteredFieldsHeader`.
+    ///   - cipher: Encrypted content data.
+    ///   - recipients: Array of recipient headers and encrypted keys.
+    ///   - initializationVector: Initialization vector for the encryption algorithm.
+    ///   - authenticationTag: Authentication tag for verifying the integrity of the decrypted data.
+    ///   - senderKey: Optional sender's key.
+    ///   - recipientKey: Optional recipient's key.
+    ///   - sharedKey: Optional shared key.
+    ///   - additionalAuthenticationData: Additional authenticated data.
+    ///   - tryAllRecipients: Flag to attempt decryption with all provided recipient keys.
+    ///   - password: Optional password for key derivation.
+    ///   - encryptionModule: The encryption module to use.
+    /// - Returns: Decrypted data as `Data`.
+    /// - Throws: Encryption related errors.
+    func decrypt<P: JWERegisteredFieldsHeader, U: JWERegisteredFieldsHeader, R: JWERegisteredFieldsHeader>(
         protectedHeader: P?,
         unprotectedHeader: U?,
         cipher: Data,
@@ -58,11 +89,30 @@ public protocol JWEMultiDecryptor {
         sharedKey: JWK?,
         additionalAuthenticationData: Data?,
         tryAllRecipients: Bool,
+        password: Data?,
         encryptionModule: JWEEncryptionModule
     ) throws -> Data
 }
 
-extension JWEDecryptor {
+public extension JWEDecryptor {
+    
+    /// Simplified decryption method allowing optional parameters.
+    /// Decrypts a JWE object using default or provided headers, keys, and cryptographic components.
+    /// - Parameters:
+    ///   - protectedHeader: Protected header (optional).
+    ///   - unprotectedHeader: Unprotected header (optional).
+    ///   - cipher: Encrypted content data.
+    ///   - recipientHeader: Recipient-specific header (optional).
+    ///   - encryptedKey: Encrypted content encryption key (optional).
+    ///   - initializationVector: Initialization vector (optional).
+    ///   - authenticationTag: Authentication tag (optional).
+    ///   - additionalAuthenticationData: Additional authenticated data (optional).
+    ///   - senderKey: Sender's key (optional).
+    ///   - recipientKey: Recipient's key (optional).
+    ///   - sharedKey: Shared key (optional).
+    ///   - password: Password for key derivation (optional).
+    /// - Returns: Decrypted data as `Data`.
+    /// - Throws: Encryption related errors.
     func decrypt<
         P: JWERegisteredFieldsHeader,
         U: JWERegisteredFieldsHeader,
@@ -78,7 +128,8 @@ extension JWEDecryptor {
         additionalAuthenticationData: Data? = nil,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil
+        sharedKey: JWK? = nil,
+        password: Data? = nil
     ) throws -> Data {
         try self.decrypt(
             protectedHeader: protectedHeader,
@@ -91,24 +142,42 @@ extension JWEDecryptor {
             additionalAuthenticationData: additionalAuthenticationData,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey
+            sharedKey: sharedKey,
+            password: password
         )
     }
     
+    /// Decryption method that decodes protected and unprotected headers from encoded data.
+    /// - Parameters:
+    ///   - encodedProtectedHeader: Base64URL encoded protected header data (optional).
+    ///   - encodedUnprotectedHeaderData: Base64URL encoded unprotected header data (optional).
+    ///   - cipher: Encrypted content data.
+    ///   - recipientHeader: Recipient-specific header (optional).
+    ///   - encryptedKey: Encrypted content encryption key (optional).
+    ///   - initializationVector: Initialization vector (optional).
+    ///   - authenticationTag: Authentication tag (optional).
+    ///   - additionalAuthenticationData: Additional authenticated data (optional).
+    ///   - senderKey: Sender's key (optional).
+    ///   - recipientKey: Recipient's key (optional).
+    ///   - sharedKey: Shared key (optional).
+    ///   - password: Password for key derivation (optional).
+    /// - Returns: Decrypted data as `Data`.
+    /// - Throws: Encryption related errors.
     func decrypt<
         R: JWERegisteredFieldsHeader
     >(
-        encodedProtectedHeader: Data?,
-        encodedUnprotectedHeaderData: Data?,
+        encodedProtectedHeader: Data? = nil,
+        encodedUnprotectedHeaderData: Data? = nil,
         cipher: Data,
         recipientHeader: R? = nil as DefaultJWEHeaderImpl?,
-        encryptedKey: Data?,
-        initializationVector: Data?,
-        authenticationTag: Data?,
-        additionalAuthenticationData: Data?,
-        senderKey: JWK?,
-        recipientKey: JWK?,
-        sharedKey: JWK?
+        encryptedKey: Data? = nil,
+        initializationVector: Data? = nil,
+        authenticationTag: Data? = nil,
+        additionalAuthenticationData: Data? = nil,
+        senderKey: JWK? = nil,
+        recipientKey: JWK? = nil,
+        sharedKey: JWK? = nil,
+        password: Data? = nil
     ) throws -> Data {
         let aad = try AAD.computeAAD(header: encodedProtectedHeader, aad: additionalAuthenticationData)
         
@@ -125,12 +194,32 @@ extension JWEDecryptor {
             additionalAuthenticationData: aad,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey
+            sharedKey: sharedKey,
+            password: password
         )
     }
 }
 
-extension JWEMultiDecryptor {
+public extension JWEMultiDecryptor {
+    
+    /// Simplified decryption method for multiple recipients allowing optional parameters.
+    /// Decrypts a JWE object for multiple recipients using default or provided headers, keys, and cryptographic components.
+    /// - Parameters:
+    ///   - protectedHeader: Protected header (optional).
+    ///   - unprotectedHeader: Unprotected header (optional).
+    ///   - cipher: Encrypted content data.
+    ///   - recipients: Array of recipient headers and encrypted keys.
+    ///   - initializationVector: Initialization vector (optional).
+    ///   - authenticationTag: Authentication tag (optional).
+    ///   - senderKey: Sender's key (optional).
+    ///   - recipientKey: Recipient's key (optional).
+    ///   - sharedKey: Shared key (optional).
+    ///   - additionalAuthenticationData: Additional authenticated data (optional).
+    ///   - tryAllRecipients: Flag to attempt decryption with all provided recipient keys (optional).
+    ///   - password: Password for key derivation (optional).
+    ///   - encryptionModule: Encryption module (optional).
+    /// - Returns: Decrypted data as `Data`.
+    /// - Throws: Encryption related errors.
     func decrypt<
         P: JWERegisteredFieldsHeader,
         U: JWERegisteredFieldsHeader,
@@ -147,6 +236,7 @@ extension JWEMultiDecryptor {
         sharedKey: JWK? = nil,
         additionalAuthenticationData: Data? = nil,
         tryAllRecipients: Bool = false,
+        password: Data? = nil,
         encryptionModule: JWEEncryptionModule = .default
     ) throws -> Data {
         try self.decrypt(
@@ -161,24 +251,43 @@ extension JWEMultiDecryptor {
             sharedKey: sharedKey,
             additionalAuthenticationData: additionalAuthenticationData,
             tryAllRecipients: tryAllRecipients,
+            password: password,
             encryptionModule: encryptionModule
         )
     }
     
+    /// Decryption method for multiple recipients that decodes protected and unprotected headers from encoded data.
+    /// - Parameters:
+    ///   - encodedProtectedHeader: Base64URL encoded protected header data (optional).
+    ///   - encodedUnprotectedHeaderData: Base64URL encoded unprotected header data (optional).
+    ///   - cipher: Encrypted content data.
+    ///   - recipients: Array of recipient headers and encrypted keys.
+    ///   - initializationVector: Initialization vector (optional).
+    ///   - authenticationTag: Authentication tag (optional).
+    ///   - senderKey: Sender's key (optional).
+    ///   - recipientKey: Recipient's key (optional).
+    ///   - sharedKey: Shared key (optional).
+    ///   - additionalAuthenticationData: Additional authenticated data (optional).
+    ///   - tryAllRecipients: Flag to attempt decryption with all provided recipient keys (optional).
+    ///   - password: Password for key derivation (optional).
+    ///   - encryptionModule: Encryption module (optional).
+    /// - Returns: Decrypted data as `Data`.
+    /// - Throws: Encryption related errors.
     func decrypt<
         R: JWERegisteredFieldsHeader
     >(
-        encodedProtectedHeader: Data?,
-        encodedUnprotectedHeaderData: Data?,
+        encodedProtectedHeader: Data? = nil,
+        encodedUnprotectedHeaderData: Data? = nil,
         cipher: Data,
         recipients: [(header: R?, encryptedKey: Data?)],
-        initializationVector: Data?,
-        authenticationTag: Data?,
-        senderKey: JWK?,
-        recipientKey: JWK?,
-        sharedKey: JWK?,
+        initializationVector: Data? = nil,
+        authenticationTag: Data? = nil,
+        senderKey: JWK? = nil,
+        recipientKey: JWK? = nil,
+        sharedKey: JWK? = nil,
         additionalAuthenticationData: Data?,
         tryAllRecipients: Bool = false,
+        password: Data? = nil,
         encryptionModule: JWEEncryptionModule = .default
     ) throws -> Data {
         let aad = try AAD.computeAAD(header: encodedProtectedHeader, aad: additionalAuthenticationData)
@@ -196,6 +305,7 @@ extension JWEMultiDecryptor {
             sharedKey: sharedKey,
             additionalAuthenticationData: aad,
             tryAllRecipients: tryAllRecipients,
+            password: password,
             encryptionModule: encryptionModule
         )
     }

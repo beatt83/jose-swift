@@ -75,9 +75,7 @@ extension DefaultJWEHeaderImpl: Codable {
         try pbes2SaltInput.map {
             try container.encodeIfPresent(Base64URL.encode($0), forKey: .pbes2SaltInput)
         }
-        try pbes2SaltCount.map {
-            try container.encodeIfPresent(Base64URL.encode($0), forKey: .pbes2Count)
-        }
+        try container.encodeIfPresent(pbes2SaltCount, forKey: .pbes2Count)
         try container.encodeIfPresent(senderKeyID, forKey: .senderKeyID)
     }
 
@@ -108,7 +106,6 @@ extension DefaultJWEHeaderImpl: Codable {
         agreementPartyVInfo = try partyVInfoBase64Url.map { try Base64URL.decode($0) }
         let pbes2SaltInputBase64Url = try container.decodeIfPresent(String.self, forKey: .pbes2SaltInput)
         pbes2SaltInput = try pbes2SaltInputBase64Url.map { try Base64URL.decode($0) }
-        let pbes2SaltCountBase64Url = try container.decodeIfPresent(String.self, forKey: .initializationVector)
-        pbes2SaltCount = try pbes2SaltCountBase64Url.map { try Base64URL.decode($0) }
+        pbes2SaltCount = try container.decodeIfPresent(Int.self, forKey: .pbes2Count)
     }
 }

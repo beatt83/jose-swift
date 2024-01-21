@@ -20,7 +20,7 @@ import JSONWebKey
 
 struct RSAJWEDecryptor: JWEDecryptor {
     
-    var supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] = [
+    var supportedKeyManagementAlgorithms: [KeyManagementAlgorithm] = [
         .rsaOAEP256,
         .rsaOAEP,
         .rsa1_5
@@ -50,7 +50,8 @@ struct RSAJWEDecryptor: JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?
+        sharedKey: JWK?,
+        password: Data?
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
             protectedHeader: protectedHeader,
@@ -72,13 +73,13 @@ struct RSAJWEDecryptor: JWEDecryptor {
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
             recipientHeader: recipientHeader,
-            supportedKeyAlgorithms: supportedKeyManagmentAlgorithms,
+            supportedKeyAlgorithms: supportedKeyManagementAlgorithms,
             supportedContentEncryptionAlgorithms: supportedContentEncryptionAlgorithms
         ) else {
             throw JWE.JWEError.decryptionNotSupported(
                 alg: alg,
                 enc: enc,
-                supportedAlgs: supportedKeyManagmentAlgorithms,
+                supportedAlgs: supportedKeyManagementAlgorithms,
                 supportedEnc: supportedContentEncryptionAlgorithms
             )
         }

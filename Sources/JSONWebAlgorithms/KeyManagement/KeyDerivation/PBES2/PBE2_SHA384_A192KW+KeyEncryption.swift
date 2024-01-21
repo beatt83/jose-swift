@@ -15,9 +15,28 @@
  */
 
 import Foundation
+import JSONWebKey
 
-struct MockKeyDerivation: KeyDerivation {
+struct PBE2_SHA384_A192KW: KeyDerivation {
+    
     func deriveKey(arguments: [KeyDerivationArguments]) throws -> Data {
-        Data()
+        guard
+            let password = arguments.password
+        else {
+            throw CryptoError.missingArguments(["password"])
+        }
+        guard
+            let salt = arguments.saltInput,
+            let count = arguments.saltCount
+        else {
+            throw CryptoError.missingPBS2SaltInputOrCount
+        }
+        
+        return try PBES2SHAKeyDerivation.derive(
+            password: password,
+            saltInput: salt,
+            saltCount: count,
+            variant: .sha2(.sha384)
+        ).derivedKey
     }
 }

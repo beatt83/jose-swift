@@ -46,5 +46,5 @@ public protocol JWARegisteredFieldsHeader: Codable {
 
     /// The iteration count for the PBES2 salt input, determining how many times the password is hashed during the key derivation process.
     /// Higher counts provide better security but require more computational resources.
-    var pbes2SaltCount: Data? { get set }
+    var pbes2SaltCount: Int? { get set }
 }

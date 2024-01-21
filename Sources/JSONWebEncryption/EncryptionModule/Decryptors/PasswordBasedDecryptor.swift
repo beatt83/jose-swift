@@ -17,11 +17,13 @@
 import Foundation
 import JSONWebAlgorithms
 import JSONWebKey
+import Tools
 
-struct DirectJWEDecryptor: JWEDecryptor {
-    
+struct PasswordBasedJWEDecryptor: JWEDecryptor {
     var supportedKeyManagementAlgorithms: [KeyManagementAlgorithm] = [
-        .direct
+        .pbes2HS256A128KW,
+        .pbes2HS384A192KW,
+        .pbes2HS512A256KW
     ]
     
     var supportedContentEncryptionAlgorithms: [ContentEncryptionAlgorithm] = [
@@ -51,6 +53,29 @@ struct DirectJWEDecryptor: JWEDecryptor {
         sharedKey: JWK?,
         password: Data?
     ) throws -> Data {
+        guard let iterationCount = getSaltCount(
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            recipientHeader: recipientHeader
+        ) else {
+            throw JWE.JWEError.missingSaltCount
+        }
+        
+        guard let saltInput = getSaltInput(
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            recipientHeader: recipientHeader
+        ) else {
+            throw JWE.JWEError.missingSaltInput
+        }
+        guard let alg = getKeyAlgorithm(
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            recipientHeader: recipientHeader
+        ) else {
+            throw JWE.JWEError.missingKeyAlgorithm
+        }
+        
         guard let enc = getEncoding(
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
@@ -67,11 +92,15 @@ struct DirectJWEDecryptor: JWEDecryptor {
             supportedContentEncryptionAlgorithms: supportedContentEncryptionAlgorithms
         ) else {
             throw JWE.JWEError.decryptionNotSupported(
-                alg: nil,
+                alg: alg,
                 enc: enc,
                 supportedAlgs: supportedKeyManagementAlgorithms,
                 supportedEnc: supportedContentEncryptionAlgorithms
             )
+        }
+        
+        guard let encryptedKey else {
+            throw JWE.JWEError.missingEncryptedKey
         }
         
         guard let contentIv = initializationVector else {
@@ -82,9 +111,27 @@ struct DirectJWEDecryptor: JWEDecryptor {
             throw JWE.JWEError.missingContentAuthenticationTag
         }
         
-        guard let cek = sharedKey?.key else {
-            throw JWE.JWEError.missingCek
+        guard let derivator = alg.derivation else {
+            throw JWE.JWEError.internalErrorDerivationNotAvailableFor(alg: alg)
         }
+        
+        let salt = try alg.rawValue.tryToData() + [0x00] + saltInput
+        
+        let derivedKey = try derivator.deriveKey(arguments: [
+            .password(password ?? .init()),
+            .saltInput(salt),
+            .saltCount(iterationCount)
+        ])
+        
+        guard let unwrapper = alg.unwrapper else {
+            throw JWE.JWEError.internalErrorUnWrapperMissingFor(alg: alg)
+        }
+        
+        let cek = try unwrapper.contentKeyDecrypt(
+            encryptedKey: encryptedKey,
+            using: .init(keyType: .octetSequence, key: derivedKey),
+            arguments: []
+        )
         
         let aad = try AAD.computeAAD(header: protectedHeader, aad: additionalAuthenticationData)
         
@@ -97,6 +144,7 @@ struct DirectJWEDecryptor: JWEDecryptor {
                 .authenticationTag(contentTag)
             ]
         )
+        
         return try getContentCompressionAlg(
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
