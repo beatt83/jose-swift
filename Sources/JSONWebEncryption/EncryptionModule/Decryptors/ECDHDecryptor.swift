@@ -21,7 +21,7 @@ import Tools
 
 struct ECDHJWEDecryptor: JWEDecryptor {
     
-    var supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] = [
+    var supportedKeyManagementAlgorithms: [KeyManagementAlgorithm] = [
         .ecdhES,
         .ecdhESA128KW,
         .ecdhESA192KW,
@@ -52,7 +52,8 @@ struct ECDHJWEDecryptor: JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?
+        sharedKey: JWK?,
+        password: Data?
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
             protectedHeader: protectedHeader,
@@ -74,13 +75,13 @@ struct ECDHJWEDecryptor: JWEDecryptor {
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
             recipientHeader: recipientHeader,
-            supportedKeyAlgorithms: supportedKeyManagmentAlgorithms,
+            supportedKeyAlgorithms: supportedKeyManagementAlgorithms,
             supportedContentEncryptionAlgorithms: supportedContentEncryptionAlgorithms
         ) else {
             throw JWE.JWEError.decryptionNotSupported(
                 alg: alg,
                 enc: enc,
-                supportedAlgs: supportedKeyManagmentAlgorithms,
+                supportedAlgs: supportedKeyManagementAlgorithms,
                 supportedEnc: supportedContentEncryptionAlgorithms
             )
         }
@@ -237,16 +238,14 @@ struct ECDHJWEDecryptor: JWEDecryptor {
         } else {
             algorithmID = encodingAlgorithm.rawValue.data(using: .ascii) ?? .init()
         }
-
-        return try derivation.deriveKey(
-            key: sharedKey,
-            keyLengthInBits: keyLengthInBits,
-            algorithmId: algorithmID,
-            partyUInfo: partyUInfo ?? .init(),
-            partyVInfo: partyVInfo ?? .init(),
-            tag: Data(),
-            other: [:]
-        )
+        
+        return try derivation.deriveKey(arguments: [
+            .key(sharedKey),
+            .keyLengthInBits(keyLengthInBits),
+            .algorithmId(algorithmID),
+            .partyUInfo(partyUInfo ?? .init()),
+            .partyVInfo(partyVInfo ?? .init())
+        ])
     }
     
     private func sharedKeyLength(

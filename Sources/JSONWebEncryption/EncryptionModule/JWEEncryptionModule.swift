@@ -102,12 +102,41 @@ extension JWEEncryptionModule {
     public static var `default`: JWEEncryptionModule = .init(
         registeredEncryptions: Set(
             [
-                .init(family: .aes, encryptor: AESJWEEncryptor(), decryptor: AESJWEDecryptor()),
-                .init(family: .direct, encryptor: DirectJWEEncryptor(), decryptor: DirectJWEDecryptor()),
-                .init(family: .ecdh1pu, encryptor: ECDH1PUJWEEncryptor(), decryptor: ECDH1PUJWEDecryptor()),
-                .init(family: .ecdhes, encryptor: ECDHJWEEncryptor(), decryptor: ECDHJWEDecryptor()),
-                .init(family: .rsa, encryptor: RSAJWEEncryptor(), decryptor: RSAJWEDecryptor()),
-                .init(family: .aes, encryptor: AESJWEEncryptor(), decryptor: AESJWEDecryptor()),
+                .init(
+                    family: .aes,
+                    encryptor: AESJWEEncryptor(),
+                    decryptor: AESJWEDecryptor()
+                ),
+                .init(
+                    family: .direct,
+                    encryptor: DirectJWEEncryptor(),
+                    decryptor: DirectJWEDecryptor()
+                ),
+                .init(
+                    family: .ecdh1pu,
+                    encryptor: ECDH1PUJWEEncryptor(),
+                    decryptor: ECDH1PUJWEDecryptor()
+                ),
+                .init(
+                    family: .ecdhes,
+                    encryptor: ECDHJWEEncryptor(),
+                    decryptor: ECDHJWEDecryptor()
+                ),
+                .init(
+                    family: .rsa,
+                    encryptor: RSAJWEEncryptor(),
+                    decryptor: RSAJWEDecryptor()
+                ),
+                .init(
+                    family: .aes,
+                    encryptor: AESJWEEncryptor(),
+                    decryptor: AESJWEDecryptor()
+                ),
+                .init(
+                    family: .pbes2,
+                    encryptor: PasswordBasedJWEEncryptor(),
+                    decryptor: PasswordBasedJWEDecryptor()
+                )
             ]
         ),
         multiEncryptor: MultiEncryptor(),
@@ -119,12 +148,36 @@ extension JWEEncryptionModule {
     public static var defaultWithMasterEphemeralKey: JWEEncryptionModule = .init(
         registeredEncryptions: Set(
             [
-                .init(family: .aes, encryptor: AESJWEEncryptor(), decryptor: AESJWEDecryptor()),
-                .init(family: .direct, encryptor: DirectJWEEncryptor(), decryptor: DirectJWEDecryptor()),
-                .init(family: .ecdh1pu, encryptor: ECDH1PUJWEEncryptor(masterEphemeralKey: true), decryptor: ECDH1PUJWEDecryptor()),
-                .init(family: .ecdhes, encryptor: ECDHJWEEncryptor(masterEphemeralKey: true), decryptor: ECDHJWEDecryptor()),
-                .init(family: .rsa, encryptor: RSAJWEEncryptor(), decryptor: RSAJWEDecryptor()),
-                .init(family: .aes, encryptor: AESJWEEncryptor(), decryptor: AESJWEDecryptor()),
+                .init(
+                    family: .aes,
+                    encryptor: AESJWEEncryptor(),
+                    decryptor: AESJWEDecryptor()
+                ),
+                .init(
+                    family: .direct,
+                    encryptor: DirectJWEEncryptor(),
+                    decryptor: DirectJWEDecryptor()
+                ),
+                .init(
+                    family: .ecdh1pu,
+                    encryptor: ECDH1PUJWEEncryptor(masterEphemeralKey: true),
+                    decryptor: ECDH1PUJWEDecryptor()
+                ),
+                .init(
+                    family: .ecdhes,
+                    encryptor: ECDHJWEEncryptor(masterEphemeralKey: true),
+                    decryptor: ECDHJWEDecryptor()
+                ),
+                .init(
+                    family: .rsa,
+                    encryptor: RSAJWEEncryptor(),
+                    decryptor: RSAJWEDecryptor()
+                ),
+                .init(
+                    family: .aes,
+                    encryptor: AESJWEEncryptor(),
+                    decryptor: AESJWEDecryptor()
+                ),
             ]
         ),
         multiEncryptor: MultiEncryptor(),

@@ -91,9 +91,9 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | A128GCMKW          |:white_check_mark:|
 | A192GCMKW          |:white_check_mark:|
 | A256GCMKW          |:white_check_mark:|
-| PBES2-HS256+A128KW |                  |
-| PBES2-HS384+A192KW |                  |
-| PBES2-HS512+A256KW |                  |
+| PBES2-HS256+A128KW |:white_check_mark:|
+| PBES2-HS384+A192KW |:white_check_mark:|
+| PBES2-HS512+A256KW |:white_check_mark:|
 
 </td><td valign="top">
 

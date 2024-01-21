@@ -99,7 +99,7 @@ public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader {
         initializationVector: Data?,
         authenticationTag: Data?,
         pbes2SaltInput: Data?,
-        pbes2SaltCount: Data?,
+        pbes2SaltCount: Int?,
         senderKeyId: String?
     )
 }
@@ -125,7 +125,7 @@ extension JWERegisteredFieldsHeader {
         initializationVector: Data? = nil,
         authenticationTag: Data? = nil,
         pbes2SaltInput: Data? = nil,
-        pbes2SaltCount: Data? = nil,
+        pbes2SaltCount: Int? = nil,
         senderKeyId: String? = nil
     ) {
         self.init(
@@ -234,7 +234,7 @@ public struct DefaultJWEHeaderImpl: JWERegisteredFieldsHeader {
     public var initializationVector: Data?
     public var authenticationTag: Data?
     public var pbes2SaltInput: Data?
-    public var pbes2SaltCount: Data?
+    public var pbes2SaltCount: Int?
     public var senderKeyID: String?
     
     /// Initializes a new `DefaultJWSHeaderImpl` instance with optional parameters for each field.
@@ -270,7 +270,7 @@ public struct DefaultJWEHeaderImpl: JWERegisteredFieldsHeader {
         initializationVector: Data?,
         authenticationTag: Data?,
         pbes2SaltInput: Data?,
-        pbes2SaltCount: Data?,
+        pbes2SaltCount: Int?,
         senderKeyId: String?
     ) {
         self.keyManagementAlgorithm = keyManagementAlgorithm

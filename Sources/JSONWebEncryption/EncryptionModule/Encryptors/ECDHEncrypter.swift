@@ -55,6 +55,9 @@ struct ECDHJWEEncryptor: JWEEncryptor {
         cek: Data?,
         initializationVector: Data?,
         additionalAuthenticationData: Data?,
+        password: Data?,
+        saltLength: Int?,
+        iterationCount: Int?,
         hasMultiRecipients: Bool
     ) throws -> JWEParts<P, R>{
         guard let alg = getKeyAlgorithm(
@@ -260,16 +263,14 @@ struct ECDHJWEEncryptor: JWEEncryptor {
         } else {
             algorithmID = encodingAlgorithm.rawValue.data(using: .ascii) ?? .init()
         }
-
-        return try derivation.deriveKey(
-            key: sharedKey,
-            keyLengthInBits: keyLengthInBits,
-            algorithmId: algorithmID,
-            partyUInfo: partyUInfo ?? .init(),
-            partyVInfo: partyVInfo ?? .init(),
-            tag: Data(),
-            other: [:]
-        )
+        
+        return try derivation.deriveKey(arguments: [
+            .key(sharedKey),
+            .keyLengthInBits(keyLengthInBits),
+            .algorithmId(algorithmID),
+            .partyUInfo(partyUInfo ?? .init()),
+            .partyVInfo(partyVInfo ?? .init())
+        ])
     }
     
     private func sharedKeyLength(

@@ -21,7 +21,7 @@ import Tools
 
 struct ECDH1PUJWEDecryptor: JWEDecryptor {
     
-    var supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] = [
+    var supportedKeyManagementAlgorithms: [KeyManagementAlgorithm] = [
         .ecdh1PU,
         .ecdh1PUA128KW,
         .ecdh1PUA192KW,
@@ -52,7 +52,8 @@ struct ECDH1PUJWEDecryptor: JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?
+        sharedKey: JWK?,
+        password: Data?
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
             protectedHeader: protectedHeader,
@@ -74,13 +75,13 @@ struct ECDH1PUJWEDecryptor: JWEDecryptor {
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
             recipientHeader: recipientHeader,
-            supportedKeyAlgorithms: supportedKeyManagmentAlgorithms,
+            supportedKeyAlgorithms: supportedKeyManagementAlgorithms,
             supportedContentEncryptionAlgorithms: supportedContentEncryptionAlgorithms
         ) else {
             throw JWE.JWEError.decryptionNotSupported(
                 alg: alg,
                 enc: enc,
-                supportedAlgs: supportedKeyManagmentAlgorithms,
+                supportedAlgs: supportedKeyManagementAlgorithms,
                 supportedEnc: supportedContentEncryptionAlgorithms
             )
         }
@@ -271,15 +272,14 @@ struct ECDH1PUJWEDecryptor: JWEDecryptor {
 
         }
 
-        return try derivation.deriveKey(
-            key: sharedKey,
-            keyLengthInBits: keyLengthInBits,
-            algorithmId: algorithmID,
-            partyUInfo: partyUInfo ?? .init(),
-            partyVInfo: partyVInfo ?? .init(),
-            tag: tagData,
-            other: [:]
-        )
+        return try derivation.deriveKey(arguments: [
+            .key(sharedKey),
+            .keyLengthInBits(keyLengthInBits),
+            .algorithmId(algorithmID),
+            .partyUInfo(partyUInfo ?? .init()),
+            .partyVInfo(partyVInfo ?? .init()),
+            .tag(tagData)
+        ])
     }
     
     private func sharedKeyLength(

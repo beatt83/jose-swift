@@ -32,6 +32,9 @@ struct MultiEncryptor: JWEMultiEncryptor {
         cek: Data?,
         initializationVector: Data?,
         additionalAuthenticationData: Data?,
+        password: Data?,
+        saltLength: Int?,
+        iterationCount: Int?,
         encryptionModule: JWEEncryptionModule = .default
     ) throws -> [JWEParts<P, R>] {
         guard let enc = getEncoding(
@@ -64,6 +67,9 @@ struct MultiEncryptor: JWEMultiEncryptor {
             cek: cek,
             initializationVector: initializationVector,
             additionalAuthenticationData: additionalAuthenticationData,
+            password: password,
+            saltLength: saltLength,
+            iterationCount: iterationCount,
             hasMultiRecipients: true
         )
         
@@ -86,6 +92,9 @@ struct MultiEncryptor: JWEMultiEncryptor {
                 cek: cek,
                 initializationVector: initializationVector,
                 additionalAuthenticationData: additionalAuthenticationData,
+                password: password,
+                saltLength: saltLength,
+                iterationCount: iterationCount,
                 hasMultiRecipients: true
             )
         }

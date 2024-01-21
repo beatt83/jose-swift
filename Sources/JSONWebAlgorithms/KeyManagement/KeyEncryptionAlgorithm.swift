@@ -108,11 +108,11 @@ public enum KeyManagementAlgorithm: String, Equatable, Codable {
         case .a256GCMKW:
             return AES256GCM()
         case .pbes2HS256A128KW:
-            return PBE2_SHA256_A128KW()
+            return AESKeyWrap()
         case .pbes2HS384A192KW:
-            return PBE2_SHA384_A192KW()
+            return AESKeyWrap()
         case .pbes2HS512A256KW:
-            return PBE2_SHA512_A256KW()
+            return AESKeyWrap()
         case .ecdh1PU:
             return nil
         case .ecdh1PUA128KW:
@@ -157,11 +157,11 @@ public enum KeyManagementAlgorithm: String, Equatable, Codable {
         case .a256GCMKW:
             return AESGCM()
         case .pbes2HS256A128KW:
-            return PBE2_SHA256_A128KW()
+            return AESKeyUnwrap()
         case .pbes2HS384A192KW:
-            return PBE2_SHA384_A192KW()
+            return AESKeyUnwrap()
         case .pbes2HS512A256KW:
-            return PBE2_SHA512_A256KW()
+            return AESKeyUnwrap()
         case .ecdh1PU:
             return nil
         case .ecdh1PUA128KW:
@@ -200,6 +200,12 @@ public enum KeyManagementAlgorithm: String, Equatable, Codable {
     /// - Returns: An instance conforming to the `KeyDerivation` protocol, or `nil
     public var derivation: KeyDerivation? {
         switch self {
+        case .pbes2HS256A128KW:
+            return PBE2_SHA256_A128KW()
+        case .pbes2HS384A192KW:
+            return PBE2_SHA384_A192KW()
+        case .pbes2HS512A256KW:
+            return PBE2_SHA512_A256KW()
         case .ecdhES:
             return ECDHES()
         case .ecdhESA128KW:

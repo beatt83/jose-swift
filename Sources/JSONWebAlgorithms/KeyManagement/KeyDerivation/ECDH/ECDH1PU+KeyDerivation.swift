@@ -19,15 +19,17 @@ import Foundation
 import Tools
 
 extension ECDH1PU: KeyDerivation {
-    func deriveKey(
-        key: Data,
-        keyLengthInBits: Int,
-        algorithmId: Data,
-        partyUInfo: Data,
-        partyVInfo: Data,
-        tag: Data,
-        other: [String : Data]
-    ) throws -> Data {
+    
+    func deriveKey(arguments: [KeyDerivationArguments]) throws -> Data {
+        guard let key = arguments.key else {
+            throw CryptoError.missingArguments(["key"])
+        }
+        let algorithmId = arguments.algorithmId ?? .init()
+        let partyUInfo = arguments.partyUInfo ?? .init()
+        let partyVInfo = arguments.partyVInfo ?? .init()
+        let tag = arguments.tag ?? .init()
+        let keyLengthInBits = arguments.keyLengthInBits ?? 0
+        
         let algorithmIDData = UInt32(algorithmId.count).bigEndian.dataRepresentation + algorithmId
         let partyUInfoData = UInt32(partyUInfo.count).bigEndian.dataRepresentation + partyUInfo
         let partyVInfoData = UInt32(partyVInfo.count).bigEndian.dataRepresentation + partyVInfo

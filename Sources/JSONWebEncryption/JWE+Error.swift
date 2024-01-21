@@ -85,6 +85,18 @@ extension JWE {
 
         /// Error indicating that the ephemeral key (temporary key used in some key agreement protocols) is missing.
         case missingEphemeralKey
+        
+        /// Error indicating that the salt input is missing.
+        case missingSaltInput
+        
+        /// Error indicating that the salt iteration count is missing.
+        case missingSaltCount
+        
+        /// Error indicating that the salt count is not minimum recommended of 1000 interations.
+        case invalidSaltCount
+        
+        /// Error indicating that the salt input as not minimum size of 8.
+        case invalidSaltLength
 
         /// Error indicating that the JWE compact string is invalid or malformed.
         case invalidJWECompactString

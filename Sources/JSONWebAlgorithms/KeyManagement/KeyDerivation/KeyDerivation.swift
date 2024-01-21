@@ -15,60 +15,134 @@
  */
 
 import Foundation
+import JSONWebKey
 
-/// `KeyDerivation` is a protocol defining functionality for deriving cryptographic keys.
-public protocol KeyDerivation {
-    /// Derives a key from the given input parameters using a specified key derivation function.
-    /// - Parameters:
-    ///   - key: The input key material used for derivation.
-    ///   - keyLengthInBits: The desired length of the derived key in bits.
-    ///   - algorithmId: An identifier for the key derivation algorithm.
-    ///   - partyUInfo: Data specific to one party involved in the key derivation (usually the initiator).
-    ///   - partyVInfo: Data specific to the other party involved in the key derivation (usually the responder).
-    ///   - tag: A tag used in the key derivation process, providing additional context or information.
-    ///   - other: A dictionary containing other relevant data for key derivation.
-    /// - Returns: The derived key as `Data`.
-    /// - Throws: An error if key derivation fails. This could be due to incorrect input parameters, unsupported algorithm specifications, or other cryptographic issues.
-    func deriveKey(
-        key: Data,
-        keyLengthInBits: Int,
-        algorithmId: Data,
-        partyUInfo: Data,
-        partyVInfo: Data,
-        tag: Data,
-        other: [String: Data]
-    ) throws -> Data
+/// Enumerates possible arguments for key derivation processes.
+public enum KeyDerivationArguments {
+    /// Specifies the initial key material for the key derivation.
+    case key(Data)
+
+    /// Specifies the length in bits of the key to be derived.
+    case keyLengthInBits(Int)
+
+    /// Specifies the algorithm identifier data used in key derivation.
+    case algorithmId(Data)
+
+    /// Contains data specific to party U involved in the key agreement.
+    case partyUInfo(Data)
+
+    /// Contains data specific to party V involved in the key agreement.
+    case partyVInfo(Data)
+
+    /// A tag that can be used to ensure the integrity of the derived key.
+    case tag(Data)
+
+    /// Password or passphrase used in the derivation process.
+    case password(Data)
+
+    /// Salt input for the derivation process.
+    case saltInput(Data)
+
+    /// The iteration count for key derivation algorithms that use a salt.
+    case saltCount(Int)
+
+    /// Allows for custom data to be included, identified by a key.
+    case customData(key: String, value: Data)
+
+    /// Allows for a custom JSON Web Key (JWK) to be included, identified by a key.
+    case customJWK(key: String, value: JWK)
 }
 
-extension KeyDerivation {
-    /// Provides a default implementation of `deriveKey` with optional parameters set to their default values.
-    /// - Parameters:
-    ///   - key: The input key material used for derivation.
-    ///   - keyLengthInBits: The desired length of the derived key in bits.
-    ///   - algorithmId: An optional identifier for the key derivation algorithm (default is empty).
-    ///   - partyUInfo: Optional data specific to one party involved in the key derivation (default is empty).
-    ///   - partyVInfo: Optional data specific to the other party involved in the key derivation (default is empty).
-    ///   - tag: An optional tag used in the key derivation process (default is empty).
-    ///   - other: An optional dictionary containing other relevant data for key derivation (default is empty).
-    /// - Returns: The derived key as `Data`.
-    /// - Throws: An error if key derivation fails.
-    public func deriveKey(
-        key: Data,
-        keyLengthInBits: Int,
-        algorithmId: Data = Data(),
-        partyUInfo: Data = Data(),
-        partyVInfo: Data = Data(),
-        tag: Data = Data(),
-        other: [String: Data] = [:]
-    ) throws -> Data {
-        try self.deriveKey(
-            key: key,
-            keyLengthInBits: keyLengthInBits,
-            algorithmId: algorithmId,
-            partyUInfo: partyUInfo,
-            partyVInfo: partyVInfo,
-            tag: tag,
-            other: other
-        )
+/// `KeyDerivation` is a protocol defining functionality for deriving cryptographic keys.
+/// It is used in scenarios where keys need to be derived from existing material, such as passwords or shared secrets.
+public protocol KeyDerivation {
+    /// Derives a cryptographic key based on the provided arguments.
+    ///
+    /// - Parameter arguments: An array of `KeyDerivationArguments` that specify the parameters for the key derivation.
+    /// - Returns: The derived key as a `Data` object.
+    /// - Throws: An error if the key derivation process fails.
+    func deriveKey(arguments: [KeyDerivationArguments]) throws -> Data
+}
+
+extension Array where Element == KeyDerivationArguments {
+    var key: Data? {
+        return self.compactMap {
+            if case .key(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+
+    var keyLengthInBits: Int? {
+        return self.compactMap {
+            if case .keyLengthInBits(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+
+    var algorithmId: Data? {
+        return self.compactMap {
+            if case .algorithmId(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+
+    var partyUInfo: Data? {
+        return self.compactMap {
+            if case .partyUInfo(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+    
+    var partyVInfo: Data? {
+        return self.compactMap {
+            if case .partyVInfo(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+
+    var tag: Data? {
+        return self.compactMap {
+            if case .tag(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+
+    var password: Data? {
+        return self.compactMap {
+            if case .password(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+    
+    var saltInput: Data? {
+        return self.compactMap {
+            if case .saltInput(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
+    }
+    
+    var saltCount: Int? {
+        return self.compactMap {
+            if case .saltCount(let data) = $0 {
+                return data
+            }
+            return nil
+        }.first
     }
 }

@@ -98,3 +98,23 @@ func getEphemeralKey(
     ?? protectedHeader?.ephemeralPublicKey
     ?? unprotectedHeader?.ephemeralPublicKey
 }
+
+func getSaltInput(
+    protectedHeader: JWERegisteredFieldsHeader?,
+    unprotectedHeader: JWERegisteredFieldsHeader?,
+    recipientHeader: JWERegisteredFieldsHeader?
+) -> Data? {
+    recipientHeader?.pbes2SaltInput
+    ?? protectedHeader?.pbes2SaltInput
+    ?? unprotectedHeader?.pbes2SaltInput
+}
+
+func getSaltCount(
+    protectedHeader: JWERegisteredFieldsHeader?,
+    unprotectedHeader: JWERegisteredFieldsHeader?,
+    recipientHeader: JWERegisteredFieldsHeader?
+) -> Int? {
+    recipientHeader?.pbes2SaltCount
+    ?? protectedHeader?.pbes2SaltCount
+    ?? unprotectedHeader?.pbes2SaltCount
+}
