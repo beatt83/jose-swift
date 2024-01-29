@@ -360,7 +360,7 @@ let jwt = try JWT.signed(
 
 let jwtString = jwt.jwtString
 
-let verifiedJWT = try JWT<MockExampleClaims>.verify(jwtString: jwtString, senderKey: key)
+let verifiedJWT = try JWT<DefaultJWTClaims>.verify(jwtString: jwtString, senderKey: key)
 let verifiedPayload = verifiedJWT.payload
 ```
 
@@ -382,7 +382,7 @@ let jwt = try JWT.encrypt(
 
 let jwtString = jwt.jwtString
 
-let verifiedJWT = try JWT<MockExampleClaims>.verify(jwtString: jwtString, recipientKey: key)
+let verifiedJWT = try JWT<DefaultJWTClaims>.verify(jwtString: jwtString, recipientKey: key)
 let verifiedPayload = verifiedJWT.payload
 ```
 
