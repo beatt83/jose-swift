@@ -177,18 +177,6 @@ extension Curve25519.KeyAgreement.PrivateKey: JWKRepresentable {
     }
 }
 
-extension Curve448.KeyAgreement.PrivateKey: JWKRepresentable {
-    /// Returns the JWK representation of a `Curve448.KeyAgreement.PrivateKey` instance.
-    public var jwkRepresentation: JWK {
-        JWK(
-            keyType: .octetKeyPair,
-            curve: .x448,
-            x: publicKey.rawRepresentation,
-            d: rawRepresentation
-        )
-    }
-}
-
 extension secp256k1.KeyAgreement.PublicKey: JWKRepresentable {
     /// Returns the JWK representation of a `secp256k1.KeyAgreement.PublicKey` instance.
     public var jwkRepresentation: JWK {
@@ -340,17 +328,6 @@ extension Curve25519.Signing.PublicKey: JWKRepresentable {
         JWK(
             keyType: .octetKeyPair,
             curve: .ed25519,
-            x: rawRepresentation
-        )
-    }
-}
-
-extension Curve448.KeyAgreement.PublicKey: JWKRepresentable {
-    /// Returns the JWK representation of a `Curve448.KeyAgreement.PublicKey` instance.
-    public var jwkRepresentation: JWK {
-        JWK(
-            keyType: .octetKeyPair,
-            curve: .x448,
             x: rawRepresentation
         )
     }

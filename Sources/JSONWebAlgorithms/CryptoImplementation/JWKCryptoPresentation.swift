@@ -28,8 +28,7 @@ public extension JWK {
             is P384.KeyAgreement.PrivateKey.Type,
             is P521.KeyAgreement.PrivateKey.Type,
             is secp256k1.KeyAgreement.PrivateKey.Type,
-            is Curve25519.KeyAgreement.PrivateKey.Type,
-            is Curve448.KeyAgreement.PrivateKey.Type:
+            is Curve25519.KeyAgreement.PrivateKey.Type:
             
             guard let d else {
                 throw JWK.Error.missingDComponent
@@ -45,8 +44,6 @@ public extension JWK {
                 return try secp256k1.KeyAgreement.PrivateKey(dataRepresentation: d, format: .uncompressed) as! T
             case is Curve25519.KeyAgreement.PrivateKey.Type:
                 return try Curve25519.KeyAgreement.PrivateKey(rawRepresentation: d) as! T
-            case is Curve448.KeyAgreement.PrivateKey.Type:
-                return try Curve448.KeyAgreement.PrivateKey(rawRepresentation: d) as! T
             default:
                 throw JWK.Error.notSupported
             }
@@ -63,6 +60,11 @@ public extension JWK {
                 throw JWK.Error.missingYComponent
             }
             let data = x + y
+            print(self.keyID)
+            print(x.toHexString())
+            print(x.count)
+            print(y.toHexString())
+            print(y.count)
             switch type {
             case is P256.KeyAgreement.PublicKey.Type:
                 return try P256.KeyAgreement.PublicKey(rawRepresentation: data) as! T
@@ -80,8 +82,7 @@ public extension JWK {
                 throw JWK.Error.notSupported
             }
             
-        case is Curve25519.KeyAgreement.PublicKey.Type,
-            is Curve448.KeyAgreement.PublicKey.Type:
+        case is Curve25519.KeyAgreement.PublicKey.Type:
             
             guard let x else {
                 throw JWK.Error.missingXComponent
@@ -90,8 +91,6 @@ public extension JWK {
             switch type {
             case is Curve25519.KeyAgreement.PublicKey.Type:
                 return try Curve25519.KeyAgreement.PublicKey(rawRepresentation: data) as! T
-            case is Curve448.KeyAgreement.PublicKey.Type:
-                return try Curve448.KeyAgreement.PublicKey(rawRepresentation: data) as! T
             default:
                 throw JWK.Error.notSupported
             }
