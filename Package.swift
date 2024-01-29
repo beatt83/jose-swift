@@ -31,8 +31,6 @@ let package = Package(
         )
     ],
     dependencies: [
-        // For `X448` support
-        .package(url: "https://github.com/krzyzanowskim/OpenSSL.git", .upToNextMinor(from: "3.1.4000")),
         // For `secp256k1` support
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
@@ -78,7 +76,6 @@ let package = Package(
         .target(
             name: "JSONWebKey",
             dependencies: [
-                "OpenSSL",
                 "CryptoSwift",
                 "Tools",
                 .product(name: "secp256k1", package: "secp256k1.swift"),

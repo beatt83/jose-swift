@@ -27,7 +27,7 @@ public typealias DefaultJWSJson = JWSJson<DefaultJWSHeaderImpl, DefaultJWSHeader
 /// - Parameters:
 ///   - P: The type of the protected header, conforming to `JWSRegisteredFieldsHeader`.
 ///   - H: The type of the unprotected header, conforming to `JWSRegisteredFieldsHeader`.
-public struct JWSJson<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader>: Codable {
+public struct JWSJson<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader> {
     
     /// `Signature` represents a single signature within the `JWSJson`, including its associated headers and signature data.
     public struct Signature {
@@ -142,6 +142,27 @@ public struct JWSJson<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader
         }
     }
 }
+
+extension JWSJson: Codable {
+    enum CodingKeys: String, CodingKey {
+        case payload
+        case signatures
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(Base64URL.encode(payload), forKey: .payload)
+        try container.encode(signatures, forKey: .signatures)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let payloadBase64 = try container.decode(String.self, forKey: .payload)
+        self.payload = try Base64URL.decode(payloadBase64)
+        self.signatures = try container.decode([Signature].self, forKey: .signatures)
+    }
+}
+
 
 extension JWSJson.Signature: Codable {
     enum CodingKeys: String, CodingKey {

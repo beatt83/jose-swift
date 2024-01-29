@@ -26,7 +26,7 @@ struct ES256KVerifier: Verifier {
             let x = key?.x,
             let y = key?.y
         else { throw CryptoError.notValidPublicKey }
-        let publicKey = try secp256k1.Signing.PublicKey(dataRepresentation: x + y, format: .uncompressed)
+        let publicKey = try secp256k1.Signing.PublicKey(dataRepresentation: [0x04] + x + y, format: .uncompressed)
         let hash = SHA256.hash(data: data)
         return try publicKey.isValidSignature(getSignature(signature), for: hash)
     }
