@@ -56,6 +56,7 @@ public protocol JWEEncryptor {
         password: Data?,
         saltLength: Int?,
         iterationCount: Int?,
+        ephemeralKey: JWK?,
         hasMultiRecipients: Bool
     ) throws -> JWEParts<P, R>
 }
@@ -130,6 +131,7 @@ extension JWEEncryptor {
         password: Data? = nil,
         saltLength: Int? = nil,
         iterationCount: Int? = nil,
+        ephemeralKey: JWK? = nil,
         multiRecipients: Bool = false
     ) throws -> JWEParts<P, R> {
         try self.encrypt(
@@ -145,6 +147,7 @@ extension JWEEncryptor {
             password: password,
             saltLength: saltLength,
             iterationCount: iterationCount,
+            ephemeralKey: ephemeralKey,
             hasMultiRecipients: multiRecipients
         )
     }

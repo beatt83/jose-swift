@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import JSONWebKey
 
 // `JWEParts` represents the constituent parts of a JSON Web Encryption (JWE) object.
 /// It's a generic struct that can accommodate different types of headers for both protected and recipient-specific data.
@@ -23,25 +24,28 @@ import Foundation
 ///   - R: A type conforming to `JWERegisteredFieldsHeader` used for the recipient-specific header.
 public struct JWEParts<P: JWERegisteredFieldsHeader, R: JWERegisteredFieldsHeader> {
     /// The protected header, containing shared information about the encryption.
-    let protectedHeader: P?
+    public var protectedHeader: P?
 
     /// The recipient-specific header, potentially containing information tailored for the individual recipient.
-    let recipientHeader: R?
+    public var recipientHeader: R?
 
     /// The ciphertext, which is the encrypted content.
-    let cipherText: Data
+    public let cipherText: Data
 
     /// The encrypted key, used to decrypt the content.
-    let encryptedKey: Data?
+    public let encryptedKey: Data?
 
     /// Additional authenticated data, if any, used in the encryption process.
-    let additionalAuthenticationData: Data?
+    public let additionalAuthenticationData: Data?
 
     /// The initialization vector used in the encryption process, for algorithms that require it.
-    let initializationVector: Data?
+    public let initializationVector: Data?
 
     /// The authentication tag, verifying the integrity and authenticity of the encrypted content.
-    let authenticationTag: Data?
+    public let authenticationTag: Data?
+    
+    /// To ensure on cases of multiple encryption the ephemeral key is fully passed
+    let ephemeralKey: JWK?
     
     /// Initializes a new `JWEParts` instance with the specified components.
     /// - Parameters:
@@ -52,7 +56,7 @@ public struct JWEParts<P: JWERegisteredFieldsHeader, R: JWERegisteredFieldsHeade
     ///   - additionalAuthenticationData: Optional additional data authenticated along with the payload.
     ///   - initializationVector: Optional initialization vector for certain encryption algorithms.
     ///   - authenticationTag: Optional authentication tag for verifying integrity and authenticity.
-    init(
+    public init(
         protectedHeader: P?,
         recipientHeader: R?,
         cipherText: Data,
@@ -61,6 +65,28 @@ public struct JWEParts<P: JWERegisteredFieldsHeader, R: JWERegisteredFieldsHeade
         initializationVector: Data?,
         authenticationTag: Data?
     ) {
+        self.init(
+            protectedHeader: protectedHeader,
+            recipientHeader: recipientHeader,
+            cipherText: cipherText,
+            encryptedKey: encryptedKey,
+            additionalAuthenticationData: additionalAuthenticationData,
+            initializationVector: initializationVector,
+            authenticationTag: authenticationTag,
+            ephemeralKey: nil
+        )
+    }
+    
+    init(
+        protectedHeader: P?,
+        recipientHeader: R?,
+        cipherText: Data,
+        encryptedKey: Data?,
+        additionalAuthenticationData: Data?,
+        initializationVector: Data?,
+        authenticationTag: Data?,
+        ephemeralKey: JWK?
+    ) {
         self.protectedHeader = protectedHeader
         self.recipientHeader = recipientHeader
         self.encryptedKey = encryptedKey
@@ -68,5 +94,6 @@ public struct JWEParts<P: JWERegisteredFieldsHeader, R: JWERegisteredFieldsHeade
         self.initializationVector = initializationVector
         self.cipherText = cipherText
         self.authenticationTag = authenticationTag
+        self.ephemeralKey = ephemeralKey
     }
 }

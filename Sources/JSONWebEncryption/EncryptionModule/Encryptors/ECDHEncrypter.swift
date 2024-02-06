@@ -58,6 +58,7 @@ struct ECDHJWEEncryptor: JWEEncryptor {
         password: Data?,
         saltLength: Int?,
         iterationCount: Int?,
+        ephemeralKey: JWK?,
         hasMultiRecipients: Bool
     ) throws -> JWEParts<P, R>{
         guard let alg = getKeyAlgorithm(
@@ -95,11 +96,9 @@ struct ECDHJWEEncryptor: JWEEncryptor {
             throw JWE.JWEError.missingRecipientKey
         }
         
-        guard let ephemeralKeyPair = try getEphemeralKey(
-            protectedHeader: protectedHeader,
-            unprotectedHeader: unprotectedHeader,
-            recipientHeader: recipientHeader
-        ) ?? recipientKey.keyGeneration?.generateKeyPairJWK(purpose: .keyAgreement) else {
+        guard let ephemeralKeyPair = try ephemeralKey
+                ?? recipientKey.keyGeneration?.generateKeyPairJWK(purpose: .keyAgreement)
+        else {
             throw JWE.JWEError.missingEphemeralKey
         }
         

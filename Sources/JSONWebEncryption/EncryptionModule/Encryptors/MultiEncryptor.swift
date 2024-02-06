@@ -37,6 +37,9 @@ struct MultiEncryptor: JWEMultiEncryptor {
         iterationCount: Int?,
         encryptionModule: JWEEncryptionModule = .default
     ) throws -> [JWEParts<P, R>] {
+        guard !recipients.isEmpty else {
+            throw JWE.JWEError.noRecipients
+        }
         guard let enc = getEncoding(
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
@@ -70,6 +73,7 @@ struct MultiEncryptor: JWEMultiEncryptor {
             password: password,
             saltLength: saltLength,
             iterationCount: iterationCount,
+            ephemeralKey: nil,
             hasMultiRecipients: true
         )
         
@@ -95,6 +99,7 @@ struct MultiEncryptor: JWEMultiEncryptor {
                 password: password,
                 saltLength: saltLength,
                 iterationCount: iterationCount,
+                ephemeralKey: firstEncryption.ephemeralKey,
                 hasMultiRecipients: true
             )
         }
