@@ -40,6 +40,7 @@ final class PBES2Tests: XCTestCase {
             password: password,
             saltLength: 16,
             iterationCount: 8192,
+            ephemeralKey: nil,
             hasMultiRecipients: false
         )
         
@@ -81,6 +82,7 @@ final class PBES2Tests: XCTestCase {
             password: password,
             saltLength: 16,
             iterationCount: 8192,
+            ephemeralKey: nil,
             hasMultiRecipients: false
         )
         
@@ -122,6 +124,7 @@ final class PBES2Tests: XCTestCase {
             password: password,
             saltLength: 16,
             iterationCount: 8192,
+            ephemeralKey: nil,
             hasMultiRecipients: false
         )
         

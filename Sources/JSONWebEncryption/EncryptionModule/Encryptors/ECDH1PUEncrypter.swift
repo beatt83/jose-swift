@@ -59,6 +59,7 @@ struct ECDH1PUJWEEncryptor: JWEEncryptor {
         password: Data?,
         saltLength: Int?,
         iterationCount: Int?,
+        ephemeralKey: JWK?,
         hasMultiRecipients: Bool
     ) throws -> JWEParts<P, R> {
         guard let alg = getKeyAlgorithm(
@@ -100,11 +101,9 @@ struct ECDH1PUJWEEncryptor: JWEEncryptor {
             throw JWE.JWEError.missingRecipientKey
         }
         
-        guard let ephemeralKeyPair = try getEphemeralKey(
-            protectedHeader: protectedHeader,
-            unprotectedHeader: unprotectedHeader,
-            recipientHeader: recipientHeader
-        ) ?? senderKey.keyGeneration?.generateKeyPairJWK(purpose: .keyAgreement) else {
+        guard let ephemeralKeyPair = try ephemeralKey ??
+                senderKey.keyGeneration?.generateKeyPairJWK(purpose: .keyAgreement)
+        else {
             throw JWE.JWEError.missingEphemeralKey
         }
         
@@ -144,7 +143,8 @@ struct ECDH1PUJWEEncryptor: JWEEncryptor {
             recipientHeader: finalRecipientHeader,
             cek: cek,
             initializationVector: initializationVector,
-            additionalAuthenticationData: aad
+            additionalAuthenticationData: aad,
+            ephemeralKey: ephemeralKeyPair
         )
     }
     
@@ -160,7 +160,8 @@ struct ECDH1PUJWEEncryptor: JWEEncryptor {
         recipientHeader: R?,
         cek: Data?,
         initializationVector: Data?,
-        additionalAuthenticationData: Data
+        additionalAuthenticationData: Data,
+        ephemeralKey: JWK
     ) throws -> JWEParts<P, R> {
         guard let alg = getKeyAlgorithm(
             protectedHeader: protectedHeader,
@@ -239,7 +240,8 @@ struct ECDH1PUJWEEncryptor: JWEEncryptor {
                 encryptedKey: encryptedKey.encryptedKey,
                 additionalAuthenticationData: additionalAuthenticationData,
                 initializationVector: contentIv,
-                authenticationTag: encryptionResult.authenticationData
+                authenticationTag: encryptionResult.authenticationData,
+                ephemeralKey: ephemeralKey
             )
         } else {
             let cek = try deriveSharedKey(
@@ -294,7 +296,8 @@ struct ECDH1PUJWEEncryptor: JWEEncryptor {
                 encryptedKey: nil,
                 additionalAuthenticationData: additionalAuthenticationData,
                 initializationVector: contentIv,
-                authenticationTag: encryptionResult.authenticationData
+                authenticationTag: encryptionResult.authenticationData,
+                ephemeralKey: ephemeralKey
             )
         }
     }

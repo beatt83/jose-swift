@@ -55,6 +55,7 @@ struct AESJWEEncryptor: JWEEncryptor {
         password: Data?,
         saltLength: Int?,
         iterationCount: Int?,
+        ephemeralKey: JWK?,
         hasMultiRecipients: Bool
     ) throws -> JWEParts<P, R> {
         guard let alg = getKeyAlgorithm(
