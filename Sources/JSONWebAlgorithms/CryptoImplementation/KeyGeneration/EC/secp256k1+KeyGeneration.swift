@@ -36,9 +36,9 @@ struct Secp256k1KeyGeneration: KeyGeneration {
     public func generateKeyPairJWK(purpose: KeyGenerationPurpose) throws -> JWK {
         switch purpose {
         case .signing:
-            return try secp256k1.Signing.PrivateKey().jwkRepresentation
+            return try secp256k1.Signing.PrivateKey(format: .uncompressed).jwkRepresentation
         case .keyAgreement:
-            return try secp256k1.KeyAgreement.PrivateKey().jwkRepresentation
+            return try secp256k1.KeyAgreement.PrivateKey(format: .uncompressed).jwkRepresentation
         }
     }
 }

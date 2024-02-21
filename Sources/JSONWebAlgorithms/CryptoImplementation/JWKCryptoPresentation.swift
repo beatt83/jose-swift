@@ -60,11 +60,6 @@ public extension JWK {
                 throw JWK.Error.missingYComponent
             }
             let data = x + y
-            print(self.keyID)
-            print(x.toHexString())
-            print(x.count)
-            print(y.toHexString())
-            print(y.count)
             switch type {
             case is P256.KeyAgreement.PublicKey.Type:
                 return try P256.KeyAgreement.PublicKey(rawRepresentation: data) as! T
