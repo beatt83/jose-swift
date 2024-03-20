@@ -225,6 +225,10 @@ You can access [here](https://beatt83.github.io/jose-swift/documentation/jose_sw
 ### JWK (JSON Web Key)
 JWK is a standard way to represent cryptographic keys in a JSON format, as defined in [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517). This module provides functionalities for generating, parsing, and managing JWKs, which are essential for encryption, decryption, and signing processes.
 
+```swift
+let keyJWK = JWK(keyType: .rsa, algorithm: "A256GCM", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
+```
+
 ### JWS (JSON Web Signature)
 JWS is a standard for digitally signing arbitrary content, as detailed in [RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515). This module supports creating and verifying digital signatures, ensuring the integrity and authenticity of signed data.
 
@@ -299,7 +303,7 @@ Example:
 
 ```swift
 let payload = "Hello world".data(using: .utf8)!
-let keyJWK = ... //JWK key
+let keyJWK = JWK(keyType: .rsa, algorithm: "A256GCM", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
 
 
 let serialization = try JWE(
@@ -314,6 +318,18 @@ let compact = serialization.compactSerialization()
 let jwe = try JWE(compactString: compact)
 let decrypted = try jwe.decrypt(recipientKey: recipientJWK)
 ```
+
+If you want to add additional headers beyond the default to the JWE:
+
+```swift
+var header = DefaultJWEHeaderImpl()
+header.keyID = "Hello-keyId"
+header.keyManagementAlgorithm = .rsaOAEP256
+header.encodingAlgorithm = .a256GCM
+let keyJWK = JWK(keyType: .rsa, algorithm: "A256GCM", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
+let jwe = try JWE(payload: wrappedPayload, protectedHeader: header, recipientKey: jwk)
+```
+
 
 ### JWT (JSON Web Token)
 JWT is a compact, URL-safe means of representing claims to be transferred between two parties. This module offers tools for creating, parsing, validating, and manipulating JWTs, with support for various signing and encryption methods, as specified in [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519).
