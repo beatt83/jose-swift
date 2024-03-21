@@ -322,8 +322,9 @@ let decrypted = try jwe.decrypt(recipientKey: recipientJWK)
 If you want to add additional headers beyond the default to the JWE:
 
 ```swift
+let rsaKeyId = "Hello-keyId"
 var header = DefaultJWEHeaderImpl()
-header.keyID = "Hello-keyId"
+header.keyID = rsaKeyId
 header.keyManagementAlgorithm = .rsaOAEP256
 header.encodingAlgorithm = .a256GCM
 let keyJWK = JWK(keyType: .rsa, algorithm: "A256GCM", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
