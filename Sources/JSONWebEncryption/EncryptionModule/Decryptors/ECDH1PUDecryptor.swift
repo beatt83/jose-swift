@@ -34,7 +34,8 @@ struct ECDH1PUJWEDecryptor: JWEDecryptor {
         .a256GCM,
         .a128CBCHS256,
         .a192CBCHS384,
-        .a256CBCHS512
+        .a256CBCHS512,
+        .c20PKW
     ]
     
     func decrypt<

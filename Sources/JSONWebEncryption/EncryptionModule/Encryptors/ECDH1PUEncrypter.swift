@@ -35,7 +35,8 @@ struct ECDH1PUJWEEncryptor: JWEEncryptor {
         .a256GCM,
         .a128CBCHS256,
         .a192CBCHS384,
-        .a256CBCHS512
+        .a256CBCHS512,
+        .c20PKW
     ]
     
     init(masterEphemeralKey: Bool = false) {
