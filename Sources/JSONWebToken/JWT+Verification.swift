@@ -111,35 +111,35 @@ public func validateClaims(
     let currentDate = Date()
 
     // Validate Issuer
-    if let expectedIssuer = expectedIssuer, let issuer = claims.issuer {
+    if let expectedIssuer = expectedIssuer, let issuer = claims.iss {
         guard issuer == expectedIssuer else {
             throw DefaultJWT.JWTError.issuerMismatch
         }
     }
 
     // Validate Expiration Time
-    if let expirationTime = claims.expirationTime {
+    if let expirationTime = claims.exp {
         guard currentDate < expirationTime else {
             throw DefaultJWT.JWTError.expired
         }
     }
 
     // Validate Not Before Time
-    if let notBeforeTime = claims.notBeforeTime {
+    if let notBeforeTime = claims.nbf {
         guard currentDate >= notBeforeTime else {
             throw DefaultJWT.JWTError.notYetValid
         }
     }
 
     // Validate Issued At
-    if let issuedAt = claims.issuedAt {
+    if let issuedAt = claims.iat {
         guard issuedAt <= currentDate else {
             throw DefaultJWT.JWTError.issuedInTheFuture
         }
     }
 
     // Validate Audience
-    if let expectedAudience = expectedAudience, let audience = claims.audience {
+    if let expectedAudience = expectedAudience, let audience = claims.aud {
         guard audience.contains(expectedAudience) else {
             throw DefaultJWT.JWTError.audienceMismatch
         }

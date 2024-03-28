@@ -20,17 +20,17 @@ final class JWTTests: XCTestCase {
             XCTFail("Wrong JWT format")
         }
         
-        let expirationTime = jwt.payload.expirationTime?.timeIntervalSince1970
-        XCTAssertEqual(jwt.payload.issuer, "joe")
-        XCTAssertEqual(jwt.payload.expirationTime!, Date(timeIntervalSince1970: 2279126580.0))
+        let expirationTime = jwt.payload.exp?.timeIntervalSince1970
+        XCTAssertEqual(jwt.payload.iss, "joe")
+        XCTAssertEqual(jwt.payload.exp!, Date(timeIntervalSince1970: 2279126580.0))
     }
     
     func testSignAndVerify() throws {
         let issuedAt = Date(timeIntervalSince1970: 0)
         let mockClaims = MockExampleClaims(
-            issuer: "testAlice",
-            subject: "Alice",
-            issuedAt: issuedAt,
+            iss: "testAlice",
+            sub: "Alice",
+            iat: issuedAt,
             testClaim: "testedClaim"
         )
         
@@ -45,13 +45,13 @@ final class JWTTests: XCTestCase {
         let jwtString = jwt.jwtString
         
         XCTAssertTrue(jwtString.contains("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9"))
-        XCTAssertTrue(jwtString.contains("eyJpc3N1ZWRBdCI6LTk3ODMwNzIwMCwiaXNzdWVyIjoidGVzdEFsaWNlIiwic3ViamVjdCI6IkFsaWNlIiwidGVzdENsYWltIjoidGVzdGVkQ2xhaW0ifQ"))
+        XCTAssertTrue(jwtString.contains("eyJpYXQiOi05NzgzMDcyMDAsImlzcyI6InRlc3RBbGljZSIsInN1YiI6IkFsaWNlIiwidGVzdENsYWltIjoidGVzdGVkQ2xhaW0ifQ"))
         
         let verifiedJWT = try JWT<MockExampleClaims>.verify(jwtString: jwtString, senderKey: key)
         let verifiedPayload = verifiedJWT.payload
-        XCTAssertEqual(verifiedPayload.issuer, "testAlice")
-        XCTAssertEqual(verifiedPayload.subject, "Alice")
-        XCTAssertEqual(verifiedPayload.issuedAt, issuedAt)
+        XCTAssertEqual(verifiedPayload.iss, "testAlice")
+        XCTAssertEqual(verifiedPayload.sub, "Alice")
+        XCTAssertEqual(verifiedPayload.iat, issuedAt)
         XCTAssertEqual(verifiedPayload.testClaim, "testedClaim")
         switch verifiedJWT.format {
         case .jws(let jws):
@@ -64,9 +64,9 @@ final class JWTTests: XCTestCase {
     func testFailExpirationValidation() throws {
         let expiredAt = Date(timeIntervalSince1970: 0)
         let mockClaims = DefaultJWTClaimsImpl(
-            issuer: "testAlice",
-            subject: "Alice",
-            expirationTime: expiredAt
+            iss: "testAlice",
+            sub: "Alice",
+            exp: expiredAt
         )
         
         let key = JWK.testingES256Pair
@@ -85,9 +85,9 @@ final class JWTTests: XCTestCase {
     func testFailNotBeforeValidation() throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
-            issuer: "testAlice",
-            subject: "Alice",
-            notBeforeTime: nbf
+            iss: "testAlice",
+            sub: "Alice",
+            nbf: nbf
         )
         
         let key = JWK.testingES256Pair
@@ -106,9 +106,9 @@ final class JWTTests: XCTestCase {
     func testFailIssuedAtValidation() throws {
         let issuedAt = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
-            issuer: "testAlice",
-            subject: "Alice",
-            issuedAt: issuedAt
+            iss: "testAlice",
+            sub: "Alice",
+            iat: issuedAt
         )
         
         let key = JWK.testingES256Pair
@@ -127,9 +127,9 @@ final class JWTTests: XCTestCase {
     func testFailIssuerValidation() throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
-            issuer: "testAlice",
-            subject: "Alice",
-            notBeforeTime: nbf
+            iss: "testAlice",
+            sub: "Alice",
+            nbf: nbf
         )
         
         let key = JWK.testingES256Pair
@@ -152,9 +152,9 @@ final class JWTTests: XCTestCase {
     func testFailAudienceValidation() throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
-            issuer: "testAlice",
-            subject: "Alice",
-            audience: ["Test"]
+            iss: "testAlice",
+            sub: "Alice",
+            aud: ["Test"]
         )
         
         let key = JWK.testingES256Pair

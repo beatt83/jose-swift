@@ -2,32 +2,32 @@ import Foundation
 import JSONWebToken
 
 struct MockExampleClaims: JWTRegisteredFieldsClaims {
-    let issuer: String?
-    let subject: String?
-    let audience: [String]?
-    let expirationTime: Date?
-    let notBeforeTime: Date?
-    let issuedAt: Date?
-    let jwtID: String?
+    let iss: String?
+    let sub: String?
+    let aud: [String]?
+    let exp: Date?
+    let nbf: Date?
+    let iat: Date?
+    let jti: String?
     let testClaim: String?
     
     init(
-        issuer: String? = nil,
-        subject: String? = nil,
-        audience: [String]? = nil,
-        expirationTime: Date? = nil,
-        notBeforeTime: Date? = nil,
-        issuedAt: Date? = nil,
-        jwtID: String? = nil,
+        iss: String? = nil,
+        sub: String? = nil,
+        aud: [String]? = nil,
+        exp: Date? = nil,
+        nbf: Date? = nil,
+        iat: Date? = nil,
+        jti: String? = nil,
         testClaim: String? = nil
     ) {
-        self.issuer = issuer
-        self.subject = subject
-        self.audience = audience
-        self.expirationTime = expirationTime
-        self.notBeforeTime = notBeforeTime
-        self.issuedAt = issuedAt
-        self.jwtID = jwtID
+        self.iss = iss
+        self.sub = sub
+        self.aud = aud
+        self.exp = exp
+        self.nbf = nbf
+        self.iat = iat
+        self.jti = jti
         self.testClaim = testClaim
     }
     

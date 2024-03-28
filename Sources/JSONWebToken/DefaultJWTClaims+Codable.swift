@@ -18,34 +18,34 @@ import Foundation
 
 extension DefaultJWTClaimsImpl: Codable {
     enum CodingKeys: String, CodingKey {
-        case issuer = "iss"
-        case subject = "sub"
-        case audience = "aud"
-        case expirationTime = "exp"
-        case notBeforeTime = "nbf"
-        case issuedAt = "iat"
-        case jwtID = "jti"
+        case iss = "iss"
+        case sub = "sub"
+        case aud = "aud"
+        case exp = "exp"
+        case nbf = "nbf"
+        case iat = "iat"
+        case jti = "jti"
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(issuer, forKey: .issuer)
-        try container.encodeIfPresent(subject, forKey: .subject)
-        try container.encodeIfPresent(audience, forKey: .audience)
-        try container.encodeIfPresent(expirationTime, forKey: .expirationTime)
-        try container.encodeIfPresent(notBeforeTime, forKey: .notBeforeTime)
-        try container.encodeIfPresent(issuedAt, forKey: .issuedAt)
-        try container.encodeIfPresent(jwtID, forKey: .jwtID)
+        try container.encodeIfPresent(iss, forKey: .iss)
+        try container.encodeIfPresent(sub, forKey: .sub)
+        try container.encodeIfPresent(aud, forKey: .aud)
+        try container.encodeIfPresent(exp, forKey: .exp)
+        try container.encodeIfPresent(nbf, forKey: .nbf)
+        try container.encodeIfPresent(iat, forKey: .iat)
+        try container.encodeIfPresent(jti, forKey: .jti)
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        issuer = try container.decodeIfPresent(String.self, forKey: .issuer)
-        subject = try container.decodeIfPresent(String.self, forKey: .subject)
-        audience = try container.decodeIfPresent([String].self, forKey: .audience)
-        expirationTime = try container.decodeIfPresent(Date.self, forKey: .expirationTime)
-        notBeforeTime = try container.decodeIfPresent(Date.self, forKey: .notBeforeTime)
-        issuedAt = try container.decodeIfPresent(Date.self, forKey: .issuedAt)
-        jwtID = try container.decodeIfPresent(String.self, forKey: .jwtID)
+        iss = try container.decodeIfPresent(String.self, forKey: .iss)
+        sub = try container.decodeIfPresent(String.self, forKey: .sub)
+        aud = try container.decodeIfPresent([String].self, forKey: .aud)
+        exp = try container.decodeIfPresent(Date.self, forKey: .exp)
+        nbf = try container.decodeIfPresent(Date.self, forKey: .nbf)
+        iat = try container.decodeIfPresent(Date.self, forKey: .iat)
+        jti = try container.decodeIfPresent(String.self, forKey: .jti)
     }
 }

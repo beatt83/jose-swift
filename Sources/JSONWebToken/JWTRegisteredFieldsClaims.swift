@@ -22,19 +22,19 @@ typealias DefaultJWT = JWT<DefaultJWTClaimsImpl>
 /// Conforming types can represent the payload of a JWT, encompassing both registered claim names and custom claims.
 public protocol JWTRegisteredFieldsClaims: Codable {
     // "iss" claim representing the issuer of the JWT.
-    var issuer: String? { get }
+    var iss: String? { get }
     // "sub" claim representing the subject of the JWT.
-    var subject: String? { get }
+    var sub: String? { get }
     // "aud" claim representing the audience(s) of the JWT.
-    var audience: [String]? { get }
+    var aud: [String]? { get }
     // "exp" claim representing the expiration time of the JWT.
-    var expirationTime: Date? { get }
+    var exp: Date? { get }
     // "nbf" claim representing the time before which the JWT must not be accepted.
-    var notBeforeTime: Date? { get }
+    var nbf: Date? { get }
     // "iat" claim representing the time at which the JWT was issued.
-    var issuedAt: Date? { get }
+    var iat: Date? { get }
     // "jti" claim representing a unique identifier for the JWT.
-    var jwtID: String? { get }
+    var jti: String? { get }
 
     /// Validates extra claims in the JWT.
     /// - Throws: `JWTError` if any claim validations fail.
@@ -43,31 +43,31 @@ public protocol JWTRegisteredFieldsClaims: Codable {
 
 /// `DefaultJWTClaimsImpl` is a struct implementing the `JWTRegisteredFieldsClaims` protocol, providing a default set of claims.
 public struct DefaultJWTClaimsImpl: JWTRegisteredFieldsClaims {
-    public let issuer: String?
-    public let subject: String?
-    public let audience: [String]?
-    public let expirationTime: Date?
-    public let notBeforeTime: Date?
-    public let issuedAt: Date?
-    public let jwtID: String?
+    public let iss: String?
+    public let sub: String?
+    public let aud: [String]?
+    public let exp: Date?
+    public let nbf: Date?
+    public let iat: Date?
+    public let jti: String?
     
     /// Initializes a new `DefaultJWTClaimsImpl` instance with optional parameters for each standard claim.
     public init(
-        issuer: String? = nil,
-        subject: String? = nil,
-        audience: [String]? = nil,
-        expirationTime: Date? = nil,
-        notBeforeTime: Date? = nil,
-        issuedAt: Date? = nil,
-        jwtID: String? = nil
+        iss: String? = nil,
+        sub: String? = nil,
+        aud: [String]? = nil,
+        exp: Date? = nil,
+        nbf: Date? = nil,
+        iat: Date? = nil,
+        jti: String? = nil
     ) {
-        self.issuer = issuer
-        self.subject = subject
-        self.audience = audience
-        self.expirationTime = expirationTime
-        self.notBeforeTime = notBeforeTime
-        self.issuedAt = issuedAt
-        self.jwtID = jwtID
+        self.iss = iss
+        self.sub = sub
+        self.aud = aud
+        self.exp = exp
+        self.nbf = nbf
+        self.iat = iat
+        self.jti = jti
     }
     
     public func validateExtraClaims() throws {}
