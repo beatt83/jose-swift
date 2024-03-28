@@ -33,6 +33,10 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
     /// AES encryption in GCM mode with a 256-bit key.
     /// This algorithm provides robust security and is widely used in various security protocols and systems.
     case a256GCM = "A256GCM"
+    
+    /// ChaCha20-Poly1305 with a 256-bit key and 96 bit IV.
+    /// This algorithm provides robust security and is widely used in various security protocols and systems, it is faster than AES in mobile devices.
+    case c20PKW = "C20PKW"
 
     /// Returns the key size in bits used by the encryption algorithm.
     /// - Returns: The size of the key in bits.
@@ -44,6 +48,7 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
         case .a128CBCHS256: return 256
         case .a192CBCHS384: return 384
         case .a256CBCHS512: return 512
+        case .c20PKW: return 256
         }
     }
 
@@ -51,6 +56,7 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
     /// - Returns: The size of the initialization vector in bits.
     public var initializationVectorSizeInBits: Int {
         switch self {
+        case .c20PKW: return 96
         case .a128CBCHS256, .a192CBCHS384, .a256CBCHS512: return 128
         case .a128GCM, .a192GCM, .a256GCM: return 96
         }
@@ -72,6 +78,8 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
             return AES192GCM()
         case .a256GCM:
             return AES256GCM()
+        case .c20PKW:
+            return C20PKW()
         }
     }
     
@@ -91,6 +99,8 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
             return AES192GCM()
         case .a256GCM:
             return AES256GCM()
+        case .c20PKW:
+            return C20PKW()
         }
     }
 }

@@ -105,6 +105,7 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | A128GCMKW       |:white_check_mark:|
 | A192GCMKW       |:white_check_mark:|
 | A256GCMKW       |:white_check_mark:|
+| C20PKW          |:white_check_mark:|
 
 </td></tr> </table>
 
@@ -268,7 +269,17 @@ let jws = try JWS(payload: payload, key: keyJWK)
 let jwsString = jws.compactSerialization
 
 try JWS(jwsString: jwsString).verify(key: keyJWK)
+```
 
+If you want to add additional headers beyond the default to the JWS:
+
+```swift
+let rsaKeyId = "Hello-keyId"
+var header = DefaultJWSHeaderImpl()
+header.keyID = rsaKeyId
+header.algorithm = .rsa512
+let keyJWK = JWK(keyType: .rsa, algorithm: "RSA512", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
+let jwe = try JWS(payload: payload, protectedHeader: header, key: jwk)
 ```
 
 ### JWE (JSON Web Encryption)
@@ -307,6 +318,8 @@ JWE represents encrypted content using JSON-based data structures, following the
     - A128GCM (AES GCM using 128-bit key)
     - A192GCM (AES GCM using 192-bit key)
     - A256GCM (AES GCM using 256-bit key)
+    - C20PKW (ChaCha20-Poly1305)
+    - Note: ChaChaPoly20-Poly1305 is specified in [draft-amringer-jose-chacha-02](https://datatracker.ietf.org/doc/html/draft-amringer-jose-chacha-02)
     
 3. **Compression Algorithms**:
     - DEFLATE (zip)
