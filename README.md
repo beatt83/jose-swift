@@ -220,6 +220,8 @@ import JSONWebToken
 
 You can access [here](https://beatt83.github.io/jose-swift/documentation/jose_swift/) to the documentation.
 
+For more examples on how to use this library please try to check the unit tests, they are extensive and should provide more information.
+
 ## Modules
 
 ### JWK (JSON Web Key)
@@ -227,6 +229,12 @@ JWK is a standard way to represent cryptographic keys in a JSON format, as defin
 
 ```swift
 let keyJWK = JWK(keyType: .rsa, algorithm: "A256GCM", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
+// ---------------------
+let key = secp256k1.Signing.PrivateKey()
+let keyJWK = key.jwkRepresentation
+// ---------------------
+let key = Curve25519.KeyAgreement.PrivateKey()
+let publicKeyJWK = key.jwkRepresentation.publicKey
 ```
 
 ### JWS (JSON Web Signature)
@@ -252,7 +260,8 @@ Example:
 
 ```swift
 let payload = "Hello world".data(using: .utf8)!
-let keyJWK = ... //JWK key
+let key = secp256k1.Signing.PrivateKey()
+let keyJWK = key.jwkRepresentation
 
 let jws = try JWS(payload: payload, key: keyJWK)
 
@@ -298,6 +307,9 @@ JWE represents encrypted content using JSON-based data structures, following the
     - A128GCM (AES GCM using 128-bit key)
     - A192GCM (AES GCM using 192-bit key)
     - A256GCM (AES GCM using 256-bit key)
+    
+3. **Compression Algorithms**:
+    - DEFLATE (zip)
 
 Example:
 
@@ -310,6 +322,7 @@ let serialization = try JWE(
     payload: payload,
     keyManagementAlg: .a256KW,
     encryptionAlgorithm: .a256GCM,
+    compressionAlgorithm: .zip,
     recipientKey: keyJWK
 )
 
@@ -362,11 +375,12 @@ Example:
 - Signed JWT
 
 ```swift
-let keyJWK = ... //JWK key
+let key = P256.Signing.PrivateKey()
+let keyJWK = key.jwkRepresentation
 let mockClaims = DefaultJWTClaims(
-    issuer: "testAlice",
-    subject: "Alice",
-    expirationTime: expiredAt
+    iss: "testAlice",
+    sub: "Alice",
+    exp: expiredAt
 )
 
 let jwt = try JWT.signed(
@@ -384,11 +398,12 @@ let verifiedPayload = verifiedJWT.payload
 - Encrypted JWT
 
 ```swift
-let keyJWK = ... //JWK key
+let key = Curve25519.KeyAgreement.PrivateKey()
+let keyJWK = key.jwkRepresentation
 let mockClaims = DefaultJWTClaims(
-    issuer: "testAlice",
-    subject: "Alice",
-    expirationTime: expiredAt
+    iss: "testAlice",
+    sub: "Alice",
+    exp: expiredAt
 )
 
 let jwt = try JWT.encrypt(

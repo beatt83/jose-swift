@@ -47,5 +47,11 @@ extension JWT {
 
         /// Error indicating a mismatch between the expected audience (`aud` claim) and the actual audience of the JWT.
         case audienceMismatch
+        
+        // Error indicating that JWT formats supported are JWS strings and JWE strings
+        case unsupportedFormat
+        
+        // Error indicating that JWT of JWE format cannot retrieve payload without decryption
+        case cannotRetrievePayloadFromJWE
     }
 }

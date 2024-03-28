@@ -52,4 +52,85 @@ public struct JWT<C: JWTRegisteredFieldsClaims> {
             return jws.compactSerialization
         }
     }
+    
+    public init(payload: C, format: Format) {
+        self.payload = payload
+        self.format = format
+    }
+    
+    public init(jwtString: String) throws {
+        self.payload = try Self.getPayload(jwtString: jwtString)
+        self.format = try Self.jwtFormat(jwtString: jwtString)
+    }
+}
+
+public extension JWT {
+    static func getPayload<Payload: JWTRegisteredFieldsClaims>(jwtString: String) throws -> Payload {
+        return try JSONDecoder().decode(Payload.self, from: getPayload(jwtString: jwtString))
+    }
+    
+    static func getPayload(jwtString: String) throws -> Data {
+        switch try jwtFormat(jwtString: jwtString) {
+        case .jwe:
+            throw JWTError.cannotRetrievePayloadFromJWE
+        case .jws(let jws):
+            return jws.payload
+        }
+    }
+    
+    static func getIssuer(jwtString: String) throws -> String? {
+        let payload: DefaultJWTClaimsImpl = try getPayload(jwtString: jwtString)
+        return payload.iss
+    }
+    
+    static func getSubject(jwtString: String) throws -> String? {
+        let payload: DefaultJWTClaimsImpl = try getPayload(jwtString: jwtString)
+        return payload.sub
+    }
+    
+    static func getNotBeforeTime(jwtString: String) throws -> Date? {
+        let payload: DefaultJWTClaimsImpl = try getPayload(jwtString: jwtString)
+        return payload.nbf
+    }
+    
+    static func getExpirationTime(jwtString: String) throws -> Date? {
+        let payload: DefaultJWTClaimsImpl = try getPayload(jwtString: jwtString)
+        return payload.exp
+    }
+    
+    static func getIssuedAt(jwtString: String) throws -> Date? {
+        let payload: DefaultJWTClaimsImpl = try getPayload(jwtString: jwtString)
+        return payload.iat
+    }
+    
+    static func getID(jwtString: String) throws -> String? {
+        let payload: DefaultJWTClaimsImpl = try getPayload(jwtString: jwtString)
+        return payload.jti
+    }
+    
+    static func getAudience(jwtString: String) throws -> [String]? {
+        let payload: DefaultJWTClaimsImpl = try getPayload(jwtString: jwtString)
+        return payload.aud
+    }
+    
+    static func getHeader(jwtString: String) throws -> Data {
+        switch try jwtFormat(jwtString: jwtString) {
+        case .jwe(let jwe):
+            return jwe.protectedHeaderData
+        case .jws(let jws):
+            return jws.protectedHeaderData
+        }
+    }
+    
+    static func jwtFormat(jwtString: String) throws -> Format {
+        let components = jwtString.components(separatedBy: ".")
+        switch components.count {
+        case 3:
+            return try .jws(.init(jwsString: jwtString))
+        case 5:
+            return try .jwe(.init(compactString: jwtString))
+        default:
+            throw JWTError.somethingWentWrong
+        }
+    }
 }
