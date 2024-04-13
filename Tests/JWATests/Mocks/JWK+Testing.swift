@@ -41,6 +41,11 @@ extension JWK {
         return privateKey.jwkRepresentation
     }
     
+    static var testingES256KSigningPair: JWK {
+        let privateKey = try! secp256k1.Signing.PrivateKey()
+        return privateKey.jwkRepresentation
+    }
+    
     static var testingCurve25519KPair: JWK {
         let privateKey = Curve25519.Signing.PrivateKey()
         return privateKey.jwkRepresentation
