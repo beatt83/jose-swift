@@ -103,8 +103,27 @@ extension P521.KeyAgreement.PrivateKey: JWKRepresentable {
 extension secp256k1.Signing.PrivateKey: JWKRepresentable {
     /// Returns the JWK representation of a `secp256k1.KeyAgreement.PrivateKey` instance.
     public var jwkRepresentation: JWK {
+        let publicKeyData: Data
+        switch publicKey.format {
+        case .compressed:
+            // If public key is compressed, uncompress it first
+            var pubKey = publicKey.rawRepresentation
+            var keyLength = secp256k1.Format.uncompressed.length
+            var bytes = [UInt8](repeating: 0, count: keyLength)
+
+            secp256k1_ec_pubkey_serialize(
+                secp256k1.Context.rawRepresentation,
+                &bytes,
+                &keyLength,
+                &pubKey,
+                secp256k1.Format.uncompressed.rawValue
+            )
+            publicKeyData = Data(bytes)
+        case .uncompressed:
+            publicKeyData = publicKey.dataRepresentation
+        }
         // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
-        let publicKeyRawRepresentation = publicKey.dataRepresentation.count == 65 ? publicKey.dataRepresentation.dropFirst(1) : publicKey.dataRepresentation
+        let publicKeyRawRepresentation = publicKeyData.count == 65 ? publicKeyData.dropFirst(1) : publicKeyData
         let x = publicKeyRawRepresentation.prefix(publicKeyRawRepresentation.count / 2)
         let y = publicKeyRawRepresentation.suffix(publicKeyRawRepresentation.count / 2)
         return JWK(
