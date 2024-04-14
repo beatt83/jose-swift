@@ -18,10 +18,10 @@ import CryptoSwift
 import Foundation
 import JSONWebKey
 
-struct PS256Verifier: Verifier {
-    var algorithm: String { SigningAlgorithm.PS256.rawValue }
+public struct PS256Verifier: Verifier {
+    public var algorithm: String { SigningAlgorithm.PS256.rawValue }
     
-    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
+    public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
             let n = key?.n,
             let e = key?.e

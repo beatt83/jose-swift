@@ -18,10 +18,10 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct ES384Verifier: Verifier {
-    var algorithm: String { SigningAlgorithm.ES384.rawValue }
+public struct ES384Verifier: Verifier {
+    public var algorithm: String { SigningAlgorithm.ES384.rawValue }
     
-    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
+    public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
             let x = key?.x,
             let y = key?.y

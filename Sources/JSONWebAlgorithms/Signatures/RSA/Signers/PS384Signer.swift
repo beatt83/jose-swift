@@ -18,10 +18,10 @@ import CryptoSwift
 import Foundation
 import JSONWebKey
 
-struct PS384Signer: Signer {
-    var algorithm: String { SigningAlgorithm.PS384.rawValue }
+public struct PS384Signer: Signer {
+    public var algorithm: String { SigningAlgorithm.PS384.rawValue }
     
-    func sign(data: Data, key: JWK) throws -> Data {
+    public func sign(data: Data, key: JWK) throws -> Data {
         guard
             let n = key.n,
             let e = key.e

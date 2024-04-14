@@ -18,10 +18,10 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct HS512Verifier: Verifier {
-    var algorithm: String { SigningAlgorithm.HS512.rawValue }
+public struct HS512Verifier: Verifier {
+    public var algorithm: String { SigningAlgorithm.HS512.rawValue }
     
-    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
+    public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard let k = key?.key else { throw CryptoError.notValidPrivateKey }
         let symmetryKey = SymmetricKey(data: k)
         return HMAC<SHA512>.isValidAuthenticationCode(signature, authenticating: data, using: symmetryKey)

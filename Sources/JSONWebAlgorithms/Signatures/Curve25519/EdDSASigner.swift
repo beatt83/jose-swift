@@ -18,10 +18,10 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct EdDSASigner: Signer {
-    var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
+public struct EdDSASigner: Signer {
+    public var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
     
-    func sign(data: Data, key: JWK) throws -> Data {
+    public func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }
         let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: d)
         return try privateKey.signature(for: data)
