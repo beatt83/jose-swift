@@ -18,10 +18,10 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct HS384Signer: Signer {
-    var algorithm: String { SigningAlgorithm.HS384.rawValue }
+public struct HS384Signer: Signer {
+    public var algorithm: String { SigningAlgorithm.HS384.rawValue }
     
-    func sign(data: Data, key: JWK) throws -> Data {
+    public func sign(data: Data, key: JWK) throws -> Data {
         guard let k = key.key else { throw CryptoError.notValidPrivateKey }
         let symmetryKey = SymmetricKey(data: k)
         return Data(HMAC<SHA384>.authenticationCode(for: data, using: symmetryKey))

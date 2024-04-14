@@ -18,10 +18,10 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct EdDSAVerifier: Verifier {
-    var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
+public struct EdDSAVerifier: Verifier {
+    public var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
     
-    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
+    public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
             let x = key?.x
         else { throw CryptoError.notValidPublicKey }

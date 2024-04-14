@@ -18,10 +18,10 @@ import CryptoSwift
 import Foundation
 import JSONWebKey
 
-struct RS512Verifier: Verifier {
-    var algorithm: String { SigningAlgorithm.RS512.rawValue }
+public struct RS512Verifier: Verifier {
+    public var algorithm: String { SigningAlgorithm.RS512.rawValue }
     
-    func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
+    public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard
             let n = key?.n,
             let e = key?.e

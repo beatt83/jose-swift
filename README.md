@@ -257,6 +257,14 @@ JWS is a standard for digitally signing arbitrary content, as detailed in [RFC 7
 - PS512 (RSA PSS with SHA-512)
 - EdDSA (EdDSA using Ed25519) - [RFC 8037](https://datatracker.ietf.org/doc/html/rfc8037)
 
+### Bouncy castle secp256k1 failsafe
+
+There is a difference between the signatures given by Bouncy castle a prominent cryptographic Java library and used with Nimbus JWT and bitcoin secp256k1. The signatures are in DER format and for some reason the R and S are reverted.
+
+To have signatures that are verifiable by Bouncy Castle you can set this flag `ES256KSigner.outputFormat = .der`, it will transform the signatures in DER format.
+
+With this in mind this library provides a functionality to enable verification of Nimbus/Bouncy Castle signatures, this can be enabled by setting the flag `ES256KVerifier.bouncyCastleFailSafe = true`. This process requires manipualtion of the internal signature, and reverses the R and S bytes, use it at your own risk since it can add security flaw.
+
 Example:
 
 ```swift

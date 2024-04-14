@@ -18,10 +18,10 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct ES384Signer: Signer {
-    var algorithm: String { SigningAlgorithm.ES384.rawValue }
+public struct ES384Signer: Signer {
+    public var algorithm: String { SigningAlgorithm.ES384.rawValue }
     
-    func sign(data: Data, key: JWK) throws -> Data {
+    public func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }
         let privateKey = try P384.Signing.PrivateKey(rawRepresentation: d)
         let hash = SHA384.hash(data: data)

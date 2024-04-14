@@ -18,13 +18,27 @@ import Foundation
 import JSONWebKey
 import secp256k1
 
-struct ES256KSigner: Signer {
-    var algorithm: String { SigningAlgorithm.ES256K.rawValue }
+public struct ES256KSigner: Signer {
+    public enum SignatureFormat {
+        case raw
+        case der
+    }
     
-    func sign(data: Data, key: JWK) throws -> Data {
+    public static var outputFormat = ES256KSigner.SignatureFormat.raw
+    
+    public var algorithm: String { SigningAlgorithm.ES256K.rawValue }
+    
+    public func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }
         let privateKey = try secp256k1.Signing.PrivateKey(dataRepresentation: d)
         let hash = SHA256.hash(data: data)
-        return try privateKey.signature(for: hash).dataRepresentation
+        let signature = try privateKey.signature(for: hash)
+        
+        switch Self.outputFormat {
+        case .raw:
+            return signature.dataRepresentation
+        case .der:
+            return try signature.derRepresentation
+        }
     }
 }

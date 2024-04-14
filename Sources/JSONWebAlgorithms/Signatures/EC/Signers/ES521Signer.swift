@@ -18,10 +18,10 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct ES512Signer: Signer {
-    var algorithm: String { SigningAlgorithm.ES512.rawValue }
+public struct ES512Signer: Signer {
+    public var algorithm: String { SigningAlgorithm.ES512.rawValue }
     
-    func sign(data: Data, key: JWK) throws -> Data {
+    public func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }
         let privateKey = try P521.Signing.PrivateKey(rawRepresentation: d)
         let hash = SHA512.hash(data: data)
