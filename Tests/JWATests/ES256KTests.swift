@@ -102,4 +102,58 @@ final class Secp256k1Tests: XCTestCase {
             key: key.jwkRepresentation
         ))
     }
+    
+    func testSecp256k1CycleInvertedRS() throws {
+        let payload = "Test".data(using: .utf8)!
+        let key = try secp256k1.Signing.PrivateKey(format: .uncompressed)
+        ES256KSigner.invertedBytesR_S = true
+        
+        let signature = try ES256KSigner().sign(data: payload, key: key.jwkRepresentation)
+        
+        ES256KVerifier.bouncyCastleFailSafe = true
+        
+        XCTAssertTrue(try ES256KVerifier().verify(
+            data: payload,
+            signature: signature,
+            key: key.jwkRepresentation
+        ))
+    }
+    
+    func testSecp256k1SignatureFromJSLibrary() throws {
+        let payload = try "eyJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6cHJpc206MGYzN2Y2YmRmZWNlMzQzNzJmMzE3YmM5NDQyNzY5YzI0Yzk1ZmNkYjQzZDAzOTNiOTZiOGQ3YWEwODBlZDBiNzpDcmtCQ3JZQkVqb0tCbUYxZEdndE1SQUVTaTRLQ1hObFkzQXlOVFpyTVJJaEF2TWkxYUZZaTdOUlFWQ00zU2s2TjBvQkhIOXlabUhUcGtOT0tyd1QzYWdVRWpzS0IybHpjM1ZsTFRFUUFrb3VDZ2x6WldOd01qVTJhekVTSVFLSkp2UkloYjZLWG9iTnhWQnhaS2ZyMkdCcnNsc0lUb1doSVFCUDEyMS1yaEk3Q2dkdFlYTjBaWEl3RUFGS0xnb0pjMlZqY0RJMU5tc3hFaUVDRXI2QkJMbFVEcjFMcHdJZ1JLcHZZQ1BYUkRfWFh5SFpTbWdVTXMxZlpVMCIsInN1YiI6ImRpZDpwcmlzbTpjNzVlYjA4ZmQ2ZjUyOTcxNmUxYzBhZWZhNmQ2NDBkNDgyNTk2ODFjMjk5ZTMyMDNiYWUzZGRmMjMzNjU3MzY3OkN0OEJDdHdCRW5RS0gyRjFkR2hsYm5ScFkyRjBhVzl1WVhWMGFHVnVkR2xqWVhScGIyNUxaWGtRQkVKUENnbHpaV053TWpVMmF6RVNJSnFKNWNSZmhqMUpybXlxVjlFcWNEdTBWdGRGR1VmV2VxRVB4cEtvWEFsa0dpQ3NLY1lmTVZPX1dlM1l1TlBmZzB5VUlrUHdaYU81TmpWYWl3OTFpcUs0Y2hKa0NnOXRZWE4wWlhKdFlYTjBaWEpMWlhrUUFVSlBDZ2x6WldOd01qVTJhekVTSUpxSjVjUmZoajFKcm15cVY5RXFjRHUwVnRkRkdVZldlcUVQeHBLb1hBbGtHaUNzS2NZZk1WT19XZTNZdU5QZmcweVVJa1B3WmFPNU5qVmFpdzkxaXFLNGNnIiwibmJmIjoxNzEzNzg4OTA0LCJ2YyI6eyJjcmVkZW50aWFsU3ViamVjdCI6eyJlbWFpbEFkZHJlc3MiOiJjb3Jwb3JhdGVAZG9tYWluLmNvbSIsImRyaXZpbmdDbGFzcyI6MSwiZHJpdmluZ0xpY2Vuc2VJRCI6IkVTLTEyMzQ1Njc4OTAiLCJpZCI6ImRpZDpwcmlzbTpjNzVlYjA4ZmQ2ZjUyOTcxNmUxYzBhZWZhNmQ2NDBkNDgyNTk2ODFjMjk5ZTMyMDNiYWUzZGRmMjMzNjU3MzY3OkN0OEJDdHdCRW5RS0gyRjFkR2hsYm5ScFkyRjBhVzl1WVhWMGFHVnVkR2xqWVhScGIyNUxaWGtRQkVKUENnbHpaV053TWpVMmF6RVNJSnFKNWNSZmhqMUpybXlxVjlFcWNEdTBWdGRGR1VmV2VxRVB4cEtvWEFsa0dpQ3NLY1lmTVZPX1dlM1l1TlBmZzB5VUlrUHdaYU81TmpWYWl3OTFpcUs0Y2hKa0NnOXRZWE4wWlhKdFlYTjBaWEpMWlhrUUFVSlBDZ2x6WldOd01qVTJhekVTSUpxSjVjUmZoajFKcm15cVY5RXFjRHUwVnRkRkdVZldlcUVQeHBLb1hBbGtHaUNzS2NZZk1WT19XZTNZdU5QZmcweVVJa1B3WmFPNU5qVmFpdzkxaXFLNGNnIiwiZGF0ZU9mSXNzdWFuY2UiOiIyMDIzLTAxLTAxVDAyOjAyOjAyWiJ9LCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIl0sIkBjb250ZXh0IjpbImh0dHBzOlwvXC93d3cudzMub3JnXC8yMDE4XC9jcmVkZW50aWFsc1wvdjEiXSwiY3JlZGVudGlhbFN0YXR1cyI6eyJzdGF0dXNQdXJwb3NlIjoiUmV2b2NhdGlvbiIsInN0YXR1c0xpc3RJbmRleCI6MywiaWQiOiJodHRwOlwvXC8xOTIuMTY4LjEuNDQ6ODAwMFwvcHJpc20tYWdlbnRcL2NyZWRlbnRpYWwtc3RhdHVzXC9jMDkxOGViNi1lZGIzLTRjMTUtYWM4OS0yZDk5MTZmMjFmYjUjMyIsInR5cGUiOiJTdGF0dXNMaXN0MjAyMUVudHJ5Iiwic3RhdHVzTGlzdENyZWRlbnRpYWwiOiJodHRwOlwvXC8xOTIuMTY4LjEuNDQ6ODAwMFwvcHJpc20tYWdlbnRcL2NyZWRlbnRpYWwtc3RhdHVzXC9jMDkxOGViNi1lZGIzLTRjMTUtYWM4OS0yZDk5MTZmMjFmYjUifX19".tryToData()
+        
+        let publicKeyX = try Base64URL.decode("iSb0SIW-il6GzcVQcWSn69hga7JbCE6FoSEAT9dtfq4")
+        let publicKeyY = try Base64URL.decode("9FcLWxguRJYRCVcuN7AHDo8wePDUVDI9UrvMSaKXbiw")
+        let publicKeyRaw = [0x04] + publicKeyX + publicKeyY
+        let publicKey = try secp256k1.Signing.PublicKey(dataRepresentation: publicKeyRaw, format: .uncompressed)
+        let sigantureBase64 = "uijHd6DMBrfDq_-K2fhB17Tm4eI4twLFMu18Lz_xpfF1K3yuJ58CkUqKAb_HNORrP9e4jc8BTbqGwDzk7utB9A"
+        let signatureRaw = try Base64URL.decode(sigantureBase64)
+        
+        ES256KVerifier.bouncyCastleFailSafe = true
+        
+        XCTAssertTrue(try ES256KVerifier().verify(
+            data: payload,
+            signature: signatureRaw,
+            key: publicKey.jwkRepresentation
+        ))
+    }
+    
+    func testSecp256k1JSLibrarySignatureVerifyFailIfFeatureNotActive() throws {
+        let payload = try "eyJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6cHJpc206MGYzN2Y2YmRmZWNlMzQzNzJmMzE3YmM5NDQyNzY5YzI0Yzk1ZmNkYjQzZDAzOTNiOTZiOGQ3YWEwODBlZDBiNzpDcmtCQ3JZQkVqb0tCbUYxZEdndE1SQUVTaTRLQ1hObFkzQXlOVFpyTVJJaEF2TWkxYUZZaTdOUlFWQ00zU2s2TjBvQkhIOXlabUhUcGtOT0tyd1QzYWdVRWpzS0IybHpjM1ZsTFRFUUFrb3VDZ2x6WldOd01qVTJhekVTSVFLSkp2UkloYjZLWG9iTnhWQnhaS2ZyMkdCcnNsc0lUb1doSVFCUDEyMS1yaEk3Q2dkdFlYTjBaWEl3RUFGS0xnb0pjMlZqY0RJMU5tc3hFaUVDRXI2QkJMbFVEcjFMcHdJZ1JLcHZZQ1BYUkRfWFh5SFpTbWdVTXMxZlpVMCIsInN1YiI6ImRpZDpwcmlzbTpjNzVlYjA4ZmQ2ZjUyOTcxNmUxYzBhZWZhNmQ2NDBkNDgyNTk2ODFjMjk5ZTMyMDNiYWUzZGRmMjMzNjU3MzY3OkN0OEJDdHdCRW5RS0gyRjFkR2hsYm5ScFkyRjBhVzl1WVhWMGFHVnVkR2xqWVhScGIyNUxaWGtRQkVKUENnbHpaV053TWpVMmF6RVNJSnFKNWNSZmhqMUpybXlxVjlFcWNEdTBWdGRGR1VmV2VxRVB4cEtvWEFsa0dpQ3NLY1lmTVZPX1dlM1l1TlBmZzB5VUlrUHdaYU81TmpWYWl3OTFpcUs0Y2hKa0NnOXRZWE4wWlhKdFlYTjBaWEpMWlhrUUFVSlBDZ2x6WldOd01qVTJhekVTSUpxSjVjUmZoajFKcm15cVY5RXFjRHUwVnRkRkdVZldlcUVQeHBLb1hBbGtHaUNzS2NZZk1WT19XZTNZdU5QZmcweVVJa1B3WmFPNU5qVmFpdzkxaXFLNGNnIiwibmJmIjoxNzEzNzg4OTA0LCJ2YyI6eyJjcmVkZW50aWFsU3ViamVjdCI6eyJlbWFpbEFkZHJlc3MiOiJjb3Jwb3JhdGVAZG9tYWluLmNvbSIsImRyaXZpbmdDbGFzcyI6MSwiZHJpdmluZ0xpY2Vuc2VJRCI6IkVTLTEyMzQ1Njc4OTAiLCJpZCI6ImRpZDpwcmlzbTpjNzVlYjA4ZmQ2ZjUyOTcxNmUxYzBhZWZhNmQ2NDBkNDgyNTk2ODFjMjk5ZTMyMDNiYWUzZGRmMjMzNjU3MzY3OkN0OEJDdHdCRW5RS0gyRjFkR2hsYm5ScFkyRjBhVzl1WVhWMGFHVnVkR2xqWVhScGIyNUxaWGtRQkVKUENnbHpaV053TWpVMmF6RVNJSnFKNWNSZmhqMUpybXlxVjlFcWNEdTBWdGRGR1VmV2VxRVB4cEtvWEFsa0dpQ3NLY1lmTVZPX1dlM1l1TlBmZzB5VUlrUHdaYU81TmpWYWl3OTFpcUs0Y2hKa0NnOXRZWE4wWlhKdFlYTjBaWEpMWlhrUUFVSlBDZ2x6WldOd01qVTJhekVTSUpxSjVjUmZoajFKcm15cVY5RXFjRHUwVnRkRkdVZldlcUVQeHBLb1hBbGtHaUNzS2NZZk1WT19XZTNZdU5QZmcweVVJa1B3WmFPNU5qVmFpdzkxaXFLNGNnIiwiZGF0ZU9mSXNzdWFuY2UiOiIyMDIzLTAxLTAxVDAyOjAyOjAyWiJ9LCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIl0sIkBjb250ZXh0IjpbImh0dHBzOlwvXC93d3cudzMub3JnXC8yMDE4XC9jcmVkZW50aWFsc1wvdjEiXSwiY3JlZGVudGlhbFN0YXR1cyI6eyJzdGF0dXNQdXJwb3NlIjoiUmV2b2NhdGlvbiIsInN0YXR1c0xpc3RJbmRleCI6MywiaWQiOiJodHRwOlwvXC8xOTIuMTY4LjEuNDQ6ODAwMFwvcHJpc20tYWdlbnRcL2NyZWRlbnRpYWwtc3RhdHVzXC9jMDkxOGViNi1lZGIzLTRjMTUtYWM4OS0yZDk5MTZmMjFmYjUjMyIsInR5cGUiOiJTdGF0dXNMaXN0MjAyMUVudHJ5Iiwic3RhdHVzTGlzdENyZWRlbnRpYWwiOiJodHRwOlwvXC8xOTIuMTY4LjEuNDQ6ODAwMFwvcHJpc20tYWdlbnRcL2NyZWRlbnRpYWwtc3RhdHVzXC9jMDkxOGViNi1lZGIzLTRjMTUtYWM4OS0yZDk5MTZmMjFmYjUifX19".tryToData()
+        
+        let publicKeyX = try Base64URL.decode("iSb0SIW-il6GzcVQcWSn69hga7JbCE6FoSEAT9dtfq4")
+        let publicKeyY = try Base64URL.decode("9FcLWxguRJYRCVcuN7AHDo8wePDUVDI9UrvMSaKXbiw")
+        let publicKeyRaw = [0x04] + publicKeyX + publicKeyY
+        let publicKey = try secp256k1.Signing.PublicKey(dataRepresentation: publicKeyRaw, format: .uncompressed)
+        let sigantureBase64 = "uijHd6DMBrfDq_-K2fhB17Tm4eI4twLFMu18Lz_xpfF1K3yuJ58CkUqKAb_HNORrP9e4jc8BTbqGwDzk7utB9A"
+        let signatureRaw = try Base64URL.decode(sigantureBase64)
+        
+        ES256KVerifier.bouncyCastleFailSafe = false
+        
+        XCTAssertFalse(try ES256KVerifier().verify(
+            data: payload,
+            signature: signatureRaw,
+            key: publicKey.jwkRepresentation
+        ))
+    }
 }

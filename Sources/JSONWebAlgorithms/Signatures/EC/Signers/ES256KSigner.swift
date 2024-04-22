@@ -25,6 +25,7 @@ public struct ES256KSigner: Signer {
     }
     
     public static var outputFormat = ES256KSigner.SignatureFormat.raw
+    public static var invertedBytesR_S = false
     
     public var algorithm: String { SigningAlgorithm.ES256K.rawValue }
     
@@ -36,9 +37,30 @@ public struct ES256KSigner: Signer {
         
         switch Self.outputFormat {
         case .raw:
+            guard !Self.invertedBytesR_S else {
+                return invertR_S(signatureData: signature.dataRepresentation)
+            }
             return signature.dataRepresentation
         case .der:
+            guard !Self.invertedBytesR_S else {
+                let inverted = invertR_S(signatureData: signature.dataRepresentation)
+                let signature = try secp256k1.Signing.ECDSASignature(dataRepresentation: inverted)
+                return try signature.derRepresentation
+            }
             return try signature.derRepresentation
         }
     }
+}
+
+func invertR_S(signatureData: Data) -> Data {
+    let (r, s) = extractRS(from: signatureData)
+    return Data(r.reversed()) + Data(s.reversed())
+}
+
+private func extractRS(from signature: Data) -> (r: Data, s: Data) {
+    let rIndex = signature.startIndex
+    let sIndex = signature.index(rIndex, offsetBy: 32)
+    let r = signature[rIndex..<sIndex]
+    let s = signature[sIndex..<signature.endIndex]
+    return (r, s)
 }
