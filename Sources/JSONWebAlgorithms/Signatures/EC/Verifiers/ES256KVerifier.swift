@@ -34,58 +34,17 @@ public struct ES256KVerifier: Verifier {
             guard ES256KVerifier.bouncyCastleFailSafe else {
                 return false
             }
-            let bcSignature = transcodeSignatureToDERBitcoin(derEncodedSig: signature)
-            return try publicKey.isValidSignature(getSignature(bcSignature), for: hash)
+            let bcSignature = try transcodeBCSignatureToBitcoin(signature: signature)
+            return publicKey.isValidSignature(bcSignature, for: hash)
         }
         return true
     }
     
     // This function helps transcode the signature from bouncy castle to bitcoin
-    private func transcodeSignatureToDERBitcoin(derEncodedSig: Data) -> Data {
-        // Helper to extract integer components from DER format
-        func extractInteger(from data: Data, at offset: inout Int) -> Data {
-            guard data[offset] == 0x02 else {
-                fatalError("Expected integer")
-            }
-            offset += 1 // Move past the 0x02
-            
-            let length = Int(data[offset])
-            offset += 1 // Move past the length byte
-            
-            let integerData = data[offset..<(offset + length)]
-            offset += length // Move past the integer data
-            return Data(integerData.reversed()) // Reverse the bytes
-        }
-        
-        var offset = 0
-        
-        // Verify initial DER sequence byte and length
-        guard derEncodedSig[offset] == 0x30 else {
-            fatalError("Invalid DER encoding")
-        }
-        offset += 1
-        
-        let _ = Int(derEncodedSig[offset]) // Total length (not used)
-        offset += 1
-        
-        // Extract and reverse R and S
-        let reversedR = extractInteger(from: derEncodedSig, at: &offset)
-        let reversedS = extractInteger(from: derEncodedSig, at: &offset)
-        
-        // Re-encode to DER format
-        var derEncoded = Data([0x30]) // Start of DER sequence
-        let totalLength = reversedR.count + reversedS.count + 4 // Total length of the content
-        derEncoded.append(contentsOf: [UInt8(totalLength)])
-        
-        // Append R
-        derEncoded.append(contentsOf: [0x02, UInt8(reversedR.count)])
-        derEncoded.append(reversedR)
-        
-        // Append S
-        derEncoded.append(contentsOf: [0x02, UInt8(reversedS.count)])
-        derEncoded.append(reversedS)
-        
-        return derEncoded
+    private func transcodeBCSignatureToBitcoin(signature: Data) throws -> secp256k1.Signing.ECDSASignature {
+        let signature = try getSignature(signature)
+        let signatureInvertedRS = invertR_S(signatureData: signature.dataRepresentation)
+        return try .init(dataRepresentation: signatureInvertedRS)
     }
 }
 
