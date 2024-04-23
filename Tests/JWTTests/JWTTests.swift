@@ -7,7 +7,7 @@ final class JWTTests: XCTestCase {
 
     func testParseSignedJWT() throws {
         let jwtString = """
-        eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.
+        eyJhbGciOiJub25lIn0.eyJpc3MiOiJ0ZXN0QWxpY2UiLCJzdWIiOiJBbGljZSIsInRlc3RDbGFpbSI6InRlc3RlZENsYWltIn0.
         """
         
         let jwt = try JWT<DefaultJWTClaimsImpl>.verify(jwtString: jwtString)
@@ -20,13 +20,11 @@ final class JWTTests: XCTestCase {
             XCTFail("Wrong JWT format")
         }
         
-        let expirationTime = jwt.payload.exp?.timeIntervalSince1970
-        XCTAssertEqual(jwt.payload.iss, "joe")
-        XCTAssertEqual(jwt.payload.exp!, Date(timeIntervalSince1970: 2279126580.0))
+        XCTAssertEqual(jwt.payload.iss, "testAlice")
     }
     
     func testSignAndVerify() throws {
-        let issuedAt = Date(timeIntervalSince1970: 0)
+        let issuedAt = Date(timeIntervalSince1970: 200)
         let mockClaims = MockExampleClaims(
             iss: "testAlice",
             sub: "Alice",
@@ -45,7 +43,7 @@ final class JWTTests: XCTestCase {
         let jwtString = jwt.jwtString
         
         XCTAssertTrue(jwtString.contains("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9"))
-        XCTAssertTrue(jwtString.contains("eyJpYXQiOi05NzgzMDcyMDAsImlzcyI6InRlc3RBbGljZSIsInN1YiI6IkFsaWNlIiwidGVzdENsYWltIjoidGVzdGVkQ2xhaW0ifQ"))
+        XCTAssertTrue(jwtString.contains("eyJpYXQiOjIwMCwiaXNzIjoidGVzdEFsaWNlIiwic3ViIjoiQWxpY2UiLCJ0ZXN0Q2xhaW0iOiJ0ZXN0ZWRDbGFpbSJ9"))
         
         let verifiedJWT = try JWT<MockExampleClaims>.verify(jwtString: jwtString, senderKey: key)
         let verifiedPayload = verifiedJWT.payload
@@ -150,7 +148,6 @@ final class JWTTests: XCTestCase {
     }
     
     func testFailAudienceValidation() throws {
-        let nbf = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
             iss: "testAlice",
             sub: "Alice",

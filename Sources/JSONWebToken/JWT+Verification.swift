@@ -61,7 +61,7 @@ extension JWT {
                     expectedAudience: expectedAudience
                 )
             }
-            let payload = try JSONDecoder().decode(C.self, from: jws.payload)
+            let payload = try JSONDecoder.jwt.decode(C.self, from: jws.payload)
             
             guard try jws.verify(key: senderKey) else {
                 throw JWTError.invalidSignature
@@ -95,7 +95,7 @@ extension JWT {
                     expectedAudience: expectedAudience
                 )
             }
-            let payload = try JSONDecoder().decode(C.self, from: decryptedPayload)
+            let payload = try JSONDecoder.jwt.decode(C.self, from: decryptedPayload)
             return .init(payload: payload, format: .jwe(jwe))
         default:
             throw JWTError.somethingWentWrong
