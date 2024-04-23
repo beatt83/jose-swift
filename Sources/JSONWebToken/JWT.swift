@@ -66,7 +66,7 @@ public struct JWT<C: JWTRegisteredFieldsClaims> {
 
 public extension JWT {
     static func getPayload<Payload: JWTRegisteredFieldsClaims>(jwtString: String) throws -> Payload {
-        return try JSONDecoder().decode(Payload.self, from: getPayload(jwtString: jwtString))
+        return try JSONDecoder.jwt.decode(Payload.self, from: getPayload(jwtString: jwtString))
     }
     
     static func getPayload(jwtString: String) throws -> Data {

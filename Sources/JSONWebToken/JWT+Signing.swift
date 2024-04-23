@@ -40,7 +40,7 @@ extension JWT {
         return JWT(
             payload: payload,
             format: .jws(try JWS(
-                payload: JSONEncoder.jose.encode(payload),
+                payload: JSONEncoder.jwt.encode(payload),
                 protectedHeader: protectedHeader,
                 key: key
             ))
@@ -103,7 +103,7 @@ extension JWT {
         protectedHeader.contentType = "JWT"
         
         return try JWS(
-            payload: JSONEncoder.jose.encode(jwtString.tryToData()),
+            payload: JSONEncoder.jwt.encode(jwtString.tryToData()),
             protectedHeader: protectedHeader,
             key: key
         )

@@ -54,7 +54,7 @@ extension JWT {
         return JWT(
             payload: payload,
             format: .jwe(try JWE(
-                payload: JSONEncoder.jose.encode(payload),
+                payload: JSONEncoder.jwt.encode(payload),
                 protectedHeader: protectedHeader,
                 unprotectedHeader: unprotectedHeader,
                 senderKey: senderKey,
