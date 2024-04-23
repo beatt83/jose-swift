@@ -30,7 +30,8 @@ public struct ES256KVerifier: Verifier {
         else { throw CryptoError.notValidPublicKey }
         let publicKey = try secp256k1.Signing.PublicKey(dataRepresentation: [0x04] + x + y, format: .uncompressed)
         let hash = SHA256.hash(data: data)
-        guard try publicKey.isValidSignature(getSignature(signature), for: hash) else {
+        let objSignature = try getSignature(signature).normalize
+        guard publicKey.isValidSignature(objSignature, for: hash) else {
             guard ES256KVerifier.bouncyCastleFailSafe else {
                 return false
             }
@@ -44,7 +45,7 @@ public struct ES256KVerifier: Verifier {
     private func transcodeBCSignatureToBitcoin(signature: Data) throws -> secp256k1.Signing.ECDSASignature {
         let signature = try getSignature(signature)
         let signatureInvertedRS = invertR_S(signatureData: signature.dataRepresentation)
-        return try .init(dataRepresentation: signatureInvertedRS)
+        return try .init(dataRepresentation: signatureInvertedRS).normalize
     }
 }
 
@@ -57,5 +58,28 @@ private func getSignature(_ data: Data) throws -> secp256k1.Signing.ECDSASignatu
         return signature
     } else {
         throw CryptoError.invalidSignature
+    }
+}
+
+private extension secp256k1.Signing.ECDSASignature {
+    /// Convert a signature into a normal signature.
+    var normalize: secp256k1.Signing.ECDSASignature {
+        get throws {
+            let context = secp256k1.Context.rawRepresentation
+            var signature = secp256k1_ecdsa_signature()
+            var resultSignature = secp256k1_ecdsa_signature()
+
+            dataRepresentation.copyToUnsafeMutableBytes(of: &signature.data)
+
+            guard secp256k1_ecdsa_signature_normalize(
+                context,
+                &resultSignature,
+                &signature
+            ) != 0 else {
+                return self
+            }
+
+            return try secp256k1.Signing.ECDSASignature(dataRepresentation: resultSignature.dataValue)
+        }
     }
 }
