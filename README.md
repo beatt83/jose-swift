@@ -132,6 +132,7 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | RS384           |:white_check_mark:|
 | RS512           |:white_check_mark:|
 | ES256           |:white_check_mark:|
+| ES256K          |:white_check_mark:|
 | ES384           |:white_check_mark:|
 | ES512           |:white_check_mark:|
 | PS256           |:white_check_mark:|
