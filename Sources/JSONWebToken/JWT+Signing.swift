@@ -47,10 +47,81 @@ extension JWT {
         )
     }
     
+    /// Creates a signed JSON Web Token (JWT) using the provided payload, header, and key.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: The payload to be included in the JWT, conforming to `Codable`.
+    ///   - protectedHeader: The protected header fields conforming to `JWSRegisteredFieldsHeader`.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWT` instance in JWS format with the signed payload.
+    public static func signed<P: JWSRegisteredFieldsHeader, Key>(
+        payload: Codable,
+        protectedHeader: P,
+        key: Key?
+    ) throws -> JWT {
+        var protectedHeader = protectedHeader
+        protectedHeader.type = "JWT"
+        let encodedPayload = try JSONEncoder.jwt.encode(payload)
+        return JWT(
+            payload: encodedPayload,
+            format: .jws(try JWS(
+                payload: encodedPayload,
+                protectedHeader: protectedHeader,
+                key: key
+            ))
+        )
+    }
+    
+    /// Creates a signed JSON Web Token (JWT) using the provided claims, protected header, and key.
+    ///
+    /// This function supports signing the claims using a `JWK` key. The claims are built using the `JWTClaimsBuilder` and the resulting JWT is signed with the specified key and protected header.
+    ///
+    /// - Parameters:
+    ///   - payload: A closure that returns the claims to be included in the JWT, using the `JWTClaimsBuilder`.
+    ///   - protectedHeader: The protected header fields for the JWS, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - key: The `JWK` used for signing the JWS.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWT` instance representing the signed JWT.
     public static func signed<P: JWSRegisteredFieldsHeader>(
         @JWTClaimsBuilder payload: () -> Claim,
         protectedHeader: P,
         key: JWK?
+    ) throws -> JWT {
+        var protectedHeader = protectedHeader
+        protectedHeader.type = "JWT"
+        let encodedPayload = try JSONEncoder.jwt.encode(payload().value)
+        return JWT(
+            payload: encodedPayload,
+            format: .jws(try JWS(
+                payload: encodedPayload,
+                protectedHeader: protectedHeader,
+                key: key
+            ))
+        )
+    }
+    
+    /// Creates a signed JSON Web Token (JWT) using the provided claims, header, and key.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: A closure that returns the claims to be included in the JWT, using the `JWTClaimsBuilder`.
+    ///   - protectedHeader: The protected header fields conforming to `JWSRegisteredFieldsHeader`.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWT` instance in JWS format with the signed claims.
+    public static func signed<P: JWSRegisteredFieldsHeader, Key>(
+        @JWTClaimsBuilder payload: () -> Claim,
+        protectedHeader: P,
+        key: Key?
     ) throws -> JWT {
         var protectedHeader = protectedHeader
         protectedHeader.type = "JWT"
@@ -101,6 +172,57 @@ extension JWT {
         )
     }
     
+    /// Creates a nested JSON Web Signature (JWS) object by first signing the payload as a JWT and then nesting it inside another JWS.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: The payload to be included in the inner JWT, conforming to `Codable`.
+    ///   - protectedHeader: The protected header fields for the outer JWS, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - key: The cryptographic key used for signing the outer JWS, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///   - nestedProtectedHeader: The protected header fields for the inner JWT, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - nestedKey: The cryptographic key used for signing the inner JWT, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWS` instance representing the nested signed JWT.
+    public static func signedAsNested<
+        P: JWSRegisteredFieldsHeader,
+        NP: JWSRegisteredFieldsHeader,
+        Key
+    >(
+        payload: Codable,
+        protectedHeader: P,
+        key: Key?,
+        nestedProtectedHeader: NP,
+        nestedKey: Key?
+    ) throws -> JWS {
+        let jwt = try signed(
+            payload: payload,
+            protectedHeader: nestedProtectedHeader,
+            key: nestedKey
+        )
+        
+        return try signedAsNested(
+            jwtString: jwt.jwtString,
+            protectedHeader: protectedHeader,
+            key: key
+        )
+    }
+    
+    /// Creates a nested JSON Web Signature (JWS) object by first signing the claims as a JWT and then nesting it inside another JWS.
+    ///
+    /// This function signs the claims using the nested key and nested protected header, and then nests the resulting JWT string inside another JWS using the outer key and protected header.
+    ///
+    /// - Parameters:
+    ///   - payload: A closure that returns the claims to be included in the inner JWT, using the `JWTClaimsBuilder`.
+    ///   - protectedHeader: The protected header fields for the outer JWS, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - key: The `JWK` used for signing the outer JWS.
+    ///   - nestedProtectedHeader: The protected header fields for the inner JWT, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - nestedKey: The `JWK` used for signing the inner JWT.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWS` instance representing the nested signed JWT.
     public static func signedAsNested<
         P: JWSRegisteredFieldsHeader,
         NP: JWSRegisteredFieldsHeader
@@ -110,6 +232,44 @@ extension JWT {
         key: JWK?,
         nestedProtectedHeader: NP,
         nestedKey: JWK?
+    ) throws -> JWS {
+        let jwt = try signed(
+            payload: payload,
+            protectedHeader: nestedProtectedHeader,
+            key: nestedKey
+        )
+        
+        return try signedAsNested(
+            jwtString: jwt.jwtString,
+            protectedHeader: protectedHeader,
+            key: key
+        )
+    }
+    
+    /// Creates a nested JSON Web Signature (JWS) object by first signing the claims as a JWT and then nesting it inside another JWS.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: A closure that returns the claims to be included in the inner JWT, using the `JWTClaimsBuilder`.
+    ///   - protectedHeader: The protected header fields for the outer JWS, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - key: The cryptographic key used for signing the outer JWS, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///   - nestedProtectedHeader: The protected header fields for the inner JWT, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - nestedKey: The cryptographic key used for signing the inner JWT, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWS` instance representing the nested signed JWT.
+    public static func signedAsNested<
+        P: JWSRegisteredFieldsHeader,
+        NP: JWSRegisteredFieldsHeader,
+        Key
+    >(
+        @JWTClaimsBuilder payload: () -> Claim,
+        protectedHeader: P,
+        key: Key?,
+        nestedProtectedHeader: NP,
+        nestedKey: Key?
     ) throws -> JWS {
         let jwt = try signed(
             payload: payload,
@@ -139,6 +299,33 @@ extension JWT {
         jwtString: String,
         protectedHeader: P,
         key: JWK?
+    ) throws -> JWS {
+        var protectedHeader = protectedHeader
+        protectedHeader.contentType = "JWT"
+        
+        return try JWS(
+            payload: JSONEncoder.jwt.encode(jwtString.tryToData()),
+            protectedHeader: protectedHeader,
+            key: key
+        )
+    }
+    
+    /// Creates a nested JSON Web Signature (JWS) object by wrapping an existing JWT string inside another JWS.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - jwtString: The existing JWT string to be nested inside the outer JWS.
+    ///   - protectedHeader: The protected header fields for the outer JWS, conforming to `JWSRegisteredFieldsHeader`.
+    ///   - key: The cryptographic key used for signing the outer JWS, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWS` instance representing the nested signed JWT.
+    public static func signedAsNested<P: JWSRegisteredFieldsHeader, Key>(
+        jwtString: String,
+        protectedHeader: P,
+        key: Key?
     ) throws -> JWS {
         var protectedHeader = protectedHeader
         protectedHeader.contentType = "JWT"

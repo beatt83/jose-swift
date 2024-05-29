@@ -16,12 +16,21 @@
 
 import Foundation
 
-struct Zip: ContentCompressor, ContentDecompressor {
-    func compress(input: Data) throws -> Data {
+/// `Zip` provides methods to compress and decompress data using zlib.
+public struct Zip: ContentCompressor, ContentDecompressor {
+    /// Compresses the input data using zlib.
+    /// - Parameter input: The data to be compressed.
+    /// - Throws: An error if the compression fails.
+    /// - Returns: The compressed data.
+    public func compress(input: Data) throws -> Data {
         try (input as NSData).compressed(using: .zlib) as Data
     }
     
-    func decompress(input: Data) throws -> Data {
+    /// Decompresses the input data using zlib.
+    /// - Parameter input: The data to be decompressed.
+    /// - Throws: An error if the decompression fails.
+    /// - Returns: The decompressed data.
+    public func decompress(input: Data) throws -> Data {
         try (input as NSData).decompressed(using: .zlib) as Data
     }
 }

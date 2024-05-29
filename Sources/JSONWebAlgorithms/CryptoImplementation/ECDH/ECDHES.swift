@@ -18,8 +18,16 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct ECDHES {
-    func processSharedKey(
+/// `ECDHES` provides methods to process a shared key using ECDH-ES (Elliptic Curve Diffie-Hellman Ephemeral Static).
+public struct ECDHES {
+    
+    /// Processes a shared key using the given private and public keys.
+    /// - Parameters:
+    ///   - privateKey: The private key as a JWK.
+    ///   - publicKey: The public key as a JWK.
+    /// - Throws: An error if the key agreement fails or if the private key is not valid.
+    /// - Returns: The shared secret as a `Data` object.
+    public func processSharedKey(
         privateKey: JWK,
         publicKey: JWK
     ) throws -> Data {

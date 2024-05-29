@@ -17,8 +17,18 @@
 import Foundation
 import JSONWebKey
 
+/// Extension to make `ECDH1PU` conform to `KeyAgreementZ`.
 extension ECDH1PU: KeyAgreementZ {
-    func agreeUponZ(privateKey: JWK, publicKey: JWK, ephemeralKey: JWK?, sender: Bool) throws -> Data {
+    
+    /// Agrees upon a shared secret `Z` using the given private, public, and ephemeral keys.
+    /// - Parameters:
+    ///   - privateKey: The private key as a `JWK`.
+    ///   - publicKey: The public key as a `JWK`.
+    ///   - ephemeralKey: The ephemeral key as a `JWK`. This parameter is required.
+    ///   - sender: A boolean indicating if the sender is agreeing upon the shared secret.
+    /// - Throws: An error if the key agreement fails or if the ephemeral key is missing.
+    /// - Returns: The agreed upon shared secret `Z` as a `Data` object.
+    public func agreeUponZ(privateKey: JWK, publicKey: JWK, ephemeralKey: JWK?, sender: Bool) throws -> Data {
         guard let ephemeralKey else {
             throw CryptoError.missingArguments([])
         }

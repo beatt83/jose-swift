@@ -25,9 +25,19 @@ extension JWK {
         return privateKey.jwkRepresentation
     }
     
+    static var testingES256PairData: Data {
+        let privateKey = P256.Signing.PrivateKey()
+        return privateKey.rawRepresentation
+    }
+    
     static var testingES384Pair: JWK {
         let privateKey = P384.Signing.PrivateKey()
         return privateKey.jwkRepresentation
+    }
+    
+    static var testingES384PairData: Data {
+        let privateKey = P384.Signing.PrivateKey()
+        return privateKey.rawRepresentation
     }
     
     static var testingES521Pair: JWK {
@@ -35,13 +45,28 @@ extension JWK {
         return privateKey.jwkRepresentation
     }
     
+    static var testingES521PairData: Data {
+        let privateKey = P521.Signing.PrivateKey()
+        return privateKey.rawRepresentation
+    }
+    
     static var testingCurve25519KPair: JWK {
         let privateKey = Curve25519.Signing.PrivateKey()
         return privateKey.jwkRepresentation
     }
     
+    static var testingCurve25519PairData: Data {
+        let privateKey = Curve25519.Signing.PrivateKey()
+        return privateKey.rawRepresentation
+    }
+    
     static var testingES256KPair: JWK {
         let privateKey = try! secp256k1.Signing.PrivateKey()
         return privateKey.jwkRepresentation
+    }
+    
+    static var testingES256KPairData: Data {
+        let privateKey = try! secp256k1.Signing.PrivateKey()
+        return privateKey.dataRepresentation
     }
 }

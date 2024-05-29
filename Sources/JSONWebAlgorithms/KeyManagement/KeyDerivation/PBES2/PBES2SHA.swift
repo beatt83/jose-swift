@@ -19,15 +19,28 @@ import CryptoSwift
 import Foundation
 import JSONWebKey
 
+/// `PBES2SHAKeyDerivation` provides methods to derive keys using the PBES2-HMAC-SHA algorithm.
 struct PBES2SHAKeyDerivation {
     
-    struct PBES2SHAResult {
+    /// `PBES2SHAResult` represents the result of the PBES2-HMAC-SHA key derivation process.
+    public struct PBES2SHAResult {
+        /// The derived key.
         let derivedKey: Data
+        /// The salt input used in the derivation.
         let input: Data
+        /// The iteration count used in the derivation.
         let count: Int
     }
     
-    static func derive(
+    /// Derives a key using the PBES2-HMAC-SHA algorithm with the specified parameters.
+    /// - Parameters:
+    ///   - password: The password to use for key derivation.
+    ///   - saltInput: The salt input to use for key derivation.
+    ///   - saltCount: The iteration count to use for key derivation.
+    ///   - variant: The HMAC variant to use for key derivation.
+    /// - Throws: An error if the key derivation fails or if the HMAC variant is unavailable.
+    /// - Returns: A `PBES2SHAResult` object containing the derived key, salt input, and iteration count.
+    public static func derive(
         password: Data,
         saltInput: Data,
         saltCount: Int,

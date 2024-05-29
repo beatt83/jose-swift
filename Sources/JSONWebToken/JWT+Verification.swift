@@ -107,6 +107,96 @@ extension JWT {
             throw JWTError.somethingWentWrong
         }
     }
+    /// Verifies a JSON Web Token (JWT) string by checking its signature and claims.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - jwtString: The JWT string to be verified.
+    ///   - signerKey: The cryptographic key used for verifying the JWS, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///   - senderKey: The JWK used for decrypting the JWE, if applicable.
+    ///   - recipientKey: The JWK used for decrypting the JWE, if applicable.
+    ///   - nestedKeys: An array of JWKs used for verifying nested JWTs, if applicable.
+    ///   - expectedIssuer: The expected issuer (`iss`) claim in the JWT payload.
+    ///   - expectedAudience: The expected audience (`aud`) claim in the JWT payload.
+    ///
+    /// - Throws: An error if the verification process fails.
+    /// - Returns: A `JWT` instance representing the verified JWT.
+    public static func verify<Key>(
+        jwtString: String,
+        signerKey: Key? = nil,
+        senderKey: JWK? = nil,
+        recipientKey: JWK? = nil,
+        nestedKeys: [JWK] = [],
+        expectedIssuer: String? = nil,
+        expectedAudience: String? = nil
+    ) throws -> JWT {
+        let components = jwtString.components(separatedBy: ".")
+        switch components.count {
+        case 3:
+            let jws = try JWS(jwsString: jwtString)
+            if jws.protectedHeader.contentType == "JWT" {
+                guard let key = getKeyForJWSHeader(
+                    keys: nestedKeys,
+                    header: jws.protectedHeader
+                ) else { throw JWTError.missingNestedJWTKey }
+                
+                return try verify(
+                    jwtString: jws.payload.tryToString(),
+                    senderKey: key,
+                    recipientKey: nil,
+                    nestedKeys: nestedKeys,
+                    expectedIssuer: expectedIssuer,
+                    expectedAudience: expectedAudience
+                )
+            }
+            let payload = try JSONDecoder.jwt.decode(DefaultJWTClaimsImpl.self, from: jws.payload)
+            
+            guard try jws.verify(key: signerKey) else {
+                throw JWTError.invalidSignature
+            }
+            try validateClaims(
+                claims: payload,
+                expectedIssuer: expectedIssuer,
+                expectedAudience: expectedAudience
+            )
+            return .init(payload: jws.payload, format: .jws(jws))
+        case 5:
+            let jwe = try JWE(compactString: jwtString)
+            
+            let decryptedPayload = try jwe.decrypt(
+                senderKey: senderKey,
+                recipientKey: recipientKey
+            )
+            
+            if jwe.protectedHeader.contentType == "JWT" {
+                guard let key = getKeyForJWEHeader(
+                    keys: nestedKeys,
+                    header: jwe.protectedHeader
+                ) else { throw JWTError.missingNestedJWTKey }
+                
+                return try verify(
+                    jwtString: decryptedPayload.tryToString(),
+                    senderKey: senderKey,
+                    recipientKey: key,
+                    nestedKeys: nestedKeys,
+                    expectedIssuer: expectedIssuer,
+                    expectedAudience: expectedAudience
+                )
+            }
+            let payload = try JSONDecoder.jwt.decode(DefaultJWTClaimsImpl.self, from: decryptedPayload)
+            try validateClaims(
+                claims: payload,
+                expectedIssuer: expectedIssuer,
+                expectedAudience: expectedAudience
+            )
+            
+            return .init(payload: decryptedPayload, format: .jwe(jwe))
+        default:
+            throw JWTError.somethingWentWrong
+        }
+    }
 }
 
 public func validateClaims(

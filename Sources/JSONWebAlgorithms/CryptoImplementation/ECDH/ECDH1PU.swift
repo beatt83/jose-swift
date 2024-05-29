@@ -18,8 +18,18 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
-struct ECDH1PU {
-    func processSharedKey(
+/// `ECDH1PU` provides methods to process a shared key using ECDH-1PU (Ephemeral Static Diffie-Hellman over One-Pass Unified Model).
+public struct ECDH1PU {
+    
+    /// Processes a shared key using the given private, public, and ephemeral keys.
+    /// - Parameters:
+    ///   - privateKey: The private key as a JWK.
+    ///   - publicKey: The public key as a JWK.
+    ///   - ephemeralKey: The ephemeral key as a JWK.
+    ///   - sender: A boolean indicating if the sender is processing the shared key.
+    /// - Throws: An error if the key agreement fails or if the private key is not valid.
+    /// - Returns: The combined shared secret as a `Data` object.
+    public func processSharedKey(
         privateKey: JWK,
         publicKey: JWK,
         ephemeralKey: JWK,

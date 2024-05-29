@@ -18,13 +18,21 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// `EdDSAVerifier` provides methods to verify signatures using the EdDSA algorithm.
 public struct EdDSAVerifier: Verifier {
+    
+    /// The algorithm used for verification.
     public var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
     
+    /// Verifies the given data and signature using the provided public key.
+    /// - Parameters:
+    ///   - data: The data that was signed.
+    ///   - signature: The signature to be verified.
+    ///   - key: The `JWK` containing the public key to use for verification.
+    /// - Throws: An error if the public key is not valid or if the verification process fails.
+    /// - Returns: A boolean value indicating whether the signature is valid.
     public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
-        guard
-            let x = key?.x
-        else { throw CryptoError.notValidPublicKey }
+        guard let x = key?.x else { throw CryptoError.notValidPublicKey }
         let publicKey = try Curve25519.Signing.PublicKey(rawRepresentation: x)
         return publicKey.isValidSignature(signature, for: data)
     }

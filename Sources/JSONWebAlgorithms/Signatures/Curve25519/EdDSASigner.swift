@@ -18,9 +18,18 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// `EdDSASigner` provides methods to sign data using the EdDSA algorithm.
 public struct EdDSASigner: Signer {
+    
+    /// The algorithm used for signing.
     public var algorithm: String { SigningAlgorithm.EdDSA.rawValue }
     
+    /// Signs the given data using the provided private key.
+    /// - Parameters:
+    ///   - data: The data to be signed.
+    ///   - key: The `JWK` containing the private key to use for signing.
+    /// - Throws: An error if the private key is not valid or if the signing process fails.
+    /// - Returns: The signature as a `Data` object.
     public func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }
         let privateKey = try Curve25519.Signing.PrivateKey(rawRepresentation: d)

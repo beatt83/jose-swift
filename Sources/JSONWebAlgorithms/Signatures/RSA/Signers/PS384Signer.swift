@@ -18,23 +18,25 @@ import CryptoSwift
 import Foundation
 import JSONWebKey
 
+/// `PS384Signer` provides methods to sign data using the PS384 algorithm.
 public struct PS384Signer: Signer {
+    
+    /// The algorithm used for signing.
     public var algorithm: String { SigningAlgorithm.PS384.rawValue }
     
+    /// Signs the given data using the provided private key.
+    /// - Parameters:
+    ///   - data: The data to be signed.
+    ///   - key: The `JWK` containing the private key to use for signing.
+    /// - Throws: An error if the private key is not valid or if the signing process fails.
+    /// - Returns: The signature as a `Data` object.
     public func sign(data: Data, key: JWK) throws -> Data {
-        guard
-            let n = key.n,
-            let e = key.e
-        else { throw CryptoError.notValidPrivateKey }
+        guard let n = key.n, let e = key.e else { throw CryptoError.notValidPrivateKey }
         let privateKey: RSA
-        if
-            let p = key.p,
-            let q = key.q,
-            let d = key.d
-        {
+        if let p = key.p, let q = key.q, let d = key.d {
             privateKey = try RSA(n: BigUInteger(n), e: BigUInteger(e), d: BigUInteger(d), p: BigUInteger(p), q: BigUInteger(q))
         } else {
-            privateKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key.d.map {BigUInteger($0)})
+            privateKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key.d.map { BigUInteger($0) })
         }
         
         let secKey = try privateKey.getSecKey()

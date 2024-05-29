@@ -92,4 +92,34 @@ final class JWSTests: XCTestCase {
         XCTAssertTrue(try originalJWS.verify(key: jwk))
         XCTAssertThrowsError(try tamperedJWS.verify(key: jwk))
     }
+    
+    func testES256SigningWithDataKey() throws {
+        let keyPair = JWK.testingES256PairData
+        XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256), key: keyPair))
+    }
+    
+    func testES384SigningWithDataKey() throws {
+        let keyPair = JWK.testingES384PairData
+        XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES384), key: keyPair))
+    }
+    
+    func testES512SigningWithDataKey() throws {
+        let keyPair = JWK.testingES521Pair
+        XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES512), key: keyPair))
+    }
+    
+    func testES256KSigningWithDataKey() throws {
+        let keyPair = JWK.testingES256KPairData
+        XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256K), key: keyPair))
+    }
+    
+    func testEdDSASigningWithDataKey() throws {
+        let keyPair = JWK.testingCurve25519KPair
+        XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .EdDSA), key: keyPair))
+    }
+    
+    func testWrongAlgKeySigningWithDataKey() throws {
+        let keyPair = JWK.testingCurve25519KPair
+        XCTAssertThrowsError(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES512), key: keyPair))
+    }
 }

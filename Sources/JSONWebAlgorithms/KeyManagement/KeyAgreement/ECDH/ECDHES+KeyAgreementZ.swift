@@ -17,8 +17,18 @@
 import Foundation
 import JSONWebKey
 
+/// Extension to make `ECDHES` conform to `KeyAgreementZ`.
 extension ECDHES: KeyAgreementZ {
-    func agreeUponZ(privateKey: JWK, publicKey: JWK, ephemeralKey: JWK?, sender: Bool) throws -> Data {
+    
+    /// Agrees upon a shared secret `Z` using the given private and public keys.
+    /// - Parameters:
+    ///   - privateKey: The private key as a `JWK`.
+    ///   - publicKey: The public key as a `JWK`.
+    ///   - ephemeralKey: The ephemeral key as a `JWK`. This parameter is optional and not used in this implementation.
+    ///   - sender: A boolean indicating if the sender is agreeing upon the shared secret. This parameter is not used in this implementation.
+    /// - Throws: An error if the key agreement fails.
+    /// - Returns: The agreed upon shared secret `Z` as a `Data` object.
+    public func agreeUponZ(privateKey: JWK, publicKey: JWK, ephemeralKey: JWK?, sender: Bool) throws -> Data {
         return try processSharedKey(privateKey: privateKey, publicKey: publicKey)
     }
 }

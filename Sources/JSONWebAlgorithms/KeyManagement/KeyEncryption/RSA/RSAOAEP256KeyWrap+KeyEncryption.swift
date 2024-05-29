@@ -19,12 +19,24 @@ import Foundation
 import JSONWebKey
 import Security
 
-struct RSAOAEP256KeyWrapper: KeyWrapping {
-    func generateInitializationVector() throws -> Data {
+/// `RSAOAEP256KeyWrapper` provides methods to encrypt content encryption keys (CEKs) using RSAES-OAEP with SHA-256.
+public struct RSAOAEP256KeyWrapper: KeyWrapping {
+    
+    /// Generates an initialization vector.
+    /// - Throws: An error if the generation fails.
+    /// - Returns: An empty `Data` object as no initialization vector is required for RSA key wrapping.
+    public func generateInitializationVector() throws -> Data {
         Data()
     }
     
-    func contentKeyEncrypt(
+    /// Encrypts the content encryption key (CEK) using the provided JWK and key encryption arguments.
+    /// - Parameters:
+    ///   - cek: The content encryption key to be encrypted.
+    ///   - using: The `JWK` to use for encryption.
+    ///   - arguments: An array of `KeyEncryptionArguments` containing the necessary parameters for key encryption.
+    /// - Throws: An error if the encryption fails or if the required components are missing from the JWK.
+    /// - Returns: A `KeyEncriptionResultMetadata` object containing the encrypted key and other metadata.
+    public func contentKeyEncrypt(
         cek: Data,
         using: JWK,
         arguments: [KeyEncryptionArguments]
@@ -51,16 +63,14 @@ struct RSAOAEP256KeyWrapper: KeyWrapping {
         ) else {
             throw CryptoError.invalidRSAKey
         }
-        var secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA256
+        let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA256
         var encryptionError: Unmanaged<CFError>?
-        guard
-            let ciphertext = SecKeyCreateEncryptedData(
-                rsaSecKey,
-                secKeyAlgorithm,
-                cek as CFData,
-                &encryptionError
-            )
-        else {
+        guard let ciphertext = SecKeyCreateEncryptedData(
+            rsaSecKey,
+            secKeyAlgorithm,
+            cek as CFData,
+            &encryptionError
+        ) else {
             throw CryptoError.securityLayerError(internalStatus: nil, internalError: encryptionError?.takeRetainedValue())
         }
         return .init(encryptedKey: ciphertext as Data)

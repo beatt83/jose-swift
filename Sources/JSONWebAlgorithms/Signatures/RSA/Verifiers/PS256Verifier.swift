@@ -18,23 +18,26 @@ import CryptoSwift
 import Foundation
 import JSONWebKey
 
+/// `PS256Verifier` provides methods to verify signatures using the PS256 algorithm.
 public struct PS256Verifier: Verifier {
+    
+    /// The algorithm used for verification.
     public var algorithm: String { SigningAlgorithm.PS256.rawValue }
     
+    /// Verifies the given data and signature using the provided public key.
+    /// - Parameters:
+    ///   - data: The data that was signed.
+    ///   - signature: The signature to be verified.
+    ///   - key: The `JWK` containing the public key to use for verification.
+    /// - Throws: An error if the public key is not valid or if the verification process fails.
+    /// - Returns: A boolean value indicating whether the signature is valid.
     public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
-        guard
-            let n = key?.n,
-            let e = key?.e
-        else { throw CryptoError.notValidPrivateKey }
+        guard let n = key?.n, let e = key?.e else { throw CryptoError.notValidPrivateKey }
         let publicKey: RSA
-        if
-            let p = key?.p,
-            let q = key?.q,
-            let d = key?.d
-        {
+        if let p = key?.p, let q = key?.q, let d = key?.d {
             publicKey = try RSA(n: BigUInteger(n), e: BigUInteger(e), d: BigUInteger(d), p: BigUInteger(p), q: BigUInteger(q))
         } else {
-            publicKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key?.d.map {BigUInteger($0)})
+            publicKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key?.d.map { BigUInteger($0) })
         }
         
         let secKey = try publicKey.getSecKey()

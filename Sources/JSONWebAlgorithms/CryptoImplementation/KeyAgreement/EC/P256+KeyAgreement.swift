@@ -18,7 +18,13 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// Extension to make `P256.KeyAgreement.PrivateKey` conform to `SharedKeyAgreement`.
 extension P256.KeyAgreement.PrivateKey: SharedKeyAgreement {
+    
+    /// Computes the shared secret from the key agreement with the provided public key share.
+    /// - Parameter publicKeyShare: The public key share as a `JWK`.
+    /// - Throws: An error if the conversion to `P256.KeyAgreement.PublicKey` fails or the key agreement fails.
+    /// - Returns: The shared secret as a `Data` object.
     public func sharedSecretFromKeyAgreement(
         publicKeyShare: JWK
     ) throws -> Data {

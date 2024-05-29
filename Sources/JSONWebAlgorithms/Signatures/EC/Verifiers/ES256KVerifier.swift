@@ -18,16 +18,24 @@ import Foundation
 import JSONWebKey
 import secp256k1
 
+/// `ES256KVerifier` provides methods to verify signatures using the ES256K algorithm.
 public struct ES256KVerifier: Verifier {
+    
+    /// Indicates whether to use a fail-safe mechanism compatible with Bouncy Castle.
     public static var bouncyCastleFailSafe = false
     
+    /// The algorithm used for verification.
     public var algorithm: String { SigningAlgorithm.ES256K.rawValue }
     
+    /// Verifies the given data and signature using the provided public key.
+    /// - Parameters:
+    ///   - data: The data that was signed.
+    ///   - signature: The signature to be verified.
+    ///   - key: The `JWK` containing the public key to use for verification.
+    /// - Throws: An error if the public key is not valid or if the verification process fails.
+    /// - Returns: A boolean value indicating whether the signature is valid.
     public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
-        guard
-            let x = key?.x,
-            let y = key?.y
-        else { throw CryptoError.notValidPublicKey }
+        guard let x = key?.x, let y = key?.y else { throw CryptoError.notValidPublicKey }
         let publicKey = try secp256k1.Signing.PublicKey(dataRepresentation: [0x04] + x + y, format: .uncompressed)
         let hash = SHA256.hash(data: data)
         let objSignature = try getSignature(signature).normalize

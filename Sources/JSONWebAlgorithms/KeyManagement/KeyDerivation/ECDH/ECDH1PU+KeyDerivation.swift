@@ -18,9 +18,14 @@ import CryptoKit
 import Foundation
 import Tools
 
+/// Extension to make `ECDH1PU` conform to `KeyDerivation`.
 extension ECDH1PU: KeyDerivation {
     
-    func deriveKey(arguments: [KeyDerivationArguments]) throws -> Data {
+    /// Derives a key using the provided key derivation arguments.
+    /// - Parameter arguments: An array of `KeyDerivationArguments` containing the necessary parameters for key derivation.
+    /// - Throws: An error if required arguments are missing or if the key derivation fails.
+    /// - Returns: The derived key as a `Data` object.
+    public func deriveKey(arguments: [KeyDerivationArguments]) throws -> Data {
         guard let key = arguments.key else {
             throw CryptoError.missingArguments(["key"])
         }

@@ -18,15 +18,22 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// Extension to make `AES128GCM` conform to `KeyWrapping`.
 extension AES128GCM: KeyWrapping {
-    func contentKeyEncrypt(
+    
+    /// Encrypts the content encryption key (CEK) using the provided JWK and key encryption arguments.
+    /// - Parameters:
+    ///   - cek: The content encryption key to be encrypted.
+    ///   - using: The `JWK` to use for encryption.
+    ///   - arguments: An array of `KeyEncryptionArguments` containing the necessary parameters for key encryption.
+    /// - Throws: An error if required arguments are missing or if the encryption fails.
+    /// - Returns: A `KeyEncriptionResultMetadata` object containing the encrypted key, initialization vector, authentication tag, and other metadata.
+    public func contentKeyEncrypt(
         cek: Data,
         using: JWK,
         arguments: [KeyEncryptionArguments]
     ) throws -> KeyEncriptionResultMetadata {
-        guard
-            let key = using.key
-        else {
+        guard let key = using.key else {
             throw CryptoError.missingArguments([])
         }
 

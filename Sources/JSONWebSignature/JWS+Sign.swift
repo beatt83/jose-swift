@@ -49,6 +49,37 @@ extension JWS {
         self.compactSerialization = try JWS.buildJWSString(header: header, data: payload, signature: signature)
     }
     
+    /// Initializes a new JWS (JSON Web Signature) instance with the given payload, protected header data, and key.
+    ///
+    /// This initializer supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: The data to be signed and included in the JWS.
+    ///   - protectedHeaderData: The data for the protected header, which must be JSON encoded.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the initialization or signing process fails.
+    public init<Key>(payload: Data, protectedHeaderData: Data, key: Key?) throws {
+        let signature: Data
+        let key = try prepareJWKFromHeader(header: protectedHeaderData, key: key, isPrivate: true)
+        let protectedHeader = try JSONDecoder().decode(DefaultJWSHeaderImpl.self, from: protectedHeaderData)
+        if let signer = protectedHeader.algorithm?.cryptoSigner {
+            guard let key else {
+                throw JWSError.missingKey
+            }
+            let signingData = try JWS.buildSigningData(header: protectedHeaderData, data: payload)
+            signature = try signer.sign(data: signingData, key: key)
+        } else {
+            signature = Data()
+        }
+        self.protectedHeaderData = protectedHeaderData
+        self.protectedHeader = protectedHeader
+        self.payload = payload
+        self.signature = signature
+        self.compactSerialization = try JWS.buildJWSString(header: protectedHeaderData, data: payload, signature: signature)
+    }
+    
     /// Initializes a new `JWS` instance using a `JWSProtectedFieldsHeader` instance, payload data, and a JSON Web Key (JWK).
     /// The header is encoded and then prepared for the JWK, and the signature is generated using the provided key.
     ///
@@ -71,6 +102,36 @@ extension JWS {
             signature = Data()
         }
         self.protectedHeaderData = header
+        self.protectedHeader = protectedHeader
+        self.payload = payload
+        self.signature = signature
+        self.compactSerialization = try JWS.buildJWSString(header: headerData, data: payload, signature: signature)
+    }
+    
+    /// Initializes a new `JWS` instance using a `JWSProtectedFieldsHeader` instance, payload data, and a JSON Web Key (JWK).
+    ///
+    /// This initializer supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - header: The `JWSProtectedFieldsHeader` instance.
+    ///   - data: The payload data.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data`, `SecKey`, or `JWK`.
+    /// - Throws: An error if the signing process fails, or if the key is missing.
+    public init<Key>(payload: Data, protectedHeader: JWSRegisteredFieldsHeader, key: Key?) throws {
+        let signature: Data
+        let headerData = try JSONEncoder.jose.encode(protectedHeader)
+        let key = try prepareJWKFromHeader(header: headerData, key: key, isPrivate: true)
+        if let signer = protectedHeader.algorithm?.cryptoSigner {
+            guard let key else {
+                throw JWSError.missingKey
+            }
+            let signingData = try JWS.buildSigningData(header: headerData, data: payload)
+            signature = try signer.sign(data: signingData, key: key)
+        } else {
+            signature = Data()
+        }
+        self.protectedHeaderData = headerData
         self.protectedHeader = protectedHeader
         self.payload = payload
         self.signature = signature
@@ -179,6 +240,48 @@ extension JWS {
         return try jsonSerialization(payload: payload, signatures: signatures)
     }
     
+    /// Creates a JSON Web Signature (JWS) object using the provided payload, headers, and keys.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: The data to be signed and included in the JWS.
+    ///   - protectedHeader: The protected header fields conforming to `JWSRegisteredFieldsHeader`.
+    ///   - unprotectedHeader: The optional unprotected header fields, defaulting to `nil`.
+    ///   - keys: An array of cryptographic keys used for signing, each of which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or JSON serialization fails.
+    /// - Returns: A `JWSJson` object containing the payload and signatures.
+    static func jsonSerialization<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader, Key>(
+        payload: Data,
+        protectedHeader: P,
+        unprotectedHeader: H? = nil as DefaultJWSHeaderImpl?,
+        keys: [Key]
+    ) throws -> JWSJson<P, H> {
+        let signatures = try keys
+            .map {
+                let headerData = try JSONEncoder.jose.encode(protectedHeader)
+                let key = try prepareJWKFromHeader(header: headerData, key: $0, isPrivate: true)
+                let jws = try JWS.init(payload: payload, protectedHeader: protectedHeader, key: key)
+                // This should never be triggered, I just feel the JWS interface is quite right, and dont want to add any generics.
+                guard
+                    let typedProtected = jws.protectedHeader as? P
+                else {
+                    throw JWSError.somethingWentWrong
+                }
+
+                return try JWSJson<P, H>.Signature(
+                    protectedData: jws.protectedHeaderData,
+                    protected: typedProtected,
+                    header: unprotectedHeader,
+                    signature: jws.signature
+                )
+            }
+
+        return try jsonSerialization(payload: payload, signatures: signatures)
+    }
+    
     /// Encodes the JWS object into JSON data, allowing for custom protected header and header types.
     /// This method provides a way to serialize the JWS object with specified header types into JSON.
     ///
@@ -194,6 +297,34 @@ extension JWS {
         protectedHeader: P,
         unprotectedHeader: H? = nil as DefaultJWSHeaderImpl?,
         keys: [JWK]
+    ) throws -> Data {
+        let json: JWSJson<P, H> = try jsonSerialization(
+            payload: payload,
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            keys: keys
+        )
+        return try JSONEncoder.jose.encode(json)
+    }
+    
+    /// Creates a JSON Web Signature (JWS) object in JSON format using the provided payload, headers, and keys.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: The data to be signed and included in the JWS.
+    ///   - protectedHeader: The protected header fields conforming to `JWSRegisteredFieldsHeader`.
+    ///   - unprotectedHeader: The optional unprotected header fields, defaulting to `nil`.
+    ///   - keys: An array of cryptographic keys used for signing, each of which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or JSON serialization fails.
+    /// - Returns: A `Data` object containing the JSON-encoded JWS.
+    public static func jsonSerialization<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader, Key>(
+        payload: Data,
+        protectedHeader: P,
+        unprotectedHeader: H? = nil as DefaultJWSHeaderImpl?,
+        keys: [Key]
     ) throws -> Data {
         let json: JWSJson<P, H> = try jsonSerialization(
             payload: payload,
@@ -261,6 +392,35 @@ extension JWS {
         return try JSONEncoder.jose.encode(json.flattened())
     }
     
+    /// Creates a flattened JSON Web Signature (JWS) object in JSON format using the provided payload, headers, and a key.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: The data to be signed and included in the JWS.
+    ///   - protectedHeader: The protected header fields conforming to `JWSRegisteredFieldsHeader`.
+    ///   - unprotectedHeader: The optional unprotected header fields, defaulting to `nil`.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or JSON serialization fails.
+    /// - Returns: A `Data` object containing the flattened JSON-encoded JWS.
+    public static func jsonSerializationFlattened<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader, Key>(
+        payload: Data,
+        protectedHeader: P,
+        unprotectedHeader: H? = nil as DefaultJWSHeaderImpl?,
+        key: Key
+    ) throws -> Data {
+        let json: JWSJson<P, H> = try jsonSerialization(
+            payload: payload,
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            keys: [key]
+        )
+        
+        return try JSONEncoder.jose.encode(json.flattened())
+    }
+    
     /// Generates a flattened JSON serialization of the JWS object for a single key, allowing for custom protected header and header types.
     /// This method is similar to `jsonSerializationFlattened(payload:key:)` but allows specifying custom header types.
     ///
@@ -286,6 +446,35 @@ extension JWS {
         
         return try json.flattened()
     }
+    
+    /// Creates a flattened JSON Web Signature (JWS) object using the provided payload, headers, and a key.
+    ///
+    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
+    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    ///
+    /// - Parameters:
+    ///   - payload: The data to be signed and included in the JWS.
+    ///   - protectedHeader: The protected header fields conforming to `JWSRegisteredFieldsHeader`.
+    ///   - unprotectedHeader: The optional unprotected header fields, defaulting to `nil`.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data`, `SecKey`, or `JWK`.
+    ///
+    /// - Throws: An error if the signing process or JSON serialization fails.
+    /// - Returns: A `JWSJsonFlattened` object containing the flattened JSON-encoded JWS.
+    public static func jsonSerializationFlattened<P: JWSRegisteredFieldsHeader, H: JWSRegisteredFieldsHeader, Key>(
+        payload: Data,
+        protectedHeader: P,
+        unprotectedHeader: H? = nil as DefaultJWSHeaderImpl?,
+        key: Key
+    ) throws -> JWSJsonFlattened<P, H> {
+        let json: JWSJson<P, H> = try jsonSerialization(
+            payload: payload,
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            keys: [key]
+        )
+        
+        return try json.flattened()
+    }
 }
 
 private func prepareHeaderForJWK(header: Data, jwk: JWK?) throws -> Data {
@@ -297,5 +486,52 @@ private func prepareHeaderForJWK(header: Data, jwk: JWK?) throws -> Data {
         return try JSONSerialization.joseSerialization(withJSONObject: jsonObj)
     } else {
         return header
+    }
+}
+
+func prepareJWKFromHeader<Key>(header: Data, key: Key?, isPrivate: Bool = false) throws -> JWK? {
+    guard let key else { return nil }
+    
+    guard 
+        let jsonObj = try JSONSerialization.jsonObject(with: header) as? [String: Any],
+        let algStr = jsonObj["alg"] as? String,
+        let signingAlg = SigningAlgorithm(rawValue: algStr)
+    else {
+        throw JWS.JWSError.missingAlgorithm
+    }
+    
+    switch signingAlg {
+    case .HS256:
+        return try JWK.JWKFrom(format: .octSequence, isPrivate: false, isKeyAgreement: false, key: key)
+    case .HS384:
+        return try JWK.JWKFrom(format: .octSequence, isPrivate: false, isKeyAgreement: false, key: key)
+    case .HS512:
+        return try JWK.JWKFrom(format: .octSequence, isPrivate: false, isKeyAgreement: false, key: key)
+    case .RS256:
+        return try JWK.JWKFrom(format: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .RS384:
+        return try JWK.JWKFrom(format: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .RS512:
+        return try JWK.JWKFrom(format: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .ES256:
+        return try JWK.JWKFrom(format: .p256, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .ES384:
+        return try JWK.JWKFrom(format: .p384, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .ES512:
+        return try JWK.JWKFrom(format: .p512, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .ES256K:
+        return try JWK.JWKFrom(format: .secp256k1, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .PS256:
+        return try JWK.JWKFrom(format: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .PS384:
+        return try JWK.JWKFrom(format: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .PS512:
+        return try JWK.JWKFrom(format: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .EdDSA:
+        return try JWK.JWKFrom(format: .curve25519, isPrivate: isPrivate, isKeyAgreement: false, key: key)
+    case .none:
+        return nil
+    case .invalid:
+        throw JWS.JWSError.unsupportedAlgorithm(keyType: nil, algorithm: algStr, curve: nil)
     }
 }

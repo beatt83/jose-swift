@@ -17,21 +17,37 @@
 import CryptoKit
 import Foundation
 
-struct AES128GCM: ContentEncryptor, ContentDecryptor {
+/// `AES128GCM` provides methods to encrypt and decrypt data using AES-128-GCM.
+public struct AES128GCM: ContentEncryptor, ContentDecryptor {
+    /// The content encryption algorithm used, represented as a string.
+    public let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.a128GCM.rawValue
+    /// The size of the initialization vector in bits.
+    public let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.a128GCM.initializationVectorSizeInBits
+    /// The size of the content encryption key (CEK) in bits.
+    public let cekKeySize: Int = ContentEncryptionAlgorithm.a128GCM.keySizeInBits
     
-    let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.a128GCM.rawValue
-    let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.a128GCM.initializationVectorSizeInBits
-    let cekKeySize: Int = ContentEncryptionAlgorithm.a128GCM.keySizeInBits
-    
-    func generateInitializationVector() throws -> Data {
-        try SecureRandom.secureRandomData(count: initializationVectorSizeInBits)
+    /// Generates a random initialization vector.
+    /// - Throws: An error if the random data generation fails.
+    /// - Returns: A data object containing the initialization vector.
+    public func generateInitializationVector() throws -> Data {
+        try SecureRandom.secureRandomData(count: initializationVectorSizeInBits / 8)
     }
     
-    func generateCEK() throws -> Data {
+    /// Generates a random content encryption key (CEK).
+    /// - Throws: An error if the random data generation fails.
+    /// - Returns: A data object containing the CEK.
+    public func generateCEK() throws -> Data {
         try SecureRandom.secureRandomData(count: cekKeySize / 8)
     }
     
-    func encrypt(
+    /// Encrypts the payload using AES-128-GCM.
+    /// - Parameters:
+    ///   - payload: The data to be encrypted.
+    ///   - key: The encryption key.
+    ///   - arguments: Additional encryption arguments, such as initialization vector and additional authenticated data.
+    /// - Throws: An error if the encryption fails.
+    /// - Returns: A `ContentEncryptionResult` containing the cipher text and authentication tag.
+    public func encrypt(
         payload: Data,
         using key: Data,
         arguments: [ContentEncryptionArguments]
@@ -45,7 +61,14 @@ struct AES128GCM: ContentEncryptor, ContentDecryptor {
         return .init(cipher: cipher, authenticationData: tag)
     }
     
-    func decrypt(
+    /// Decrypts the cipher text using AES-128-GCM.
+    /// - Parameters:
+    ///   - cipher: The data to be decrypted.
+    ///   - key: The decryption key.
+    ///   - arguments: Additional decryption arguments, such as initialization vector and authentication tag.
+    /// - Throws: An error if the decryption fails.
+    /// - Returns: The decrypted data.
+    public func decrypt(
         cipher: Data,
         using key: Data,
         arguments: [ContentEncryptionArguments]
