@@ -38,7 +38,7 @@ extension JWT {
         P: JWERegisteredFieldsHeader,
         U: JWERegisteredFieldsHeader
     >(
-        payload: C,
+        payload: Codable,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: JWK?,
@@ -50,11 +50,43 @@ extension JWT {
     ) throws -> JWT {
         var protectedHeader = protectedHeader
         protectedHeader.type = "JWT"
-        
+        let encodedPayload = try JSONEncoder.jwt.encode(payload)
         return JWT(
-            payload: payload,
+            payload: encodedPayload,
             format: .jwe(try JWE(
-                payload: JSONEncoder.jwt.encode(payload),
+                payload: encodedPayload,
+                protectedHeader: protectedHeader,
+                unprotectedHeader: unprotectedHeader,
+                senderKey: senderKey,
+                recipientKey: recipientKey,
+                cek: cek,
+                initializationVector: initializationVector,
+                additionalAuthenticationData: additionalAuthenticationData
+            ))
+        )
+    }
+    
+    public static func encrypt<
+        P: JWERegisteredFieldsHeader,
+        U: JWERegisteredFieldsHeader
+    >(
+        @JWTClaimsBuilder payload: () -> Claim,
+        protectedHeader: P,
+        unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
+        senderKey: JWK?,
+        recipientKey: JWK?,
+        sharedKey: JWK?,
+        cek: Data? = nil,
+        initializationVector: Data? = nil,
+        additionalAuthenticationData: Data? = nil
+    ) throws -> JWT {
+        var protectedHeader = protectedHeader
+        protectedHeader.type = "JWT"
+        let encodedPayload = try JSONEncoder.jwt.encode(payload().value)
+        return JWT(
+            payload: encodedPayload,
+            format: .jwe(try JWE(
+                payload: encodedPayload,
                 protectedHeader: protectedHeader,
                 unprotectedHeader: unprotectedHeader,
                 senderKey: senderKey,
@@ -143,7 +175,56 @@ extension JWT {
         NP: JWERegisteredFieldsHeader,
         NU: JWERegisteredFieldsHeader
     >(
-        payload: C,
+        payload: Codable,
+        protectedHeader: P,
+        unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
+        senderKey: JWK? = nil,
+        recipientKey: JWK? = nil,
+        sharedKey: JWK? = nil,
+        cek: Data? = nil,
+        initializationVector: Data? = nil,
+        additionalAuthenticationData: Data? = nil,
+        nestedProtectedHeader: NP,
+        nestedUnprotectedHeader: NU? = nil as DefaultJWEHeaderImpl?,
+        nestedSenderKey: JWK? = nil,
+        nestedRecipientKey: JWK? = nil,
+        nestedSharedKey: JWK? = nil,
+        nestedCek: Data? = nil,
+        nestedInitializationVector: Data? = nil,
+        nestedAdditionalAuthenticationData: Data? = nil
+    ) throws -> JWE {
+        let jwt = try encrypt(
+            payload: payload,
+            protectedHeader: nestedProtectedHeader,
+            unprotectedHeader: nestedUnprotectedHeader,
+            senderKey: nestedSenderKey,
+            recipientKey: nestedRecipientKey,
+            sharedKey: nestedSharedKey,
+            cek: nestedCek,
+            initializationVector: nestedInitializationVector,
+            additionalAuthenticationData: nestedAdditionalAuthenticationData
+        )
+        
+        return try encryptAsNested(
+            jwt: jwt,
+            protectedHeader: protectedHeader,
+            unprotectedHeader: unprotectedHeader,
+            senderKey: senderKey,
+            recipientKey: recipientKey,
+            sharedKey: sharedKey,
+            cek: cek,
+            initializationVector: initializationVector,
+            additionalAuthenticationData: additionalAuthenticationData
+        )
+    }
+    
+    public static func encryptAsNested<
+        P: JWERegisteredFieldsHeader,
+        U: JWERegisteredFieldsHeader,
+        NP: JWERegisteredFieldsHeader,
+        NU: JWERegisteredFieldsHeader
+    >(
+        @JWTClaimsBuilder payload: () -> Claim,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: JWK? = nil,

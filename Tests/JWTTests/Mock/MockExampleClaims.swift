@@ -1,7 +1,7 @@
 import Foundation
 import JSONWebToken
 
-struct MockExampleClaims: JWTRegisteredFieldsClaims {
+struct MockExampleClaims: JWTRegisteredFieldsClaims, Codable {
     let iss: String?
     let sub: String?
     let aud: [String]?

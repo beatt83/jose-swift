@@ -58,6 +58,7 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | iat               |:white_check_mark:|
 | typ               |:white_check_mark:|
 | cty               |:white_check_mark:|
+| DSL Claims Builder|:white_check_mark:|
 
 </td></tr> </table>
 
@@ -386,8 +387,12 @@ JWT is a compact, URL-safe means of representing claims to be transferred betwee
 3. **Nested JWT (JWS + JWE)**:
     - Implements Nested JWTs where a JWT is signed and then encrypted, providing both the benefits of JWS and JWE.
     - Ensures that a token is first authenticated (JWS) and then secured for privacy (JWE).
+    
+4. **Domain-specific language (DSL) for Claim Creation**:
+    - Allows for a more declarative approach to creating claims using a domain-specific language (DSL).
+    - Facilitates the creation of both standard and custom claims in a readable and structured manner.
 
-4. **Claim Validation**:
+5. **Claim Validation**:
     - Offers extensive capabilities to validate JWT claims.
     - Includes standard claims like issuer (`iss`), subject (`sub`), audience (`aud`), expiration (`exp`), not before (`nbf`), and issued at (`iat`).
     - Custom claim validation to meet specific security requirements.
@@ -439,6 +444,74 @@ let jwtString = jwt.jwtString
 let verifiedJWT = try JWT<DefaultJWTClaims>.verify(jwtString: jwtString, recipientKey: key)
 let verifiedPayload = verifiedJWT.payload
 ```
+
+- DSL for Creating Claims
+    - Standard Claims on signing a JWT
+    
+    ```swift
+    let key = JWK.testingES256Pair
+
+    let jwt = try JWT.signed(
+        payload: {
+            IssuerClaim(value: "testIssuer")
+            SubjectClaim(value: "testSubject")
+            ExpirationTimeClaim(value: Date())
+            IssuedAtClaim(value: Date())
+            NotBeforeClaim(value: Date())
+            JWTIdentifierClaim(value: "ThisIdentifier")
+            AudienceClaim(value: "testAud")
+        },
+        protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256),
+        key: key
+    ).jwtString
+    ```
+    
+    - Custom Claims
+    
+    ```swift
+    let jsonClaimsObject = JWTClaimsBuilder.build {
+        StringClaim(key: "testStr1", value: "value1")
+        NumberClaim(key: "testN1", value: 0)
+        NumberClaim(key: "testN2", value: 1.1)
+        NumberClaim(key: "testN3", value: Double(1.233232))
+        BoolClaim(key: "testBool1", value: true)
+        ArrayClaim(key: "testArray") {
+            ArrayElementClaim.string("valueArray1")
+            ArrayElementClaim.string("valueArray2")
+            ArrayElementClaim.bool(true)
+            ArrayElementClaim.array {
+                ArrayElementClaim.string("nestedNestedArray1")
+            }
+            ArrayElementClaim.object {
+                StringClaim(key: "nestedNestedObject", value: "nestedNestedValue")
+            }
+        }
+        ObjectClaim(key: "testObject") {
+            StringClaim(key: "testDicStr1", value: "valueDic1")
+        }
+    }
+    
+    // Output
+    // {
+    //    "testBool1":true,
+    //    "testArray":[
+    //         "valueArray1",
+    //          "valueArray2",
+    //          true,
+    //          ["nestedNestedArray1"],
+    //          {
+    //              "nestedNestedObject":"nestedNestedValue"
+    //          }
+    //      ],
+    //      "testObject":{
+    //          "testDicStr1":"valueDic1"
+    //      },
+    //      "testN1":0,
+    //      "testStr1":"value1",
+    //      "testN3":1.233232,
+    //      "testN2":1.1
+    // }
+    ```
 
 ### JWA (JSON Web Algorithms)
 JWA specifies cryptographic algorithms used in the context of Jose to perform digital signing and content encryption, as detailed in [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518). It includes standards for various types of algorithms like RSA, AES, HMAC, and more.

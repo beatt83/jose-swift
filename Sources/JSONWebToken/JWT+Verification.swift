@@ -61,7 +61,7 @@ extension JWT {
                     expectedAudience: expectedAudience
                 )
             }
-            let payload = try JSONDecoder.jwt.decode(C.self, from: jws.payload)
+            let payload = try JSONDecoder.jwt.decode(DefaultJWTClaimsImpl.self, from: jws.payload)
             
             guard try jws.verify(key: senderKey) else {
                 throw JWTError.invalidSignature
@@ -71,7 +71,7 @@ extension JWT {
                 expectedIssuer: expectedIssuer,
                 expectedAudience: expectedAudience
             )
-            return .init(payload: payload, format: .jws(jws))
+            return .init(payload: jws.payload, format: .jws(jws))
         case 5:
             let jwe = try JWE(compactString: jwtString)
             
@@ -95,8 +95,14 @@ extension JWT {
                     expectedAudience: expectedAudience
                 )
             }
-            let payload = try JSONDecoder.jwt.decode(C.self, from: decryptedPayload)
-            return .init(payload: payload, format: .jwe(jwe))
+            let payload = try JSONDecoder.jwt.decode(DefaultJWTClaimsImpl.self, from: decryptedPayload)
+            try validateClaims(
+                claims: payload,
+                expectedIssuer: expectedIssuer,
+                expectedAudience: expectedAudience
+            )
+            
+            return .init(payload: decryptedPayload, format: .jwe(jwe))
         default:
             throw JWTError.somethingWentWrong
         }
@@ -113,35 +119,35 @@ public func validateClaims(
     // Validate Issuer
     if let expectedIssuer = expectedIssuer, let issuer = claims.iss {
         guard issuer == expectedIssuer else {
-            throw DefaultJWT.JWTError.issuerMismatch
+            throw JWT.JWTError.issuerMismatch
         }
     }
 
     // Validate Expiration Time
     if let expirationTime = claims.exp {
         guard currentDate < expirationTime else {
-            throw DefaultJWT.JWTError.expired
+            throw JWT.JWTError.expired
         }
     }
 
     // Validate Not Before Time
     if let notBeforeTime = claims.nbf {
         guard currentDate >= notBeforeTime else {
-            throw DefaultJWT.JWTError.notYetValid
+            throw JWT.JWTError.notYetValid
         }
     }
 
     // Validate Issued At
     if let issuedAt = claims.iat {
         guard issuedAt <= currentDate else {
-            throw DefaultJWT.JWTError.issuedInTheFuture
+            throw JWT.JWTError.issuedInTheFuture
         }
     }
 
     // Validate Audience
     if let expectedAudience = expectedAudience, let audience = claims.aud {
         guard audience.contains(expectedAudience) else {
-            throw DefaultJWT.JWTError.audienceMismatch
+            throw JWT.JWTError.audienceMismatch
         }
     }
     
