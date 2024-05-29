@@ -30,17 +30,35 @@ extension JWT {
     /// - Returns: A `JWT` instance in JWS format with the signed payload.
     /// - Throws: An error if the signing process fails.
     public static func signed<P: JWSRegisteredFieldsHeader>(
-        payload: C,
+        payload: Codable,
         protectedHeader: P,
         key: JWK?
     ) throws -> JWT {
         var protectedHeader = protectedHeader
         protectedHeader.type = "JWT"
-        
+        let encodedPayload = try JSONEncoder.jwt.encode(payload)
         return JWT(
-            payload: payload,
+            payload: encodedPayload,
             format: .jws(try JWS(
-                payload: JSONEncoder.jwt.encode(payload),
+                payload: encodedPayload,
+                protectedHeader: protectedHeader,
+                key: key
+            ))
+        )
+    }
+    
+    public static func signed<P: JWSRegisteredFieldsHeader>(
+        @JWTClaimsBuilder payload: () -> Claim,
+        protectedHeader: P,
+        key: JWK?
+    ) throws -> JWT {
+        var protectedHeader = protectedHeader
+        protectedHeader.type = "JWT"
+        let encodedPayload = try JSONEncoder.jwt.encode(payload().value)
+        return JWT(
+            payload: encodedPayload,
+            format: .jws(try JWS(
+                payload: encodedPayload,
                 protectedHeader: protectedHeader,
                 key: key
             ))
@@ -64,7 +82,30 @@ extension JWT {
         P: JWSRegisteredFieldsHeader,
         NP: JWSRegisteredFieldsHeader
     >(
-        payload: C,
+        payload: Codable,
+        protectedHeader: P,
+        key: JWK?,
+        nestedProtectedHeader: NP,
+        nestedKey: JWK?
+    ) throws -> JWS {
+        let jwt = try signed(
+            payload: payload,
+            protectedHeader: nestedProtectedHeader,
+            key: nestedKey
+        )
+        
+        return try signedAsNested(
+            jwtString: jwt.jwtString,
+            protectedHeader: protectedHeader,
+            key: key
+        )
+    }
+    
+    public static func signedAsNested<
+        P: JWSRegisteredFieldsHeader,
+        NP: JWSRegisteredFieldsHeader
+    >(
+        @JWTClaimsBuilder payload: () -> Claim,
         protectedHeader: P,
         key: JWK?,
         nestedProtectedHeader: NP,

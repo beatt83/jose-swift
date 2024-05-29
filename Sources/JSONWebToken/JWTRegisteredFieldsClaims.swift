@@ -16,11 +16,9 @@
 
 import Foundation
 
-typealias DefaultJWT = JWT<DefaultJWTClaimsImpl>
-
 /// `JWTRegisteredFieldsClaims` is a protocol defining the standard claims typically included in a JWT.
 /// Conforming types can represent the payload of a JWT, encompassing both registered claim names and custom claims.
-public protocol JWTRegisteredFieldsClaims: Codable {
+public protocol JWTRegisteredFieldsClaims {
     // "iss" claim representing the issuer of the JWT.
     var iss: String? { get }
     // "sub" claim representing the subject of the JWT.
@@ -42,7 +40,7 @@ public protocol JWTRegisteredFieldsClaims: Codable {
 }
 
 /// `DefaultJWTClaimsImpl` is a struct implementing the `JWTRegisteredFieldsClaims` protocol, providing a default set of claims.
-public struct DefaultJWTClaimsImpl: JWTRegisteredFieldsClaims {
+public struct DefaultJWTClaimsImpl: JWTRegisteredFieldsClaims, Codable {
     public let iss: String?
     public let sub: String?
     public let aud: [String]?

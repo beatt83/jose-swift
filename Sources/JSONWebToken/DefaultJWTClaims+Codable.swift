@@ -16,7 +16,7 @@
 
 import Foundation
 
-extension DefaultJWTClaimsImpl: Codable {
+extension DefaultJWTClaimsImpl {
     enum CodingKeys: String, CodingKey {
         case iss = "iss"
         case sub = "sub"
