@@ -19,12 +19,24 @@ import Foundation
 import JSONWebKey
 import Tools
 
+/// `AESKeyWrap` provides methods to encrypt content encryption keys (CEKs) using AES key wrapping.
 struct AESKeyWrap: KeyWrapping {
-    func generateInitializationVector() throws -> Data {
+    
+    /// Generates an initialization vector.
+    /// - Throws: An error if the generation fails.
+    /// - Returns: An empty `Data` object as no initialization vector is required for AES key wrapping.
+    public func generateInitializationVector() throws -> Data {
         Data()
     }
     
-    func contentKeyEncrypt(
+    /// Encrypts the content encryption key (CEK) using the provided JWK and key encryption arguments.
+    /// - Parameters:
+    ///   - cek: The content encryption key to be encrypted.
+    ///   - using: The `JWK` to use for encryption.
+    ///   - arguments: An array of `KeyEncryptionArguments` containing the necessary parameters for key encryption.
+    /// - Throws: An error if the encryption fails or if the required key is missing.
+    /// - Returns: A `KeyEncriptionResultMetadata` object containing the encrypted key and other metadata.
+    public func contentKeyEncrypt(
         cek: Data,
         using: JWK,
         arguments: [KeyEncryptionArguments]

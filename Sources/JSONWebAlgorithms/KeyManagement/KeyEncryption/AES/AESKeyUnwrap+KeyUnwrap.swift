@@ -19,8 +19,17 @@ import Foundation
 import JSONWebKey
 import Tools
 
+/// `AESKeyUnwrap` provides methods to decrypt content encryption keys (CEKs) using AES key unwrapping.
 struct AESKeyUnwrap: KeyUnwrapping {
-    func contentKeyDecrypt(
+    
+    /// Decrypts the content encryption key (CEK) using the provided JWK and key encryption arguments.
+    /// - Parameters:
+    ///   - encryptedKey: The encrypted content encryption key to be decrypted.
+    ///   - using: The `JWK` to use for decryption.
+    ///   - arguments: An array of `KeyEncryptionArguments` containing the necessary parameters for key decryption.
+    /// - Throws: An error if the decryption fails or if the required key is missing.
+    /// - Returns: The decrypted key as a `Data` object.
+    public func contentKeyDecrypt(
         encryptedKey: Data,
         using: JWK,
         arguments: [KeyEncryptionArguments]

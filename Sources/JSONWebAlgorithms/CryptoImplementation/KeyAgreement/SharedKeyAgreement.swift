@@ -17,6 +17,6 @@
 import Foundation
 import JSONWebKey
 
-protocol SharedKeyAgreement {
+public protocol SharedKeyAgreement {
     func sharedSecretFromKeyAgreement(publicKeyShare: JWK) throws -> Data
 }

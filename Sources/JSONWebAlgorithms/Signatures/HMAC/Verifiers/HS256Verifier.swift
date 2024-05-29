@@ -18,9 +18,19 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// `HS256Verifier` provides methods to verify signatures using the HS256 algorithm.
 public struct HS256Verifier: Verifier {
+    
+    /// The algorithm used for verification.
     public var algorithm: String { SigningAlgorithm.HS256.rawValue }
     
+    /// Verifies the given data and signature using the provided symmetric key.
+    /// - Parameters:
+    ///   - data: The data that was signed.
+    ///   - signature: The signature to be verified.
+    ///   - key: The `JWK` containing the symmetric key to use for verification.
+    /// - Throws: An error if the symmetric key is not valid or if the verification process fails.
+    /// - Returns: A boolean value indicating whether the signature is valid.
     public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard let k = key?.key else { throw CryptoError.notValidPrivateKey }
         let symmetryKey = SymmetricKey(data: k)

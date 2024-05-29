@@ -10,21 +10,21 @@ import CryptoKit
 import Foundation
 
 /// A protocol representing a hash function that has a maximum input length.
-protocol HashFunctionMaxInputLength {
+public protocol HashFunctionMaxInputLength {
     static var maxInputLength: UInt64 { get }
 }
 
 extension SHA256: HashFunctionMaxInputLength {
-    static var maxInputLength: UInt64 { UInt64.max - 1 }
+    public static var maxInputLength: UInt64 { UInt64.max - 1 }
 }
 
 /// An enumeration that represents the possible errors that can occur during the Concat KDF key derivation.
-enum ConcatKDFError: Error {
+public enum ConcatKDFError: Error {
     case invalidInput
 }
 
 /// The Concat Key Derivation Function (KDF), as defined in Section 5.8.1 of [NIST.800-56A](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar2.pdf)
-struct ConcatKDF<H> where H: HashFunction, H: HashFunctionMaxInputLength {
+public struct ConcatKDF<H> where H: HashFunction, H: HashFunctionMaxInputLength {
     /// Derives a symmetric key using the Concat KDF algorithm.
     ///
     /// - Parameters:
@@ -39,7 +39,7 @@ struct ConcatKDF<H> where H: HashFunction, H: HashFunctionMaxInputLength {
     /// - Returns: The derived symmetric key.
     ///
     /// - Throws: An error if any issues occur during the derivation process.
-    static func deriveKey(
+    public static func deriveKey(
         z: Data,
         keyDataLen: Int,
         algorithmID: Data,

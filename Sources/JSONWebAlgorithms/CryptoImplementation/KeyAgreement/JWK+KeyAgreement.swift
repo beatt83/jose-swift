@@ -20,7 +20,9 @@ import JSONWebKey
 import secp256k1
 
 extension JWK {
-    var keyAgreement: SharedKeyAgreement? {
+    /// A computed property that returns a `SharedKeyAgreement` object if the JWK supports key agreement.
+    /// - Returns: An optional `SharedKeyAgreement` object, or `nil` if the JWK does not support key agreement.
+    public var keyAgreement: SharedKeyAgreement? {
         switch keyType {
         case .ellipticCurve:
             switch curve {

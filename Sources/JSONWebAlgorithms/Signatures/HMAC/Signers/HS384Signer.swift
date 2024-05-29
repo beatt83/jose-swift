@@ -18,9 +18,18 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// `HS384Signer` provides methods to sign data using the HS384 algorithm.
 public struct HS384Signer: Signer {
+    
+    /// The algorithm used for signing.
     public var algorithm: String { SigningAlgorithm.HS384.rawValue }
     
+    /// Signs the given data using the provided symmetric key.
+    /// - Parameters:
+    ///   - data: The data to be signed.
+    ///   - key: The `JWK` containing the symmetric key to use for signing.
+    /// - Throws: An error if the symmetric key is not valid or if the signing process fails.
+    /// - Returns: The signature as a `Data` object.
     public func sign(data: Data, key: JWK) throws -> Data {
         guard let k = key.key else { throw CryptoError.notValidPrivateKey }
         let symmetryKey = SymmetricKey(data: k)

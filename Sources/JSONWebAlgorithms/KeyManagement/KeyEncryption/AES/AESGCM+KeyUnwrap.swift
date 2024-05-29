@@ -18,8 +18,17 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// Extension to make `AESGCM` conform to `KeyUnwrapping`.
 extension AESGCM: KeyUnwrapping {
-    func contentKeyDecrypt(
+    
+    /// Decrypts the content encryption key (CEK) using the provided JWK and key encryption arguments.
+    /// - Parameters:
+    ///   - encryptedKey: The encrypted content encryption key to be decrypted.
+    ///   - using: The `JWK` to use for decryption.
+    ///   - arguments: An array of `KeyEncryptionArguments` containing the necessary parameters for key decryption.
+    /// - Throws: An error if required arguments are missing or if the decryption fails.
+    /// - Returns: The decrypted key as a `Data` object.
+    public func contentKeyDecrypt(
         encryptedKey: Data,
         using: JWK,
         arguments: [KeyEncryptionArguments]

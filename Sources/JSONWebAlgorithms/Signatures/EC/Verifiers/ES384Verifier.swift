@@ -18,14 +18,21 @@ import CryptoKit
 import Foundation
 import JSONWebKey
 
+/// `ES384Verifier` provides methods to verify signatures using the ES384 algorithm.
 public struct ES384Verifier: Verifier {
+    
+    /// The algorithm used for verification.
     public var algorithm: String { SigningAlgorithm.ES384.rawValue }
     
+    /// Verifies the given data and signature using the provided public key.
+    /// - Parameters:
+    ///   - data: The data that was signed.
+    ///   - signature: The signature to be verified.
+    ///   - key: The `JWK` containing the public key to use for verification.
+    /// - Throws: An error if the public key is not valid or if the verification process fails.
+    /// - Returns: A boolean value indicating whether the signature is valid.
     public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
-        guard
-            let x = key?.x,
-            let y = key?.y
-        else { throw CryptoError.notValidPublicKey }
+        guard let x = key?.x, let y = key?.y else { throw CryptoError.notValidPublicKey }
         let publicKey = try P384.Signing.PublicKey(rawRepresentation: x + y)
         let hash = SHA384.hash(data: data)
         return publicKey.isValidSignature(try getSignature(signature), for: hash)

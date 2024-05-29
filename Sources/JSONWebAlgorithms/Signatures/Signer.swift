@@ -17,7 +17,17 @@
 import Foundation
 import JSONWebKey
 
+/// `Signer` defines the requirements for an object that can sign data using a specific algorithm.
 public protocol Signer {
+    
+    /// The algorithm used for signing.
     var algorithm: String { get }
+    
+    /// Signs the given data using the provided key.
+    /// - Parameters:
+    ///   - data: The data to be signed.
+    ///   - key: The `JWK` containing the key to use for signing.
+    /// - Throws: An error if the signing process fails.
+    /// - Returns: The signature as a `Data` object.
     func sign(data: Data, key: JWK) throws -> Data
 }

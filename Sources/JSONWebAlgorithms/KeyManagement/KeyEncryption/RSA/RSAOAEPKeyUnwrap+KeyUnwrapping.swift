@@ -19,8 +19,17 @@ import Foundation
 import JSONWebKey
 import Security
 
-struct RSAOAEPKeyUnwrap: KeyUnwrapping {
-    func contentKeyDecrypt(
+/// `RSAOAEPKeyUnwrap` provides methods to decrypt content encryption keys (CEKs) using RSAES-OAEP with SHA-1.
+public struct RSAOAEPKeyUnwrap: KeyUnwrapping {
+    
+    /// Decrypts the content encryption key (CEK) using the provided JWK and key encryption arguments.
+    /// - Parameters:
+    ///   - encryptedKey: The encrypted content encryption key to be decrypted.
+    ///   - using: The `JWK` to use for decryption.
+    ///   - arguments: An array of `KeyEncryptionArguments` containing the necessary parameters for key decryption.
+    /// - Throws: An error if the decryption fails or if required components are missing from the JWK.
+    /// - Returns: The decrypted key as a `Data` object.
+    public func contentKeyDecrypt(
         encryptedKey: Data,
         using: JWK,
         arguments: [KeyEncryptionArguments]
@@ -34,10 +43,7 @@ struct RSAOAEPKeyUnwrap: KeyUnwrapping {
         guard let d = using.d else {
             throw JWK.Error.missingDComponent
         }
-        guard
-            let p = using.p,
-            let q = using.q
-        else {
+        guard let p = using.p, let q = using.q else {
             throw JWK.Error.missingPrimesComponent
         }
         
@@ -65,14 +71,12 @@ struct RSAOAEPKeyUnwrap: KeyUnwrapping {
         }
         let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA1
         var decryptionError: Unmanaged<CFError>?
-        guard
-            let plaintext = SecKeyCreateDecryptedData(
-                rsaSecKey,
-                secKeyAlgorithm,
-                encryptedKey as CFData,
-                &decryptionError
-            )
-        else {
+        guard let plaintext = SecKeyCreateDecryptedData(
+            rsaSecKey,
+            secKeyAlgorithm,
+            encryptedKey as CFData,
+            &decryptionError
+        ) else {
             throw CryptoError.failedRSAKeyUnwrap
         }
         return plaintext as Data

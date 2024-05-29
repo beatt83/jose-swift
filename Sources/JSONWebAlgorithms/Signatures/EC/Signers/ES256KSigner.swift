@@ -18,17 +18,31 @@ import Foundation
 import JSONWebKey
 import secp256k1
 
+/// `ES256KSigner` provides methods to sign data using the ES256K algorithm.
 public struct ES256KSigner: Signer {
+    
+    /// Enum representing the signature format.
     public enum SignatureFormat {
+        /// Raw format.
         case raw
+        /// DER format.
         case der
     }
     
+    /// The output format of the signature.
     public static var outputFormat = ES256KSigner.SignatureFormat.raw
+    /// Indicates whether the bytes R and S are inverted.
     public static var invertedBytesR_S = false
     
+    /// The algorithm used for signing.
     public var algorithm: String { SigningAlgorithm.ES256K.rawValue }
     
+    /// Signs the given data using the provided private key.
+    /// - Parameters:
+    ///   - data: The data to be signed.
+    ///   - key: The `JWK` containing the private key to use for signing.
+    /// - Throws: An error if the private key is not valid or if the signing process fails.
+    /// - Returns: The signature as a `Data` object.
     public func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }
         let privateKey = try secp256k1.Signing.PrivateKey(dataRepresentation: d)

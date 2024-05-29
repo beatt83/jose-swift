@@ -17,7 +17,18 @@
 import Foundation
 import JSONWebKey
 
+/// `Verifier` defines the requirements for an object that can verify signatures using a specific algorithm.
 public protocol Verifier {
+    
+    /// The algorithm used for verification.
     var algorithm: String { get }
+    
+    /// Verifies the given data and signature using the provided key.
+    /// - Parameters:
+    ///   - data: The data that was signed.
+    ///   - signature: The signature to be verified.
+    ///   - key: The `JWK` containing the key to use for verification.
+    /// - Throws: An error if the verification process fails.
+    /// - Returns: A boolean value indicating whether the signature is valid.
     func verify(data: Data, signature: Data, key: JWK?) throws -> Bool
 }

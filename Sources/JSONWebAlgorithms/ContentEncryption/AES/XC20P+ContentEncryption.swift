@@ -1,21 +1,41 @@
 import CryptoKit
 import Foundation
 
-struct C20PKW: ContentEncryptor, ContentDecryptor {
+/// `C20PKW` provides methods to encrypt and decrypt data using the ChaCha20-Poly1305 algorithm.
+public struct C20PKW: ContentEncryptor, ContentDecryptor {
+    /// The content encryption algorithm used, represented as a string.
+    public let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.c20PKW.rawValue
+    /// The size of the initialization vector in bits.
+    public let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.c20PKW.initializationVectorSizeInBits
+    /// The size of the content encryption key (CEK) in bits.
+    public let cekKeySize: Int = ContentEncryptionAlgorithm.c20PKW.keySizeInBits
     
-    let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.c20PKW.rawValue
-    let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.c20PKW.initializationVectorSizeInBits
-    let cekKeySize: Int = ContentEncryptionAlgorithm.c20PKW.keySizeInBits
-    
-    func generateInitializationVector() throws -> Data {
+    /// Generates a random initialization vector.
+    /// - Throws: An error if the random data generation fails.
+    /// - Returns: A data object containing the initialization vector.
+    public func generateInitializationVector() throws -> Data {
         try SecureRandom.secureRandomData(count: initializationVectorSizeInBits / 8)
     }
     
-    func generateCEK() throws -> Data {
+    /// Generates a random content encryption key (CEK).
+    /// - Throws: An error if the random data generation fails.
+    /// - Returns: A data object containing the CEK.
+    public func generateCEK() throws -> Data {
         try SecureRandom.secureRandomData(count: cekKeySize / 8)
     }
     
-    func encrypt(payload: Data, using key: Data, arguments: [ContentEncryptionArguments]) throws -> ContentEncryptionResult {
+    /// Encrypts the payload using the ChaCha20-Poly1305 algorithm.
+    /// - Parameters:
+    ///   - payload: The data to be encrypted.
+    ///   - key: The encryption key.
+    ///   - arguments: Additional encryption arguments, such as initialization vector and additional authenticated data.
+    /// - Throws: An error if the encryption fails or if required arguments are missing or of incorrect size.
+    /// - Returns: A `ContentEncryptionResult` containing the cipher text and authentication tag.
+    public func encrypt(
+        payload: Data,
+        using key: Data,
+        arguments: [ContentEncryptionArguments]
+    ) throws -> ContentEncryptionResult {
         guard let iv = arguments.initializationVector else {
             throw CryptoError.missingInitializationVector
         }
@@ -38,7 +58,18 @@ struct C20PKW: ContentEncryptor, ContentDecryptor {
         return .init(cipher: aead.ciphertext, authenticationData: aead.tag)
     }
     
-    func decrypt(cipher: Data, using key: Data, arguments: [ContentEncryptionArguments]) throws -> Data {
+    /// Decrypts the cipher text using the ChaCha20-Poly1305 algorithm.
+    /// - Parameters:
+    ///   - cipher: The data to be decrypted.
+    ///   - key: The decryption key.
+    ///   - arguments: Additional decryption arguments, such as initialization vector and authentication tag.
+    /// - Throws: An error if the decryption fails or if required arguments are missing.
+    /// - Returns: The decrypted data.
+    public func decrypt(
+        cipher: Data,
+        using key: Data,
+        arguments: [ContentEncryptionArguments]
+    ) throws -> Data {
         guard let iv = arguments.initializationVector else {
             throw CryptoError.missingInitializationVector
         }

@@ -18,9 +18,18 @@ import CryptoKit
 import Foundation
 import Tools
 
-struct AESGCM {
+/// `AESGCM` provides methods to encrypt and decrypt data using AES-GCM (Galois/Counter Mode).
+public struct AESGCM {
     
-    static func encrypt(
+    /// Encrypts the payload using AES-GCM.
+    /// - Parameters:
+    ///   - payload: The data to be encrypted.
+    ///   - cek: The content encryption key.
+    ///   - initializationVector: The initialization vector (default is empty data).
+    ///   - additionalAuthenticatedData: Additional data to be authenticated (default is empty data).
+    /// - Throws: An error if the encryption fails.
+    /// - Returns: A tuple containing the cipher text and authentication tag.
+    public static func encrypt(
         payload: Data,
         cek: Data,
         initializationVector: Data = Data(),
@@ -35,7 +44,16 @@ struct AESGCM {
         return (sealedBox.ciphertext, sealedBox.tag)
     }
     
-    static func decrypt(
+    /// Decrypts the cipher text using AES-GCM.
+    /// - Parameters:
+    ///   - cipher: The data to be decrypted.
+    ///   - using: The decryption key.
+    ///   - initializationVector: The initialization vector (default is empty data).
+    ///   - authenticationTag: The authentication tag (default is empty data).
+    ///   - additionalAuthenticatedData: Additional data to be authenticated (default is empty data).
+    /// - Throws: An error if the decryption fails.
+    /// - Returns: The decrypted data.
+    public static func decrypt(
         cipher: Data,
         using: Data,
         initializationVector: Data = Data(),

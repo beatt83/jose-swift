@@ -20,9 +20,19 @@ import Foundation
 import JSONWebKey
 import Tools
 
-struct AESCBC_SHA<H: HashFunction> {
+/// `AESCBC_SHA` provides methods to encrypt and decrypt data using AES-CBC with an HMAC for authentication.
+public struct AESCBC_SHA<H: HashFunction> {
     
-    static func encrypt(
+    /// Encrypts the payload using AES-CBC with an HMAC for authentication.
+    /// - Parameters:
+    ///   - payload: The data to be encrypted.
+    ///   - cek: The content encryption key.
+    ///   - authenticationTagLength: The length of the authentication tag.
+    ///   - initializationVector: The initialization vector (default is empty data).
+    ///   - additionalAuthenticatedData: Additional data to be authenticated (default is empty data).
+    /// - Throws: An error if the encryption fails.
+    /// - Returns: A tuple containing the cipher text and authentication tag.
+    public static func encrypt(
         payload: Data,
         cek: Data,
         authenticationTagLength: Int,
@@ -54,7 +64,17 @@ struct AESCBC_SHA<H: HashFunction> {
         return (Data(ciphertext), authenticationTag)
     }
     
-    static func decrypt(
+    /// Decrypts the cipher text using AES-CBC with an HMAC for authentication.
+    /// - Parameters:
+    ///   - cipher: The data to be decrypted.
+    ///   - cek: The content encryption key.
+    ///   - authenticationTagLength: The length of the authentication tag.
+    ///   - initializationVector: The initialization vector.
+    ///   - additionalAuthenticatedData: Additional data to be authenticated.
+    ///   - authenticationTag: The authentication tag.
+    /// - Throws: An error if the decryption fails or if the authentication tag doesn't match.
+    /// - Returns: The decrypted data.
+    public static func decrypt(
         cipher: Data,
         cek: Data,
         authenticationTagLength: Int,

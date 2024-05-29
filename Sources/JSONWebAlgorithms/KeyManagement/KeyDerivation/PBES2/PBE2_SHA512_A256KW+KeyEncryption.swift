@@ -17,18 +17,18 @@
 import Foundation
 import JSONWebKey
 
+/// `PBE2_SHA512_A256KW` provides methods to derive a key using the PBES2-HMAC-SHA512 algorithm with AES key wrapping.
 struct PBE2_SHA512_A256KW: KeyDerivation {
     
-    func deriveKey(arguments: [KeyDerivationArguments]) throws -> Data {
-        guard
-            let password = arguments.password
-        else {
+    /// Derives a key using the provided key derivation arguments.
+    /// - Parameter arguments: An array of `KeyDerivationArguments` containing the necessary parameters for key derivation.
+    /// - Throws: An error if required arguments are missing or if the key derivation fails.
+    /// - Returns: The derived key as a `Data` object.
+    public func deriveKey(arguments: [KeyDerivationArguments]) throws -> Data {
+        guard let password = arguments.password else {
             throw CryptoError.missingArguments(["password"])
         }
-        guard
-            let salt = arguments.saltInput,
-            let count = arguments.saltCount
-        else {
+        guard let salt = arguments.saltInput, let count = arguments.saltCount else {
             throw CryptoError.missingPBS2SaltInputOrCount
         }
         
