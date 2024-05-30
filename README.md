@@ -272,9 +272,8 @@ Example:
 ```swift
 let payload = "Hello world".data(using: .utf8)!
 let key = secp256k1.Signing.PrivateKey()
-let keyJWK = key.jwkRepresentation
 
-let jws = try JWS(payload: payload, key: keyJWK)
+let jws = try JWS(payload: payload, key: key)
 
 let jwsString = jws.compactSerialization
 
@@ -288,6 +287,7 @@ let rsaKeyId = "Hello-keyId"
 var header = DefaultJWSHeaderImpl()
 header.keyID = rsaKeyId
 header.algorithm = .rsa512
+
 let keyJWK = JWK(keyType: .rsa, algorithm: "RSA512", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
 let jwe = try JWS(payload: payload, protectedHeader: header, key: jwk)
 ```
@@ -334,7 +334,7 @@ JWE represents encrypted content using JSON-based data structures, following the
 3. **Compression Algorithms**:
     - DEFLATE (zip)
 
-Example:
+Example1:
 
 ```swift
 let payload = "Hello world".data(using: .utf8)!
@@ -347,6 +347,27 @@ let serialization = try JWE(
     encryptionAlgorithm: .a256GCM,
     compressionAlgorithm: .zip,
     recipientKey: keyJWK
+)
+
+let compact = serialization.compactSerialization()
+
+let jwe = try JWE(compactString: compact)
+let decrypted = try jwe.decrypt(recipientKey: recipientJWK)
+```
+
+Example2:
+
+```swift
+let payload = "Hello world".data(using: .utf8)!
+let key = P256.Signing.PrivateKey()
+
+
+let serialization = try JWE(
+    payload: payload,
+    keyManagementAlg: .a256KW,
+    encryptionAlgorithm: .a256GCM,
+    compressionAlgorithm: .zip,
+    recipientKey: key
 )
 
 let compact = serialization.compactSerialization()
@@ -403,7 +424,6 @@ Example:
 
 ```swift
 let key = P256.Signing.PrivateKey()
-let keyJWK = key.jwkRepresentation
 let mockClaims = DefaultJWTClaims(
     iss: "testAlice",
     sub: "Alice",
@@ -426,7 +446,6 @@ let verifiedPayload = verifiedJWT.payload
 
 ```swift
 let key = Curve25519.KeyAgreement.PrivateKey()
-let keyJWK = key.jwkRepresentation
 let mockClaims = DefaultJWTClaims(
     iss: "testAlice",
     sub: "Alice",
@@ -436,7 +455,7 @@ let mockClaims = DefaultJWTClaims(
 let jwt = try JWT.encrypt(
     payload: payload,
     protectedHeader: DefaultJWSHeaderImpl(keyManagementAlgorithm: .a128KW, encodingAlgorithm: .a128CBCHS256),
-    recipientKey: keyJWK
+    recipientKey: key
 )
 
 let jwtString = jwt.jwtString
@@ -449,7 +468,7 @@ let verifiedPayload = verifiedJWT.payload
     - Standard Claims on signing a JWT
     
     ```swift
-    let key = JWK.testingES256Pair
+    let key = P256.Signing.PrivateKey()
 
     let jwt = try JWT.signed(
         payload: {

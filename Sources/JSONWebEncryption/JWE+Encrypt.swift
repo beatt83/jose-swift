@@ -23,6 +23,10 @@ extension JWE {
     /// Initializes a `JWE` object for encryption, given the payload and various encryption parameters.
     ///
     /// This method configures a `JWE` object with specified encryption settings, preparing it for data encryption.
+    /// 
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
     ///
     /// - Parameters:
     ///   - payload: The data to be encrypted.
@@ -41,8 +45,8 @@ extension JWE {
         payload: Data,
         keyManagementAlg: KeyManagementAlgorithm,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -58,8 +62,8 @@ extension JWE {
         
         let parts = try JWE.encryptionModule.encryptor(alg: keyManagementAlg).encrypt(
             payload: payload,
-            senderKey: senderKey,
-            recipientKey: recipientKey,
+            senderKey: senderKey.map { try prepareJWK(key: $0) },
+            recipientKey: recipientKey.map { try prepareJWK(key: $0) },
             protectedHeader: protectedHeader,
             cek: cek,
             initializationVector: initializationVector,
@@ -84,6 +88,10 @@ extension JWE {
     ///
     /// This method allows for a high level of customization of the `JWE` header parameters and encryption settings.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - protectedHeader: Optional protected header, specifying encryption parameters.
@@ -101,8 +109,8 @@ extension JWE {
         payload: Data,
         protectedHeader: P? = nil as DefaultJWEHeaderImpl?,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -122,8 +130,8 @@ extension JWE {
         
         let parts = try JWE.encryptionModule.encryptor(alg: alg).encrypt(
             payload: payload,
-            senderKey: senderKey,
-            recipientKey: recipientKey,
+            senderKey: senderKey.map { try prepareJWK(key: $0) },
+            recipientKey: recipientKey.map { try prepareJWK(key: $0) },
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
             cek: cek,
@@ -154,6 +162,10 @@ extension JWE {
     /// This method is tailored for scenarios requiring a specific combination of encryption and key management algorithms,
     /// while also allowing a custom unprotected header.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - keyManagementAlg: The key management algorithm.
@@ -173,8 +185,8 @@ extension JWE {
         keyManagementAlg: KeyManagementAlgorithm,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         additionalAuthenticationData: Data? = nil,
         password: Data? = nil,
@@ -204,6 +216,10 @@ extension JWE {
     ///
     /// This method allows for a high degree of flexibility by accepting generic header types and a list of recipients.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - protectedHeader: Optional custom protected header.
@@ -226,8 +242,8 @@ extension JWE {
         payload: Data,
         protectedHeader: P? = nil as DefaultJWEHeaderImpl?,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipients: [(header: R, key: JWK)],
+        senderKey: KeyRepresentable? = nil,
+        recipients: [(header: R, key: KeyRepresentable)],
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -237,8 +253,8 @@ extension JWE {
     ) throws -> JWEJson<P, U, R> {
         let recipientParts = try encryptionModule.multiEncryptor.encrypt(
             payload: payload,
-            senderKey: senderKey,
-            recipients: recipients.map { ($0.header, $0.key) },
+            senderKey: senderKey.map { try prepareJWK(key: $0) },
+            recipients: try recipients.map { ($0.header, try prepareJWK(key: $0.key)) },
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
             cek: cek,
@@ -277,6 +293,10 @@ extension JWE {
     /// This method allows for specifying a custom shared unprotected header while using default headers for the protected
     /// and recipient-specific headers.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - encryptionAlgorithm: The content encryption algorithm to be used.
@@ -295,8 +315,8 @@ extension JWE {
         payload: Data,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipients: [(alg: KeyManagementAlgorithm, key: JWK)],
+        senderKey: KeyRepresentable? = nil,
+        recipients: [(alg: KeyManagementAlgorithm, key: KeyRepresentable)],
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -330,6 +350,10 @@ extension JWE {
     ///
     /// This method is particularly used when you have multiple recipients and a single encryption algorithm.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - encryptionAlgorithm: The content encryption algorithm to be used.
@@ -346,8 +370,8 @@ extension JWE {
     public static func jsonSerialization(
         payload: Data,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
-        senderKey: JWK? = nil,
-        recipients: [(alg: KeyManagementAlgorithm, key: JWK)],
+        senderKey: KeyRepresentable? = nil,
+        recipients: [(alg: KeyManagementAlgorithm, key: KeyRepresentable)],
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -374,6 +398,10 @@ extension JWE {
     ///
     /// This method is useful for encrypting data for multiple recipients, each potentially using different encryption keys.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - protectedHeader: Optional protected header. It should conform to `JWERegisteredFieldsHeader`.
@@ -395,8 +423,8 @@ extension JWE {
         payload: Data,
         protectedHeader: P? = nil as DefaultJWEHeaderImpl?,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipientKeys: [JWK],
+        senderKey: KeyRepresentable? = nil,
+        recipientKeys: [KeyRepresentable],
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -409,7 +437,7 @@ extension JWE {
             protectedHeader: protectedHeader,
             unprotectedHeader: unprotectedHeader,
             senderKey: senderKey,
-            recipients: recipientKeys.map { (DefaultJWEHeaderImpl(from: $0), $0)},
+            recipients: try recipientKeys.map { (DefaultJWEHeaderImpl(from: try prepareJWK(key: $0)), $0)},
             cek: cek,
             initializationVector: initializationVector,
             additionalAuthenticationData: additionalAuthenticationData,
@@ -417,5 +445,18 @@ extension JWE {
             saltLength: saltLength,
             iterationCount: iterationCount
         )
+    }
+}
+
+func prepareJWK(key: KeyRepresentable?) throws -> JWK {
+    switch key {
+    case let value as SecKey:
+        return try SecKeyExtended(secKey: value).jwk()
+    case let value as JWK:
+        return value
+    case let value as JWKRepresentable:
+        return value.jwkRepresentation
+    default:
+        throw CryptoError.keyFormatNotSupported(format: String(describing: key.self), supportedFormats: ["JWK", "SecKey", "JWKRepresentable"])
     }
 }

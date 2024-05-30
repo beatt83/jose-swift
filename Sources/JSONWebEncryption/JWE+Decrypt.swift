@@ -22,6 +22,7 @@ import Tools
 extension JWE {
     /// Initializes a `JWE` object from a compact serialization string.
     /// This method decodes the serialized string into its respective components.
+    /// 
     /// - Parameters:
     ///   - compactString: The compact serialization string of the JWE.
     ///   - encryptionModule: The encryption module to use, defaulting to the standard module.
@@ -48,6 +49,10 @@ extension JWE {
     /// This method decrypts a `JWE` object using the provided keys and optional password.
     /// It determines the appropriate decryption algorithm based on the JWE headers.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - senderKey: The sender's key, if applicable. Used in certain key agreement protocols.
     ///   - recipientKey: The recipient's key, if applicable. Typically used for asymmetric decryption.
@@ -56,9 +61,9 @@ extension JWE {
     /// - Returns: The decrypted data as `Data`.
     /// - Throws: `JWEError` for errors related to missing algorithms, keys, or failed decryption.
     public func decrypt(
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
@@ -77,9 +82,9 @@ extension JWE {
             initializationVector: initializationVector,
             authenticationTag: authenticationTag,
             additionalAuthenticationData: additionalAuthenticatedData,
-            senderKey: senderKey,
-            recipientKey: recipientKey,
-            sharedKey: sharedKey,
+            senderKey: senderKey.map { try prepareJWK(key: $0) },
+            recipientKey: recipientKey.map { try prepareJWK(key: $0) },
+            sharedKey: sharedKey.map { try prepareJWK(key: $0) },
             password: password
         )
     }
@@ -87,6 +92,10 @@ extension JWE {
     /// Static method to decrypt a JWE from a compact serialization string.
     ///
     /// This method is used to decrypt a `JWE` that is represented as a compact serialization string.
+    ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
     ///
     /// - Parameters:
     ///   - compactString: The compact serialization string of the JWE.
@@ -98,9 +107,9 @@ extension JWE {
     /// - Throws: `JWEError` for errors related to parsing the compact string, missing algorithms, keys, or failed decryption.
     public static func decrypt(
         compactString: String,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil
     ) throws -> Data {
         try JWE(compactString: compactString)
@@ -116,6 +125,10 @@ extension JWE {
     ///
     /// This method is used to decrypt a `JWE` that is represented as JSON data.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - jweJson: The JSON data representing the JWE.
     ///   - senderKey: The sender's key, if applicable.
@@ -127,9 +140,9 @@ extension JWE {
     /// - Throws: `JWEError` for errors related to parsing the JSON data, missing algorithms, keys, or failed decryption.
     public static func decrypt(
         jweJson: Data,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil,
         tryAllRecipients: Bool = false
     ) throws -> Data {
@@ -148,6 +161,10 @@ extension JWE {
     ///
     /// This method allows for decryption of a `JWE` represented as a `JWEJson` object with custom header types.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - jweJson: The `JWEJson` object representing the JWE.
     ///   - senderKey: The sender's key, if applicable.
@@ -163,9 +180,9 @@ extension JWE {
         R: JWERegisteredFieldsHeader
     >(
         jweJson: JWEJson<P, U, R>,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil,
         tryAllRecipients: Bool = false
     ) throws -> Data {
@@ -181,9 +198,9 @@ extension JWE {
             recipients: jweJson.recipients.map { ($0.header, $0.encryptedKey)},
             initializationVector: jweJson.initializationVector,
             authenticationTag: jweJson.authenticationTag,
-            senderKey: senderKey,
-            recipientKey: recipientKey,
-            sharedKey: sharedKey,
+            senderKey: senderKey.map { try prepareJWK(key: $0) },
+            recipientKey: recipientKey.map { try prepareJWK(key: $0) },
+            sharedKey: sharedKey.map { try prepareJWK(key: $0) },
             additionalAuthenticationData: aad,
             tryAllRecipients: tryAllRecipients, 
             password: password

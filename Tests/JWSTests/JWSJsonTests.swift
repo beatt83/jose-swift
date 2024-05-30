@@ -35,7 +35,7 @@ final class JWSJsonTests: XCTestCase {
         XCTAssertEqual(jsonSerilization.signatures.count, 1)
         XCTAssertEqual(try jsonSerilization.signatures.first!.validateAlg(), .ES256)
         XCTAssertEqual(try jsonSerilization.signatures.first!.getKid(), "1")
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: jwk))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: jwk))
     }
     
     func testJsonSerializationTwoKeysES256() throws {
@@ -57,8 +57,8 @@ final class JWSJsonTests: XCTestCase {
         XCTAssertEqual(try jsonSerilization.signatures.filter { try $0.validateAlg() == .ES256 }.count, 2)
         XCTAssertTrue(try jsonSerilization.signatures.contains { try $0.getKid() == "1"} )
         XCTAssertTrue(try jsonSerilization.signatures.contains { try $0.getKid() == "2"} )
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: jwk1))
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: jwk2))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: jwk1))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: jwk2))
     }
     
     func testJsonSerializationOneKeyES256_OtherES521() throws {
@@ -81,8 +81,8 @@ final class JWSJsonTests: XCTestCase {
         XCTAssertEqual(try jsonSerilization.signatures.filter { try $0.validateAlg() == .ES512 }.count, 1)
         XCTAssertTrue(try jsonSerilization.signatures.contains { try $0.getKid() == "1"} )
         XCTAssertTrue(try jsonSerilization.signatures.contains { try $0.getKid() == "2"} )
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: jwk1))
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: jwk2))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: jwk1))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: jwk2))
     }
     
     func testJsonSerializationTrueES256Verification_FailES521VerificationWithRandomKey() throws {
@@ -95,8 +95,8 @@ final class JWSJsonTests: XCTestCase {
         
         let jwkRandomKey = JWK.testingES521Pair
         
-        XCTAssertTrue(try JWS.verify(jwsJson: jws.data(using: .utf8)!, jwk: jwk1))
-        XCTAssertFalse(try JWS.verify(jwsJson: jws.data(using: .utf8)!, jwk: jwkRandomKey, validateAll: true))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws.data(using: .utf8)!, key: jwk1))
+        XCTAssertFalse(try JWS.verify(jwsJson: jws.data(using: .utf8)!, key: jwkRandomKey, validateAll: true))
     }
     
     func testJsonSerializationVerificationTrueWhenKeyIsValidWithoutKidAndValidateAllTrue() throws {
@@ -110,13 +110,10 @@ final class JWSJsonTests: XCTestCase {
 {"payload":"eyJpc3MiOiJqb2UiLCJleHAiOjEzMDA4MTkzODAsImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ==","signatures":[{"header":{"kid":"1"},"protected":"eyJhbGciOiJFUzI1NiJ9","signature":"vlYj-Vt5onyW56JMnWA82dlylnf2ELGfrGXP7P_JVUY3Dftecm83ceW9w6FYF4ApacRym6Mu5n_NtWDPgK35yg"},{"header":{"kid":"2"},"protected":"eyJhbGciOiJFUzUxMiJ9","signature":"AST-iRjis7O62AjCJBdOk-n54P73JZ_hCJZHBMTcqbrBD7Nhd0PysbDGZQf1IsD2LHcAvL_H2LR-p-QsmDViooHQAI9LaK8abwQYIDrYNc9fGSaVdWw42qzqj_m9qGhM5jLEcGW-PrNYUGsJSsBC4daBXnxEUbCR7iR0UVaR00ngb4Ma"}]}
 """
         
-        XCTAssertTrue(try JWS.verify(jwsJson: jws.data(using: .utf8)!, jwk: jwkWithoutKid, validateAll: true))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws.data(using: .utf8)!, key: jwkWithoutKid, validateAll: true))
     }
     
     func testJsonSerializationVerificationFalseWhenKeyHasNoKid() throws {
-        let keyJWK = "{\"kty\":\"EC\",\"kid\":\"1\",\"crv\":\"P-256\",\"x\":\"f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU\",\"y\":\"x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0\",\"d\":\"jpsQnnGQmL-YBIffH1136cspYG6-0iY7X1fCE9-E9LI\"}"
-        let jwk1 = try JSONDecoder().decode(JWK.self, from: keyJWK.data(using: .utf8)!)
-        
         let keyJWKWithoutKid = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU\",\"y\":\"x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0\",\"d\":\"jpsQnnGQmL-YBIffH1136cspYG6-0iY7X1fCE9-E9LI\"}"
         let jwkWithoutKid = try JSONDecoder().decode(JWK.self, from: keyJWKWithoutKid.data(using: .utf8)!)
         
@@ -124,7 +121,7 @@ final class JWSJsonTests: XCTestCase {
 {"payload":"eyJpc3MiOiJqb2UiLCJleHAiOjEzMDA4MTkzODAsImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ==","signatures":[{"header":{"kid":"1"},"protected":"eyJhbGciOiJFUzI1NiJ9","signature":"vlYj-Vt5onyW56JMnWA82dlylnf2ELGfrGXP7P_JVUY3Dftecm83ceW9w6FYF4ApacRym6Mu5n_NtWDPgK35yg"},{"header":{"kid":"2"},"protected":"eyJhbGciOiJFUzUxMiJ9","signature":"AST-iRjis7O62AjCJBdOk-n54P73JZ_hCJZHBMTcqbrBD7Nhd0PysbDGZQf1IsD2LHcAvL_H2LR-p-QsmDViooHQAI9LaK8abwQYIDrYNc9fGSaVdWw42qzqj_m9qGhM5jLEcGW-PrNYUGsJSsBC4daBXnxEUbCR7iR0UVaR00ngb4Ma"}]}
 """
         
-        XCTAssertThrowsError(try JWS.verify(jwsJson: jws.data(using: .utf8)!, jwk: jwkWithoutKid))
+        XCTAssertThrowsError(try JWS.verify(jwsJson: jws.data(using: .utf8)!, key: jwkWithoutKid, validateAll: false))
     }
     
     func testJsonSerializationOneKeyOnlyEdDSA() throws {
@@ -141,6 +138,6 @@ final class JWSJsonTests: XCTestCase {
         XCTAssertEqual(jsonSerilization.signatures.count, 1)
         XCTAssertEqual(try jsonSerilization.signatures.first!.validateAlg(), .EdDSA)
         XCTAssertEqual(try jsonSerilization.signatures.first!.getKid(), "1")
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: keyJWK))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: keyJWK))
     }
 }

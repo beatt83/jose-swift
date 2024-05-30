@@ -30,6 +30,23 @@ extension JWK {
         return privateKey.rawRepresentation
     }
     
+    static var testingES256PairSecKey: SecKey {
+        let p256Data = P256.Signing.PrivateKey().x963Representation
+        let attributes: [String: Any] = [
+            kSecAttrKeyType as String: kSecAttrKeyTypeECDSA,
+            kSecAttrKeyClass as String: kSecAttrKeyClassPrivate,
+            kSecAttrKeySizeInBits as String: 256
+        ]
+
+        var error: Unmanaged<CFError>?
+        if let secKey = SecKeyCreateWithData(p256Data as CFData, attributes as CFDictionary, &error) {
+            return secKey
+        } else if let error = error?.takeRetainedValue() {
+            fatalError()
+        }
+        fatalError()
+    }
+    
     static var testingES384Pair: JWK {
         let privateKey = P384.Signing.PrivateKey()
         return privateKey.jwkRepresentation

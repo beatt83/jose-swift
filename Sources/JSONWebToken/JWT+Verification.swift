@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import JSONWebAlgorithms
 import JSONWebEncryption
 import JSONWebKey
 import JSONWebSignature
@@ -25,20 +26,24 @@ extension JWT {
     ///
     /// This method supports both JWS (JSON Web Signature) and JWE (JSON Web Encryption) formats. It first determines the format of the JWT based on the number of components separated by dots in the JWT string. The method also handles nested JWTs, verifying each layer as needed.
     ///
+    /// This method supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - jwtString: The JWT string to be verified and decoded.
-    ///   - senderKey: An optional `JWK` representing the sender's key, used for verifying a JWS.
-    ///   - recipientKey: An optional `JWK` representing the recipient's key, used for decrypting a JWE.
-    ///   - nestedKeys: An array of `JWK` used for verifying nested JWTs.
+    ///   - senderKey: An optional `KeyRepresentable` representing the sender's key, used for verifying a JWS.
+    ///   - recipientKey: An optional `KeyRepresentable` representing the recipient's key, used for decrypting a JWE.
+    ///   - nestedKeys: An array of `KeyRepresentable` used for verifying nested JWTs.
     ///   - expectedIssuer: An optional expected issuer (`iss` claim) to validate.
     ///   - expectedAudience: An optional expected audience (`aud` claim) to validate.
     /// - Returns: A `JWT` instance containing the payload and format.
     /// - Throws: `JWTError` if verification fails, the signature is invalid, claims validation fails, the JWT format is incorrect, or if nested JWT keys are missing.
     public static func verify(
         jwtString: String,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        nestedKeys: [JWK] = [],
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        nestedKeys: [KeyRepresentable] = [],
         expectedIssuer: String? = nil,
         expectedAudience: String? = nil
     ) throws -> JWT {
@@ -48,7 +53,7 @@ extension JWT {
             let jws = try JWS(jwsString: jwtString)
             if jws.protectedHeader.contentType == "JWT" {
                 guard let key = getKeyForJWSHeader(
-                    keys: nestedKeys,
+                    keys: try nestedKeys.map { try $0.jwk },
                     header: jws.protectedHeader
                 ) else { throw JWTError.missingNestedJWTKey }
                 
@@ -82,7 +87,7 @@ extension JWT {
             
             if jwe.protectedHeader.contentType == "JWT" {
                 guard let key = getKeyForJWEHeader(
-                    keys: nestedKeys,
+                    keys: try nestedKeys.map { try $0.jwk },
                     header: jwe.protectedHeader
                 ) else { throw JWTError.missingNestedJWTKey }
                 
@@ -109,26 +114,27 @@ extension JWT {
     }
     /// Verifies a JSON Web Token (JWT) string by checking its signature and claims.
     ///
-    /// This function supports different types for the `Key` parameter, including `Data`, `SecKey`, and `JWK`.
-    /// When using `Data` or `SecKey` as the key type, the `alg` (algorithm) field must be set in the header.
+    /// This method supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
     ///
     /// - Parameters:
     ///   - jwtString: The JWT string to be verified.
-    ///   - signerKey: The cryptographic key used for verifying the JWS, which can be of type `Data`, `SecKey`, or `JWK`.
-    ///   - senderKey: The JWK used for decrypting the JWE, if applicable.
-    ///   - recipientKey: The JWK used for decrypting the JWE, if applicable.
-    ///   - nestedKeys: An array of JWKs used for verifying nested JWTs, if applicable.
+    ///   - signerKey: The cryptographic key used for verifying the JWS, which can be of type `KeyRepresentable`.
+    ///   - senderKey: The cryptographic key used for verifying the JWS, which can be of type `KeyRepresentable`.
+    ///   - recipientKey: The cryptographic key used for verifying the JWS, which can be of type `KeyRepresentable`.
+    ///   - nestedKeys: An array of `KeyRepresentable` used for verifying nested JWTs, if applicable.
     ///   - expectedIssuer: The expected issuer (`iss`) claim in the JWT payload.
     ///   - expectedAudience: The expected audience (`aud`) claim in the JWT payload.
     ///
     /// - Throws: An error if the verification process fails.
     /// - Returns: A `JWT` instance representing the verified JWT.
-    public static func verify<Key>(
+    public static func verify(
         jwtString: String,
-        signerKey: Key? = nil,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        nestedKeys: [JWK] = [],
+        signerKey: KeyRepresentable? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        nestedKeys: [KeyRepresentable] = [],
         expectedIssuer: String? = nil,
         expectedAudience: String? = nil
     ) throws -> JWT {
@@ -138,7 +144,7 @@ extension JWT {
             let jws = try JWS(jwsString: jwtString)
             if jws.protectedHeader.contentType == "JWT" {
                 guard let key = getKeyForJWSHeader(
-                    keys: nestedKeys,
+                    keys: try nestedKeys.map { try $0.jwk },
                     header: jws.protectedHeader
                 ) else { throw JWTError.missingNestedJWTKey }
                 
@@ -172,7 +178,7 @@ extension JWT {
             
             if jwe.protectedHeader.contentType == "JWT" {
                 guard let key = getKeyForJWEHeader(
-                    keys: nestedKeys,
+                    keys: try nestedKeys.map { try $0.jwk },
                     header: jwe.protectedHeader
                 ) else { throw JWTError.missingNestedJWTKey }
                 

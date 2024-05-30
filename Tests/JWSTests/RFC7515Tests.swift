@@ -248,7 +248,7 @@ final class RFC7515Tests: XCTestCase {
         XCTAssertEqual(esSignature!.unprotectedHeader!.keyID, "e9bc097a-ce51-4036-9562-d2ade882db0d")
         // We cannot test if the ES256 signature is equal since the value is always different,
         // instead we verify with the key
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: es256KeyJWK))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: es256KeyJWK))
     }
     
     func testJWS_RFC7515_A7() throws {
@@ -271,6 +271,6 @@ final class RFC7515Tests: XCTestCase {
         XCTAssertEqual(jsonSerilization.unprotectedHeader!.keyID, "e9bc097a-ce51-4036-9562-d2ade882db0d")
         // We cannot test if the ES256 signature is equal since the value is always different,
         // instead we verify with the key
-        XCTAssertTrue(try JWS.verify(jwsJson: jws, jwk: es256KeyJWK))
+        XCTAssertTrue(try JWS.verify(jwsJson: jws, key: es256KeyJWK))
     }
 }
