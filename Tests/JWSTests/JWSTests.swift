@@ -98,6 +98,11 @@ final class JWSTests: XCTestCase {
         XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256), key: keyPair))
     }
     
+    func testES256SigningWithSecKey() throws {
+        let keyPair = JWK.testingES256PairSecKey
+        XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256), key: keyPair))
+    }
+    
     func testES384SigningWithDataKey() throws {
         let keyPair = JWK.testingES384PairData
         XCTAssertNoThrow(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES384), key: keyPair))

@@ -15,12 +15,17 @@
  */
 
 import Foundation
+import JSONWebAlgorithms
 import JSONWebKey
 import JSONWebEncryption
 
 extension JWT {
     
     /// Encrypts the payload of a JWT and returns it in JWE format.
+    ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
     ///
     /// - Parameters:
     ///   - payload: The payload to encrypt, conforming to `JWTRegisteredFieldsClaims`.
@@ -41,9 +46,9 @@ extension JWT {
         payload: Codable,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK?,
-        recipientKey: JWK?,
-        sharedKey: JWK?,
+        senderKey: KeyRepresentable?,
+        recipientKey: KeyRepresentable?,
+        sharedKey: KeyRepresentable?,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil
@@ -73,9 +78,9 @@ extension JWT {
         @JWTClaimsBuilder payload: () -> Claim,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK?,
-        recipientKey: JWK?,
-        sharedKey: JWK?,
+        senderKey: KeyRepresentable?,
+        recipientKey: KeyRepresentable?,
+        sharedKey: KeyRepresentable?,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil
@@ -103,6 +108,10 @@ extension JWT {
     /// This method is used for creating a nested JWT, where the payload is another JWT string.
     /// It encrypts the provided JWT string and wraps it in a new JWE structure.
     ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
     /// - Parameters:
     ///   - jwtString: The JWT string to be encrypted.
     ///   - protectedHeader: A header with fields that will be protected (encrypted) in the outer JWE layer.
@@ -122,9 +131,9 @@ extension JWT {
         jwt: JWT,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        sharedKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil
@@ -148,6 +157,10 @@ extension JWT {
     ///
     /// This method creates a nested JWE structure with two layers of encryption. The inner layer encrypts the payload,
     /// and the outer layer encrypts the resulting JWT from the inner encryption.
+    ///
+    /// This initializer supports different types for the `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
     ///
     /// - Parameters:
     ///   - payload: The payload to encrypt, conforming to `JWTRegisteredFieldsClaims`.
@@ -178,17 +191,17 @@ extension JWT {
         payload: Codable,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        sharedKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
         nestedProtectedHeader: NP,
         nestedUnprotectedHeader: NU? = nil as DefaultJWEHeaderImpl?,
-        nestedSenderKey: JWK? = nil,
-        nestedRecipientKey: JWK? = nil,
-        nestedSharedKey: JWK? = nil,
+        nestedSenderKey: KeyRepresentable? = nil,
+        nestedRecipientKey: KeyRepresentable? = nil,
+        nestedSharedKey: KeyRepresentable? = nil,
         nestedCek: Data? = nil,
         nestedInitializationVector: Data? = nil,
         nestedAdditionalAuthenticationData: Data? = nil
@@ -227,17 +240,17 @@ extension JWT {
         @JWTClaimsBuilder payload: () -> Claim,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
-        senderKey: JWK? = nil,
-        recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable? = nil,
+        sharedKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
         nestedProtectedHeader: NP,
         nestedUnprotectedHeader: NU? = nil as DefaultJWEHeaderImpl?,
-        nestedSenderKey: JWK? = nil,
-        nestedRecipientKey: JWK? = nil,
-        nestedSharedKey: JWK? = nil,
+        nestedSenderKey: KeyRepresentable? = nil,
+        nestedRecipientKey: KeyRepresentable? = nil,
+        nestedSharedKey: KeyRepresentable? = nil,
         nestedCek: Data? = nil,
         nestedInitializationVector: Data? = nil,
         nestedAdditionalAuthenticationData: Data? = nil

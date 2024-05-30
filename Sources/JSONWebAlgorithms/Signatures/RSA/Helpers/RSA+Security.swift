@@ -21,7 +21,7 @@ import Security
 extension RSA {
     func getSecKey() throws -> SecKey {
         let raw = try externalRepresentation()
-        let attributes: [String:Any] = [
+        let attributes: [String: Any] = [
           kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
           kSecAttrKeyClass as String: d != nil ? kSecAttrKeyClassPrivate : kSecAttrKeyClassPublic,
           kSecAttrKeySizeInBits as String: keySize,

@@ -17,7 +17,7 @@
 import Foundation
 
 /// `CryptoError` is an enumeration representing various errors that can occur in cryptographic operations.
-enum CryptoError: LocalizedError {
+public enum CryptoError: LocalizedError {
     /// Error indicating that the initialization vector is missing for an operation that requires it.
     case missingInitializationVector
 
@@ -77,4 +77,6 @@ enum CryptoError: LocalizedError {
     ///   - type: The key type.
     ///   - curve: Optional curve name, if applicable.
     case cannotGenerateKeyForTypeAndCurve(type: String, curve: String?)
+    
+    case keyFormatNotSupported(format: String, supportedFormats: [String])
 }
