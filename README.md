@@ -168,7 +168,6 @@ This library provides comprehensive support for the Jose suite of standards, inc
 - watchOS 8.0 or later
 - Dependencies:
     - [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift)
-    - [OpenSSL](https://github.com/krzyzanowskim/OpenSSL)
     - [secp256k1.swift](https://github.com/GigaBitcoin/secp256k1.swift)
 
 ## Swift Package Manager (SPM)
@@ -223,12 +222,18 @@ import JSONWebToken
 
 You can access [here](https://beatt83.github.io/jose-swift/documentation/jose_swift/) to the documentation.
 
+### Getting Started
+
+For a quick guide on how to use the library please visit the [Getting Started](https://beatt83.github.io/jose-swift/documentation/jose-swift/gettingstarted) tutorial.
+
 For more examples on how to use this library please try to check the unit tests, they are extensive and should provide more information.
 
 ## Modules
 
 ### JWK (JSON Web Key)
 JWK is a standard way to represent cryptographic keys in a JSON format, as defined in [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517). This module provides functionalities for generating, parsing, and managing JWKs, which are essential for encryption, decryption, and signing processes.
+
+Please check our documentation for more on [JWS Signatures](https://beatt83.github.io/jose-swift/documentation/jose-swift/jwssignatures).
 
 ```swift
 let keyJWK = JWK(keyType: .rsa, algorithm: "A256GCM", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
@@ -294,6 +299,8 @@ let jwe = try JWS(payload: payload, protectedHeader: header, key: jwk)
 
 ### JWE (JSON Web Encryption)
 JWE represents encrypted content using JSON-based data structures, following the guidelines of [RFC 7516](https://datatracker.ietf.org/doc/html/rfc7516). This module includes functionalities for encrypting and decrypting data, managing encryption keys, and handling various encryption algorithms and methods.
+
+Please check our documentation for more on [JWE Encryption](https://beatt83.github.io/jose-swift/documentation/jose-swift/jweencryption).
 
 #### Supported Algorithms:
 
@@ -392,6 +399,7 @@ let jwe = try JWE(payload: wrappedPayload, protectedHeader: header, recipientKey
 ### JWT (JSON Web Token)
 JWT is a compact, URL-safe means of representing claims to be transferred between two parties. This module offers tools for creating, parsing, validating, and manipulating JWTs, with support for various signing and encryption methods, as specified in [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519).
 
+Please check our documentation for more on [JWT tokens](https://beatt83.github.io/jose-swift/documentation/jose-swift/jwtconcepts).
 
 #### Features:
 
