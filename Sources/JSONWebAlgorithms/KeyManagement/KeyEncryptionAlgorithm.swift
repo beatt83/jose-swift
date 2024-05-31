@@ -12,67 +12,67 @@ import Foundation
 ///
 /// For more information, see [RFC7518 Section 4.1](https://www.rfc-editor.org/rfc/rfc7518#section-4.1)
 public enum KeyManagementAlgorithm: String, Equatable, Codable {
-    // RSA algorithm with PKCS #1 v1.5 padding.
+    /// RSA algorithm with PKCS #1 v1.5 padding.
     case rsa1_5 = "RSA1_5"
     
-    // RSA algorithm with OAEP padding.
+    /// RSA algorithm with OAEP padding.
     case rsaOAEP = "RSA-OAEP"
     
-    // RSA algorithm with OAEP-256 padding.
+    /// RSA algorithm with OAEP-256 padding.
     case rsaOAEP256 = "RSA-OAEP-256"
     
-    // AES algorithm with a 128-bit key.
+    /// AES algorithm with a 128-bit key.
     case a128KW = "A128KW"
     
-    // AES algorithm with a 192-bit key.
+    /// AES algorithm with a 192-bit key.
     case a192KW = "A192KW"
     
-    // AES algorithm with a 256-bit key.
+    /// AES algorithm with a 256-bit key.
     case a256KW = "A256KW"
     
-    // Direct use of a shared symmetric key.
+    /// Direct use of a shared symmetric key.
     case direct = "dir"
     
-    // Elliptic Curve Diffie-Hellman Ephemeral Static key agreement.
+    /// Elliptic Curve Diffie-Hellman Ephemeral Static key agreement.
     case ecdhES = "ECDH-ES"
     
-    // ECDH-ES followed by AES key wrap with a 128-bit key.
+    /// ECDH-ES followed by AES key wrap with a 128-bit key.
     case ecdhESA128KW = "ECDH-ES+A128KW"
     
-    // ECDH-ES followed by AES key wrap with a 192-bit key.
+    /// ECDH-ES followed by AES key wrap with a 192-bit key.
     case ecdhESA192KW = "ECDH-ES+A192KW"
     
-    // ECDH-ES followed by AES key wrap with a 256-bit key.
+    /// ECDH-ES followed by AES key wrap with a 256-bit key.
     case ecdhESA256KW = "ECDH-ES+A256KW"
     
-    // AES GCM algorithm with a 128-bit key.
+    /// AES GCM algorithm with a 128-bit key.
     case a128GCMKW = "A128GCMKW"
     
-    // AES GCM algorithm with a 192-bit key.
+    /// AES GCM algorithm with a 192-bit key.
     case a192GCMKW = "A192GCMKW"
     
-    // AES GCM algorithm with a 256-bit key.
+    /// AES GCM algorithm with a 256-bit key.
     case a256GCMKW = "A256GCMKW"
     
-    // PBES2 with HMAC-SHA256 and AES Key Wrap with a 128-bit key.
+    /// PBES2 with HMAC-SHA256 and AES Key Wrap with a 128-bit key.
     case pbes2HS256A128KW = "PBES2-HS256+A128KW"
     
-    // PBES2 with HMAC-SHA384 and AES Key Wrap with a 192-bit key.
+    /// PBES2 with HMAC-SHA384 and AES Key Wrap with a 192-bit key.
     case pbes2HS384A192KW = "PBES2-HS384+A192KW"
     
-    // PBES2 with HMAC-SHA512 and AES Key Wrap with a 256-bit key.
+    /// PBES2 with HMAC-SHA512 and AES Key Wrap with a 256-bit key.
     case pbes2HS512A256KW = "PBES2-HS512+A256KW"
     
-    // Elliptic Curve Diffie-Hellman 1-Party Unilateral key agreement.
+    /// Elliptic Curve Diffie-Hellman 1-Party Unilateral key agreement.
     case ecdh1PU = "ECDH-1PU"
     
-    // ECDH-1PU followed by AES key wrap with a 128-bit key.
+    /// ECDH-1PU followed by AES key wrap with a 128-bit key.
     case ecdh1PUA128KW = "ECDH-1PU+A128KW"
     
-    // ECDH-1PU followed by AES key wrap with a 192-bit key.
+    /// ECDH-1PU followed by AES key wrap with a 192-bit key.
     case ecdh1PUA192KW = "ECDH-1PU+A192KW"
     
-    // ECDH-1PU followed by AES key wrap with a 256-bit key.
+    /// ECDH-1PU followed by AES key wrap with a 256-bit key.
     case ecdh1PUA256KW = "ECDH-1PU+A256KW"
 
     /// Provides a `KeyWrapping` instance suitable for the key management algorithm.
