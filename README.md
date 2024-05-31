@@ -282,7 +282,7 @@ let jws = try JWS(payload: payload, key: key)
 
 let jwsString = jws.compactSerialization
 
-try JWS(jwsString: jwsString).verify(key: keyJWK)
+try JWS(jwsString: jwsString).verify(key: key)
 ```
 
 If you want to add additional headers beyond the default to the JWS:

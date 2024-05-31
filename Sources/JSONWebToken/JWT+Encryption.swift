@@ -54,7 +54,9 @@ extension JWT {
         additionalAuthenticationData: Data? = nil
     ) throws -> JWT {
         var protectedHeader = protectedHeader
-        protectedHeader.type = "JWT"
+        if protectedHeader.type == nil {
+            protectedHeader.type = "JWT"
+        }
         let encodedPayload = try JSONEncoder.jwt.encode(payload)
         return JWT(
             payload: encodedPayload,
@@ -86,7 +88,9 @@ extension JWT {
         additionalAuthenticationData: Data? = nil
     ) throws -> JWT {
         var protectedHeader = protectedHeader
-        protectedHeader.type = "JWT"
+        if protectedHeader.type == nil {
+            protectedHeader.type = "JWT"
+        }
         let encodedPayload = try JSONEncoder.jwt.encode(payload().value)
         return JWT(
             payload: encodedPayload,
@@ -139,7 +143,9 @@ extension JWT {
         additionalAuthenticationData: Data? = nil
     ) throws -> JWE {
         var protectedHeader = protectedHeader
-        protectedHeader.contentType = "JWT"
+        if protectedHeader.contentType == nil {
+            protectedHeader.contentType = "JWT"
+        }
         
         return try JWE(
             payload: jwt.jwtString.tryToData(),
