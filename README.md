@@ -181,7 +181,7 @@ Open your `Package.swift` file and add the `jose-swift` package to your `depende
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/your-username/jose-swift.git", .upToNextMinor(from: "1.0.0")),
+    .package(url: "https://github.com/beatt83/jose-swift.git", .upToNextMinor(from: "2.4.0")),
     // ... other dependencies ...
 ]
 ```

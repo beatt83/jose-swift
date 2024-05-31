@@ -19,7 +19,7 @@ import JSONWebSignature
 import JSONWebEncryption
 import JSONWebKey
 
-/// `JWT` represents a JSON Web Token which is a compact, URL-safe means of representing claims to be transferred between two parties.
+/// `JWT` represents a JSON Web Token (JWT) structure as defined in [RFC7519](https://tools.ietf.org/html/rfc7519).
 public struct JWT {
     /// `Format` is an enumeration that defines the two possible formats for a JWT: JWE and JWS.
     public enum Format {
