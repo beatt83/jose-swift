@@ -77,7 +77,7 @@ extension JWT {
         P: JWERegisteredFieldsHeader,
         U: JWERegisteredFieldsHeader
     >(
-        @JWTClaimsBuilder payload: () -> Claim,
+        @JWTClaimsBuilder claims: () -> Claim,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable?,
@@ -91,7 +91,7 @@ extension JWT {
         if protectedHeader.type == nil {
             protectedHeader.type = "JWT"
         }
-        let encodedPayload = try JSONEncoder.jwt.encode(payload().value)
+        let encodedPayload = try JSONEncoder.jwt.encode(claims().value)
         return JWT(
             payload: encodedPayload,
             format: .jwe(try JWE(
@@ -243,7 +243,7 @@ extension JWT {
         NP: JWERegisteredFieldsHeader,
         NU: JWERegisteredFieldsHeader
     >(
-        @JWTClaimsBuilder payload: () -> Claim,
+        @JWTClaimsBuilder claims: () -> Claim,
         protectedHeader: P,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable? = nil,
@@ -262,7 +262,7 @@ extension JWT {
         nestedAdditionalAuthenticationData: Data? = nil
     ) throws -> JWE {
         let jwt = try encrypt(
-            payload: payload,
+            claims: claims,
             protectedHeader: nestedProtectedHeader,
             unprotectedHeader: nestedUnprotectedHeader,
             senderKey: nestedSenderKey,
