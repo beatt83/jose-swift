@@ -69,7 +69,7 @@ extension JWT {
     /// - Throws: An error if the signing process or encoding fails.
     /// - Returns: A `JWT` instance in JWS format with the signed claims.
     public static func signed<P: JWSRegisteredFieldsHeader, Key>(
-        @JWTClaimsBuilder payload: () -> Claim,
+        @JWTClaimsBuilder claims: () -> Claim,
         protectedHeader: P,
         key: Key?
     ) throws -> JWT {
@@ -77,7 +77,7 @@ extension JWT {
         if protectedHeader.type == nil {
             protectedHeader.type = "JWT"
         }
-        let encodedPayload = try JSONEncoder.jwt.encode(payload().value)
+        let encodedPayload = try JSONEncoder.jwt.encode(claims().value)
         return JWT(
             payload: encodedPayload,
             format: .jws(try JWS(
@@ -145,14 +145,14 @@ extension JWT {
         P: JWSRegisteredFieldsHeader,
         NP: JWSRegisteredFieldsHeader
     >(
-        @JWTClaimsBuilder payload: () -> Claim,
+        @JWTClaimsBuilder claims: () -> Claim,
         protectedHeader: P,
         key: KeyRepresentable?,
         nestedProtectedHeader: NP,
         nestedKey: KeyRepresentable?
     ) throws -> JWS {
         let jwt = try signed(
-            payload: payload,
+            claims: claims,
             protectedHeader: nestedProtectedHeader,
             key: nestedKey
         )

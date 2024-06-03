@@ -31,7 +31,7 @@ public struct AudienceClaim: JWTRegisteredClaim {
     
     /// Initializes an `AudienceClaim` with an array of audience values using a result builder.
     /// - Parameter claims: A closure that returns an array of `StringClaim` using the result builder.
-    init(@ArrayClaim.ArrayClaimBuilder claims: () -> [StringClaim]) {
+    public init(@ArrayClaim.ArrayClaimBuilder claims: () -> [StringClaim]) {
         self.value = .init(key: "aud", element: .array(claims().map(\.value)))
     }
 }
