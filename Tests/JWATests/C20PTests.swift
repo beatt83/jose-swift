@@ -18,12 +18,12 @@
 import JSONWebKey
 import XCTest
 
-final class XC20PTests: XCTestCase {
+final class C20PTests: XCTestCase {
 
-    func testXC20PCycle() throws {
+    func testC20PCycle() throws {
         let payload = "Test".data(using: .utf8)!
-        let encryptor = ContentEncryptionAlgorithm.xC20PKW.encryptor
-        let decryptor = ContentEncryptionAlgorithm.xC20PKW.decryptor
+        let encryptor = ContentEncryptionAlgorithm.c20PKW.encryptor
+        let decryptor = ContentEncryptionAlgorithm.c20PKW.decryptor
         let key = try encryptor.generateCEK()
         let iv = try encryptor.generateInitializationVector()
         let aad = Data()

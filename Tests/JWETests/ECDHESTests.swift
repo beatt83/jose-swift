@@ -128,4 +128,40 @@ final class ECDHESTests: XCTestCase {
         
         XCTAssertEqual(payload, decrypted)
     }
+    
+    func testECDHESA256KW_XC20PKWCycle() throws {
+        let payload = try "Test".tryToData()
+        let aliceKey = JWK.testingES256Pair
+        let bobKey = JWK.testingES256Pair
+        
+        let keyAlg = KeyManagementAlgorithm.ecdhESA128KW
+        let encAlg = ContentEncryptionAlgorithm.xC20PKW
+        
+        let header = try DefaultJWEHeaderImpl(
+            keyManagementAlgorithm: keyAlg,
+            encodingAlgorithm: encAlg,
+            agreementPartyUInfo: Base64URL.encode("Alice".tryToData()).tryToData(),
+            agreementPartyVInfo: Base64URL.encode("Bob".tryToData()).tryToData()
+        )
+        
+        let jwe = try ECDHJWEEncryptor().encrypt(
+            payload: payload,
+            senderKey: aliceKey,
+            recipientKey: bobKey,
+            protectedHeader: header
+        )
+        
+        let decrypted = try ECDHJWEDecryptor().decrypt(
+            protectedHeader: jwe.protectedHeader!,
+            cipher: jwe.cipherText,
+            encryptedKey: jwe.encryptedKey,
+            initializationVector: jwe.initializationVector,
+            authenticationTag: jwe.authenticationTag,
+            additionalAuthenticationData: jwe.additionalAuthenticationData,
+            senderKey: aliceKey,
+            recipientKey: bobKey
+        )
+        
+        XCTAssertEqual(payload, decrypted)
+    }
 }
