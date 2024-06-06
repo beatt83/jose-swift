@@ -6,10 +6,10 @@ import PackageDescription
 let package = Package(
     name: "jose-swift",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v15),
         .macOS(.v12),
-        .macCatalyst(.v14),
-        .tvOS(.v12),
+        .macCatalyst(.v15),
+        .tvOS(.v15),
         .watchOS(.v5)
     ],
     products: [

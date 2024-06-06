@@ -33,7 +33,7 @@ extension JWK {
     static var testingES256PairSecKey: SecKey {
         let p256Data = P256.Signing.PrivateKey().x963Representation
         let attributes: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeECDSA,
+            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
             kSecAttrKeyClass as String: kSecAttrKeyClassPrivate,
             kSecAttrKeySizeInBits as String: 256
         ]
