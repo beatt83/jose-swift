@@ -17,6 +17,7 @@
 import Foundation
 import JSONWebAlgorithms
 import JSONWebKey
+import Tools
 
 extension JWS {
     /// Verifies the signature of the JWS using the provided key.
@@ -156,6 +157,35 @@ extension JWS {
         } else {
             return try keys.contains { try JWS.verify(jwsJson: jwsJson, key: $0) }
         }
+    }
+    
+    /// Verifies the signature of a JSON Web Signature (JWS) object when the payload is unencoded.
+    ///
+    /// This method handles JWS objects that have an unencoded payload, which is indicated by the `b64`
+    /// header parameter set to `false`. It first checks if the JWS header specifies an unencoded payload,
+    /// and then performs the verification accordingly.
+    ///
+    /// - Parameters:
+    ///   - jwsString: The compact serialized JWS string.
+    ///   - payload: The unencoded payload as `Data`.
+    ///   - key: The cryptographic key used for signing, which can be of type `KeyRepresentable`.
+    ///
+    /// - Throws: An error if the verification process fails due to an invalid JWS format, missing key, or other issues.
+    /// - Returns: A Boolean value indicating whether the signature is valid (`true`) or not (`false`).
+    public static func verify<Key>(jwsString: String, payload: Data, key: Key?) throws -> Bool {
+        let components = jwsString.components(separatedBy: ".")
+        guard components.count == 3 else {
+            throw JWSError.invalidString
+        }
+        let header = try Base64URL.decode(components[0])
+        guard try unencodedBase64Payload(header: header) else {
+            return try JWS(jwsString: jwsString).verify(key: key)
+        }
+        return try JWS(
+            protectedHeaderData: header,
+            data: payload,
+            signature: try Base64URL.decode(components[2])
+        ).verify(key: key)
     }
 }
 

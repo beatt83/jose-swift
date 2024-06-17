@@ -52,7 +52,9 @@ public protocol JWSRegisteredFieldsHeader: Codable {
     var contentType: String? { get set }
 
     /// Indicates extensions to this protocol that must be understood and processed.
-    var critical: String? { get set }
+    var critical: [String]? { get set }
+    
+    var base64EncodedUrlPayload: Bool? { get set }
 }
 
 /// `DefaultJWSHeaderImpl` is a default implementation of the `JWSProtectedFieldsHeader` protocol.
@@ -68,7 +70,8 @@ public struct DefaultJWSHeaderImpl: JWSRegisteredFieldsHeader {
     public var x509CertificateSHA256Thumbprint: String?
     public var type: String?
     public var contentType: String?
-    public var critical: String?
+    public var critical: [String]?
+    public var base64EncodedUrlPayload: Bool?
     
     /// Initializes a new `DefaultJWSHeaderImpl` instance with optional parameters for each field.
     /// - Parameters:
@@ -94,7 +97,8 @@ public struct DefaultJWSHeaderImpl: JWSRegisteredFieldsHeader {
         x509CertificateSHA256Thumbprint: String? = nil,
         type: String? = nil,
         contentType: String? = nil,
-        critical: String? = nil
+        critical: [String]? = nil,
+        base64EncodedUrlPayload: Bool? = nil
     ) {
         self.algorithm = algorithm
         self.keyID = keyID
@@ -107,6 +111,7 @@ public struct DefaultJWSHeaderImpl: JWSRegisteredFieldsHeader {
         self.type = type
         self.contentType = contentType
         self.critical = critical
+        self.base64EncodedUrlPayload = base64EncodedUrlPayload
     }
     
     public init(from: JWK) {

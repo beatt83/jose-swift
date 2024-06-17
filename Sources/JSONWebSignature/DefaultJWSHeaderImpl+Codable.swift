@@ -39,6 +39,7 @@ extension DefaultJWSHeaderImpl: Codable {
         case pbes2SaltInput = "p2s"
         case pbes2Count = "p2c"
         case senderKeyID = "skid"
+        case base64EncodedUrlPayload = "b64"
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -54,6 +55,7 @@ extension DefaultJWSHeaderImpl: Codable {
         try container.encodeIfPresent(type, forKey: .type)
         try container.encodeIfPresent(contentType, forKey: .contentType)
         try container.encodeIfPresent(critical, forKey: .critical)
+        try container.encodeIfPresent(base64EncodedUrlPayload, forKey: .base64EncodedUrlPayload)
     }
 
     public init(from decoder: Decoder) throws {
@@ -68,6 +70,7 @@ extension DefaultJWSHeaderImpl: Codable {
         x509CertificateSHA256Thumbprint = try container.decodeIfPresent(String.self, forKey: .x509CertificateSHA256Thumbprint)
         type = try container.decodeIfPresent(String.self, forKey: .type)
         contentType = try container.decodeIfPresent(String.self, forKey: .contentType)
-        critical = try container.decodeIfPresent(String.self, forKey: .critical)
+        critical = try container.decodeIfPresent([String].self, forKey: .critical)
+        base64EncodedUrlPayload = try container.decodeIfPresent(Bool.self, forKey: .base64EncodedUrlPayload)
     }
 }

@@ -117,11 +117,12 @@ This library provides comprehensive support for the Jose suite of standards, inc
 <tr><th>JWS Supported Types</th><th>JWS Supported Algorithms</th></tr>
 <tr><td valign="top">
 
-| Type           | Supported        |
-|----------------|------------------|
-| Compact String |:white_check_mark:|
-| JSON           |:white_check_mark:|
-| JSON Flattened |:white_check_mark:|
+| Type                | Supported        |
+|---------------------|------------------|
+| Compact String      |:white_check_mark:|
+| JSON                |:white_check_mark:|
+| JSON Flattened      |:white_check_mark:|
+| Unencoded Payload\* |:white_check_mark:|
 
 </td><td valign="top">
 
@@ -143,6 +144,8 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | EdDSA           |:white_check_mark:|
 
 </td></tr> </table>
+
+Note: JWS Unencoded payload as referenced in the [RFC-7797](https://datatracker.ietf.org/doc/html/rfc7797)
 
 ### JWK
 
@@ -297,6 +300,26 @@ header.algorithm = .rsa512
 let keyJWK = JWK(keyType: .rsa, algorithm: "RSA512", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
 let jwe = try JWS(payload: payload, protectedHeader: header, key: jwk)
 ```
+
+### JWS with Unencoded payload (Compact string only)
+
+JWS also supports unencoded payloads, which is useful in scenarios where the payload is already in a compact, URL-safe form (such as in the case of small JSON objects or base64url-encoded strings). This can help reduce the overall size of the JWS and improve performance by avoiding redundant encoding steps.
+
+To create a JWS with an unencoded payload, you need to set the b64 header parameter to false and ensure the payload is in a compatible format.
+
+Example:
+
+```
+let payload = "Hello world".data(using: .utf8)!
+let key = secp256k1.Signing.PrivateKey()
+
+let jws = try JWS(payload: payload, key: key, options: [.unencodedPayload])
+
+let jwsString = jws.compactSerialization
+
+try JWS.verify(jwsString: jwsString, payload: payload.data(using: .utf8)!, key: key)
+```
+
 
 ### JWE (JSON Web Encryption)
 JWE represents encrypted content using JSON-based data structures, following the guidelines of [RFC 7516](https://datatracker.ietf.org/doc/html/rfc7516). This module includes functionalities for encrypting and decrypting data, managing encryption keys, and handling various encryption algorithms and methods.

@@ -173,7 +173,14 @@ extension JWSJsonFlattened: Codable {
         try container.encodeIfPresent(protectedHeaderData.map { Base64URL.encode($0) }, forKey: .protected)
         try container.encodeIfPresent(Base64URL.encode(signature), forKey: .signature)
         try container.encodeIfPresent(unprotectedHeader, forKey: .header)
-        try container.encode(Base64URL.encode(payload), forKey: .payload)
+        if
+            let headerData = protectedHeaderData,
+            try JWS.unencodedBase64Payload(header: headerData)
+        {
+            try container.encode(payload.tryToString().addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed), forKey: .payload)
+        } else {
+            try container.encode(Base64URL.encode(payload), forKey: .payload)
+        }
     }
     
     public init(from decoder: Decoder) throws {
@@ -190,7 +197,17 @@ extension JWSJsonFlattened: Codable {
         self.unprotectedHeaderData = try header.map { try JSONEncoder.jose.encode($0) }
         self.unprotectedHeader = header
         
-        let payloadBase64 = try container.decode(String.self, forKey: .payload)
-        self.payload = try Base64URL.decode(payloadBase64)
+        let payloadStr = try container.decode(String.self, forKey: .payload)
+        if
+            let headerData = protectedHeaderData,
+            try JWS.unencodedBase64Payload(header: headerData)
+        {
+            guard let payloadValue = payloadStr.removingPercentEncoding else {
+                throw JWS.JWSError.somethingWentWrong
+            }
+            self.payload = try payloadValue.tryToData()
+        } else {
+            self.payload = try Base64URL.decode(payloadStr)
+        }
     }
 }

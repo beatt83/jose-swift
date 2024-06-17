@@ -94,7 +94,7 @@ extension DefaultJWEHeaderImpl: Codable {
         ephemeralPublicKey = try container.decodeIfPresent(JWK.self, forKey: .ephemeralPublicKey)
         type = try container.decodeIfPresent(String.self, forKey: .type)
         contentType = try container.decodeIfPresent(String.self, forKey: .contentType)
-        critical = try container.decodeIfPresent(String.self, forKey: .critical)
+        critical = try container.decodeIfPresent([String].self, forKey: .critical)
         senderKeyID = try container.decodeIfPresent(String.self, forKey: .senderKeyID)
         let initializationVectorBase64Url = try container.decodeIfPresent(String.self, forKey: .initializationVector)
         initializationVector = try initializationVectorBase64Url.map { try Base64URL.decode($0) }

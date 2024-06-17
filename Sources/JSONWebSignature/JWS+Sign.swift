@@ -19,6 +19,10 @@ import JSONWebAlgorithms
 import JSONWebKey
 import Tools
 
+public enum JWSSignOptions {
+    case unencodedPayload
+}
+
 extension JWS {
     /// Initializes a new JWS (JSON Web Signature) instance with the given payload, protected header data, and key.
     ///
@@ -33,10 +37,13 @@ extension JWS {
     ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
     ///
     /// - Throws: An error if the initialization or signing process fails.
-    public init<Key>(payload: Data, protectedHeaderData: Data, key: Key?) throws {
+    public init<Key>(payload: Data, protectedHeaderData: Data, key: Key?, options: [JWSSignOptions] = []) throws {
         let signature: Data
         let key = try key.map { try prepareJWK(header: protectedHeaderData, key: $0, isPrivate: true) }
-        let protectedHeader = try JSONDecoder().decode(DefaultJWSHeaderImpl.self, from: protectedHeaderData)
+        let (protectedHeader, protectedHeaderData): (DefaultJWSHeaderImpl, Data) = try setHeaderForOptions(
+            header: protectedHeaderData,
+            options: Set(options)
+        )
         if let signer = protectedHeader.algorithm?.cryptoSigner {
             guard let key else {
                 throw JWSError.missingKey
@@ -65,15 +72,19 @@ extension JWS {
     ///   - data: The payload data.
     ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
     /// - Throws: An error if the signing process fails, or if the key is missing.
-    public init<Key>(payload: Data, protectedHeader: JWSRegisteredFieldsHeader, key: Key?) throws {
+    public init<Key>(payload: Data, protectedHeader: JWSRegisteredFieldsHeader, key: Key?, options: [JWSSignOptions] = []) throws {
         let signature: Data
         let headerData = try JSONEncoder.jose.encode(protectedHeader)
-        let key = try key.map { try prepareJWK(header: headerData, key: $0, isPrivate: true) }
+        let (_, protectedHeaderData): (DefaultJWSHeaderImpl, Data) = try setHeaderForOptions(
+            header: headerData,
+            options: Set(options)
+        )
+        let key = try key.map { try prepareJWK(header: protectedHeaderData, key: $0, isPrivate: true) }
         if let signer = protectedHeader.algorithm?.cryptoSigner {
             guard let key else {
                 throw JWSError.missingKey
             }
-            let signingData = try JWS.buildSigningData(header: headerData, data: payload)
+            let signingData = try JWS.buildSigningData(header: protectedHeaderData, data: payload)
             signature = try signer.sign(data: signingData, key: key)
         } else {
             signature = Data()
@@ -82,7 +93,7 @@ extension JWS {
         self.protectedHeader = protectedHeader
         self.payload = payload
         self.signature = signature
-        self.compactSerialization = try JWS.buildJWSString(header: headerData, data: payload, signature: signature)
+        self.compactSerialization = try JWS.buildJWSString(header: protectedHeaderData, data: payload, signature: signature)
     }
     
     /// Convenience initializer to create a `JWS` instance using payload data and a JSON Web Key (JWK).
@@ -97,11 +108,11 @@ extension JWS {
     ///   - data: The payload data.
     ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
     /// - Throws: An error if the signing process fails or if the key is inappropriate for the determined algorithm.
-    public init<Key>(payload: Data, key: Key) throws {
+    public init<Key>(payload: Data, key: Key, options: [JWSSignOptions] = []) throws {
         let jwkKey = try prepareJWK(header: nil, key: key)
         let algorithm = try jwkKey.signingAlgorithm()
         let header = DefaultJWSHeaderImpl(algorithm: algorithm)
-        try self.init(payload: payload, protectedHeader: header, key: key)
+        try self.init(payload: payload, protectedHeader: header, key: key, options: options)
     }
     
     /// Generates a JSON serialization of the JWS object with multiple signatures, each corresponding to a different key in the provided array.
@@ -331,7 +342,31 @@ extension JWS {
     }
 }
 
-private func prepareHeaderForJWK(header: Data, jwk: JWK?) throws -> Data {
+func setHeaderForOptions<H: JWSRegisteredFieldsHeader>(header: Data, options: Set<JWSSignOptions>) throws  -> (H, Data) {
+    var headerChanges = header
+    try options.forEach {
+        switch $0 {
+        case .unencodedPayload:
+            headerChanges = try setUnencodedPayloadHeader(header: headerChanges)
+        }
+    }
+    let jwsFieldsHeader = try JSONDecoder.jwt.decode(H.self, from: headerChanges)
+    return (jwsFieldsHeader, headerChanges)
+}
+
+func setUnencodedPayloadHeader(header: Data) throws -> Data {
+    guard
+        var json = try JSONSerialization.jsonObject(with: header) as? [String: Any]
+    else { throw JWS.JWSError.somethingWentWrong }
+    json["b64"] = false
+    var newCritical = (json["crit"] as? [String]).map { Set($0) } ?? Set()
+    newCritical.insert("b64")
+    json["crit"] = Array(newCritical)
+    let jsonData = try JSONSerialization.data(withJSONObject: json)
+    return jsonData
+}
+
+func prepareHeaderForJWK(header: Data, jwk: JWK?) throws -> Data {
     if
         var jsonObj = try JSONSerialization.jsonObject(with: header) as? [String: Any],
         jsonObj["alg"] == nil

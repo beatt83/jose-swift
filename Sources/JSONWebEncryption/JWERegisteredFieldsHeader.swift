@@ -58,7 +58,7 @@ public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader {
     var contentType: String? { get set }
 
     /// List of critical headers that must be understood and processed.
-    var critical: String? { get set }
+    var critical: [String]? { get set }
 
     /// Key ID of the sender's key, used in the `ECDH-1PU` key agreement algorithm.
     var senderKeyID: String? { get set }
@@ -92,7 +92,7 @@ public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader {
         x509CertificateSHA256Thumbprint: String?,
         type: String?,
         contentType: String?,
-        critical: String?,
+        critical: [String]?,
         ephemeralPublicKey: JWK?,
         agreementPartyUInfo: Data?,
         agreementPartyVInfo: Data?,
@@ -118,7 +118,7 @@ extension JWERegisteredFieldsHeader {
         x509CertificateSHA256Thumbprint: String? = nil,
         type: String? = nil,
         contentType: String? = nil,
-        critical: String? = nil,
+        critical: [String]? = nil,
         ephemeralPublicKey: JWK? = nil,
         agreementPartyUInfo: Data? = nil,
         agreementPartyVInfo: Data? = nil,
@@ -227,7 +227,7 @@ public struct DefaultJWEHeaderImpl: JWERegisteredFieldsHeader {
     public var x509CertificateSHA256Thumbprint: String?
     public var type: String?
     public var contentType: String?
-    public var critical: String?
+    public var critical: [String]?
     public var ephemeralPublicKey: JWK?
     public var agreementPartyUInfo: Data?
     public var agreementPartyVInfo: Data?
@@ -263,7 +263,7 @@ public struct DefaultJWEHeaderImpl: JWERegisteredFieldsHeader {
         x509CertificateSHA256Thumbprint: String?,
         type: String?,
         contentType: String?,
-        critical: String?,
+        critical: [String]?,
         ephemeralPublicKey: JWK?,
         agreementPartyUInfo: Data?,
         agreementPartyVInfo: Data?,

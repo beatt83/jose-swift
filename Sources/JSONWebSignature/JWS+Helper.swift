@@ -19,6 +19,10 @@ import Tools
 
 extension JWS {
     static func buildSigningData(header: Data, data: Data) throws -> Data {
+        if try unencodedBase64Payload(header: header ) {
+            let headerB64 = Base64URL.encode(header)
+            return try [headerB64, data.tryToString()].joined(separator: ".").tryToData()
+        }
         guard let signingData = [header, data]
             .map({ Base64URL.encode($0) })
             .joined(separator: ".")
@@ -30,8 +34,23 @@ extension JWS {
     }
     
     static func buildJWSString(header: Data, data: Data, signature: Data) throws -> String {
-        return [header, data, signature]
-            .map({ Base64URL.encode($0) })
-            .joined(separator: ".")
+        if try unencodedBase64Payload(header: header) {
+            return [header, Data(), signature]
+                .map({ Base64URL.encode($0) })
+                .joined(separator: ".")
+        } else {
+            return [header, data, signature]
+                .map({ Base64URL.encode($0) })
+                .joined(separator: ".")
+        }
+    }
+    
+    static func unencodedBase64Payload(header: Data) throws -> Bool {
+        let headerFields = try JSONDecoder.jwt.decode(DefaultJWSHeaderImpl.self, from: header)
+        guard
+            let hasBase64Header = headerFields.base64EncodedUrlPayload,
+            !hasBase64Header
+        else { return false }
+        return true
     }
 }
