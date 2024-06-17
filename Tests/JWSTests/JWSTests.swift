@@ -127,4 +127,12 @@ final class JWSTests: XCTestCase {
         let keyPair = JWK.testingCurve25519KPair
         XCTAssertThrowsError(try JWS(payload: "test".data(using: .utf8)!, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES512), key: keyPair))
     }
+    
+    func testJWSUnencodedPayloadCompactString() throws {
+        let payload = "$.02"
+        let keyPair = JWK.testingES256Pair
+        let testJWS = try JWS(payload: payload.data(using: .utf8)!, key: keyPair, options: [.unencodedPayload])
+        XCTAssertTrue(testJWS.compactSerialization.contains(".."))
+        XCTAssertTrue(try JWS.verify(jwsString: testJWS.compactSerialization, payload: payload.data(using: .utf8)!, key: keyPair))
+    }
 }
