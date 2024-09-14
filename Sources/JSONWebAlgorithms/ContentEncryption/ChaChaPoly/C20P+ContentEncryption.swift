@@ -1,14 +1,14 @@
 import CryptoKit
 import Foundation
 
-/// `C20PKW` provides methods to encrypt and decrypt data using the ChaCha20-Poly1305 algorithm.
-public struct C20PKW: ContentEncryptor, ContentDecryptor {
+/// `C20P` provides methods to encrypt and decrypt data using the ChaCha20-Poly1305 algorithm.
+public struct C20P: ContentEncryptor, ContentDecryptor {
     /// The content encryption algorithm used, represented as a string.
-    public let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.c20PKW.rawValue
+    public let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.c20P.rawValue
     /// The size of the initialization vector in bits.
-    public let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.c20PKW.initializationVectorSizeInBits
+    public let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.c20P.initializationVectorSizeInBits
     /// The size of the content encryption key (CEK) in bits.
-    public let cekKeySize: Int = ContentEncryptionAlgorithm.c20PKW.keySizeInBits
+    public let cekKeySize: Int = ContentEncryptionAlgorithm.c20P.keySizeInBits
     
     /// Generates a random initialization vector.
     /// - Throws: An error if the random data generation fails.

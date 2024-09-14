@@ -22,8 +22,8 @@ final class XC20PTests: XCTestCase {
 
     func testXC20PCycle() throws {
         let payload = "Test".data(using: .utf8)!
-        let encryptor = ContentEncryptionAlgorithm.xC20PKW.encryptor
-        let decryptor = ContentEncryptionAlgorithm.xC20PKW.decryptor
+        let encryptor = ContentEncryptionAlgorithm.xC20P.encryptor
+        let decryptor = ContentEncryptionAlgorithm.xC20P.decryptor
         let key = try encryptor.generateCEK()
         let iv = try encryptor.generateInitializationVector()
         let aad = Data()

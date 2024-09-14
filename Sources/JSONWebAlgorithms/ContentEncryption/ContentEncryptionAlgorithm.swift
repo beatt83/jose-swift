@@ -36,11 +36,11 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
     
     /// ChaCha20-Poly1305 with a 256-bit key and 96 bit IV.
     /// This algorithm provides robust security and is widely used in various security protocols and systems, it is faster than AES in mobile devices.
-    case c20PKW = "C20PKW"
+    case c20P = "C20P"
     
     /// XChaCha20-Poly1305 with a 256-bit key and 192 bit IV.
     /// This algorithm provides robust security and is widely used in various security protocols and systems, it is faster than AES in mobile devices.
-    case xC20PKW = "XC20PKW"
+    case xC20P = "XC20P"
 
     
 
@@ -54,7 +54,7 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
         case .a128CBCHS256: return 256
         case .a192CBCHS384: return 384
         case .a256CBCHS512: return 512
-        case .c20PKW, .xC20PKW: return 256
+        case .c20P, .xC20P: return 256
         }
     }
 
@@ -62,8 +62,8 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
     /// - Returns: The size of the initialization vector in bits.
     public var initializationVectorSizeInBits: Int {
         switch self {
-        case .c20PKW: return 96
-        case .xC20PKW: return 192
+        case .c20P: return 96
+        case .xC20P: return 192
         case .a128CBCHS256, .a192CBCHS384, .a256CBCHS512: return 128
         case .a128GCM, .a192GCM, .a256GCM: return 96
         }
@@ -85,10 +85,10 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
             return AES192GCM()
         case .a256GCM:
             return AES256GCM()
-        case .c20PKW:
-            return C20PKW()
-        case .xC20PKW:
-            return XC20PKW()
+        case .c20P:
+            return C20P()
+        case .xC20P:
+            return XC20P()
         }
     }
     
@@ -108,10 +108,10 @@ public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable
             return AES192GCM()
         case .a256GCM:
             return AES256GCM()
-        case .c20PKW:
-            return C20PKW()
-        case .xC20PKW:
-            return XC20PKW()
+        case .c20P:
+            return C20P()
+        case .xC20P:
+            return XC20P()
         }
     }
 }
