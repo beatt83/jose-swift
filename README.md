@@ -89,6 +89,10 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | ECDH-ES+A128KW     |:white_check_mark:|
 | ECDH-ES+A192KW     |:white_check_mark:|
 | ECDH-ES+A256KW     |:white_check_mark:|
+| ECDH-1PU           |:white_check_mark:|
+| ECDH-1PU+A128KW    |:white_check_mark:|
+| ECDH-1PU+A192KW    |:white_check_mark:|
+| ECDH-1PU+A256KW    |:white_check_mark:|
 | A128GCMKW          |:white_check_mark:|
 | A192GCMKW          |:white_check_mark:|
 | A256GCMKW          |:white_check_mark:|
