@@ -41,8 +41,8 @@ The **jose-swift** library supports a wide range of cryptographic algorithms for
 - **A128GCM**: AES GCM using 128-bit key
 - **A192GCM**: AES GCM using 192-bit key
 - **A256GCM**: AES GCM using 256-bit key
-- **C20PKW**: ChaCha20-Poly1305
-- **XC20PKW**: XChaCha20-Poly1305
+- **C20P**: ChaCha20-Poly1305
+- **XC20P**: XChaCha20-Poly1305
 - Note: ChaChaPoly20-Poly1305 and XChaChaPoly20-Poly1305 is specified in [draft-amringer-jose-chacha-02](https://datatracker.ietf.org/doc/html/draft-amringer-jose-chacha-02)
 
 ### Compression Algorithms

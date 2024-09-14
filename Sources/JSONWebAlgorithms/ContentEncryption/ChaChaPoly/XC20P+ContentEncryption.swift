@@ -1,14 +1,14 @@
 import CryptoSwift
 import Foundation
 
-/// `XC20PKW` provides methods to encrypt and decrypt data using the XChaCha20-Poly1305 algorithm.
-public struct XC20PKW: ContentEncryptor, ContentDecryptor {
+/// `XC20P` provides methods to encrypt and decrypt data using the XChaCha20-Poly1305 algorithm.
+public struct XC20P: ContentEncryptor, ContentDecryptor {
     /// The content encryption algorithm used, represented as a string.
-    public let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.xC20PKW.rawValue
+    public let contentEncryptionAlgorithm: String = ContentEncryptionAlgorithm.xC20P.rawValue
     /// The size of the initialization vector in bits.
-    public let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.xC20PKW.initializationVectorSizeInBits
+    public let initializationVectorSizeInBits: Int = ContentEncryptionAlgorithm.xC20P.initializationVectorSizeInBits
     /// The size of the content encryption key (CEK) in bits.
-    public let cekKeySize: Int = ContentEncryptionAlgorithm.xC20PKW.keySizeInBits
+    public let cekKeySize: Int = ContentEncryptionAlgorithm.xC20P.keySizeInBits
     
     /// Generates a random initialization vector.
     /// - Throws: An error if the random data generation fails.

@@ -93,13 +93,13 @@ final class ECDHESTests: XCTestCase {
         XCTAssertEqual(payload, decrypted)
     }
     
-    func testECDHESA256KW_C20PKWCycle() throws {
+    func testECDHESA256KW_C20PCycle() throws {
         let payload = try "Test".tryToData()
         let aliceKey = JWK.testingES256Pair
         let bobKey = JWK.testingES256Pair
         
         let keyAlg = KeyManagementAlgorithm.ecdhESA128KW
-        let encAlg = ContentEncryptionAlgorithm.c20PKW
+        let encAlg = ContentEncryptionAlgorithm.c20P
         
         let header = try DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyAlg,
@@ -129,13 +129,13 @@ final class ECDHESTests: XCTestCase {
         XCTAssertEqual(payload, decrypted)
     }
     
-    func testECDHESA256KW_XC20PKWCycle() throws {
+    func testECDHESA256KW_XC20PCycle() throws {
         let payload = try "Test".tryToData()
         let aliceKey = JWK.testingES256Pair
         let bobKey = JWK.testingES256Pair
         
         let keyAlg = KeyManagementAlgorithm.ecdhESA128KW
-        let encAlg = ContentEncryptionAlgorithm.xC20PKW
+        let encAlg = ContentEncryptionAlgorithm.xC20P
         
         let header = try DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyAlg,

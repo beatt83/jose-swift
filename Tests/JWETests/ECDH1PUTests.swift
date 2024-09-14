@@ -202,13 +202,13 @@ final class ECDH1PUTests: XCTestCase {
         XCTAssertEqual(payload.toHexString(), decrypted.toHexString())
     }
     
-    func testECDH1PUA256KW_C20PKWCycle() throws {
+    func testECDH1PUA256KW_C20PCycle() throws {
         let payload = try "Test".tryToData()
         let aliceKey = JWK.testingCurve25519KPair
         let bobKey = JWK.testingCurve25519KPair
         
         let keyAlg = KeyManagementAlgorithm.ecdh1PUA256KW
-        let encAlg = ContentEncryptionAlgorithm.c20PKW
+        let encAlg = ContentEncryptionAlgorithm.c20P
         
         let header = try DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyAlg,
@@ -238,13 +238,13 @@ final class ECDH1PUTests: XCTestCase {
         XCTAssertEqual(payload.toHexString(), decrypted.toHexString())
     }
     
-    func testECDH1PUA256KW_XC20PKWCycle() throws {
+    func testECDH1PUA256KW_XC20PCycle() throws {
         let payload = try "Test".tryToData()
         let aliceKey = JWK.testingCurve25519KPair
         let bobKey = JWK.testingCurve25519KPair
         
         let keyAlg = KeyManagementAlgorithm.ecdh1PUA256KW
-        let encAlg = ContentEncryptionAlgorithm.xC20PKW
+        let encAlg = ContentEncryptionAlgorithm.xC20P
         
         let header = try DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyAlg,

@@ -106,8 +106,8 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | A128GCMKW       |:white_check_mark:|
 | A192GCMKW       |:white_check_mark:|
 | A256GCMKW       |:white_check_mark:|
-| C20PKW          |:white_check_mark:|
-| XC20PKW         |:white_check_mark:|
+| C20P            |:white_check_mark:|
+| XC20P           |:white_check_mark:|
 
 </td></tr> </table>
 
@@ -359,8 +359,8 @@ Please check our documentation for more on [JWE Encryption](https://beatt83.gith
     - A128GCM (AES GCM using 128-bit key)
     - A192GCM (AES GCM using 192-bit key)
     - A256GCM (AES GCM using 256-bit key)
-    - C20PKW (ChaCha20-Poly1305)
-    - XC20PKW (XChaCha20-Poly1305)
+    - C20P (ChaCha20-Poly1305)
+    - XC20P (XChaCha20-Poly1305)
     - Note: ChaChaPoly20-Poly1305 and XChaChaPoly20-Poly1305 is specified in [draft-amringer-jose-chacha-02](https://datatracker.ietf.org/doc/html/draft-amringer-jose-chacha-02)
     
 3. **Compression Algorithms**:
