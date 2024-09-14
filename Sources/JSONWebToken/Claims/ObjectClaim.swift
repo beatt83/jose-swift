@@ -24,11 +24,38 @@ public struct ObjectClaim: Claim {
     /// A result builder for constructing object claims.
     @resultBuilder
     public struct ObjectClaimBuilder {
-        /// Builds an array of `Claim` from the provided components.
-        /// - Parameter components: The claims to include in the object.
-        /// - Returns: An array of `Claim`.
-        public static func buildBlock(_ components: Claim...) -> [Claim] {
-            components
+        public typealias PartialResult = [any Claim]
+
+        public static func buildExpression(_ expression: any Claim) -> PartialResult {
+            [expression]
+        }
+
+        public static func buildExpression(_ expression: PartialResult) -> PartialResult {
+            expression
+        }
+
+        public static func buildBlock(_ components: PartialResult...) -> PartialResult {
+            components.flatMap { $0 }
+        }
+        
+        public static func buildBlock(_ component: PartialResult) -> PartialResult {
+            component
+        }
+
+        public static func buildOptional(_ component: PartialResult?) -> PartialResult {
+            component ?? []
+        }
+
+        public static func buildEither(first component: PartialResult) -> PartialResult {
+            component
+        }
+
+        public static func buildEither(second component: PartialResult) -> PartialResult {
+            component
+        }
+        
+        public static func buildEmpty() -> PartialResult {
+            []
         }
     }
     

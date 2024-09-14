@@ -171,40 +171,47 @@ final class JWTTests: XCTestCase {
         ))
     }
     
-    func testClaims() throws {
-        let result = JWTClaimsBuilder.build {
-            IssuerClaim(value: "testIssuer")
-            SubjectClaim(value: "testSubject")
-            ExpirationTimeClaim(value: Date(timeIntervalSince1970: 1609459200)) // Fixed date for testing
-            IssuedAtClaim(value: Date(timeIntervalSince1970: 1609459200))
-            NotBeforeClaim(value: Date(timeIntervalSince1970: 1609459200))
-            JWTIdentifierClaim(value: "ThisIdentifier")
-            AudienceClaim(value: "testAud")
-            StringClaim(key: "testStr1", value: "value1")
-            NumberClaim(key: "testN1", value: 0)
-            NumberClaim(key: "testN2", value: 1.1)
-            NumberClaim(key: "testN3", value: Double(1.233232))
-            BoolClaim(key: "testBool1", value: true)
-            ArrayClaim(key: "testArray") {
-                ArrayElementClaim.string("valueArray1")
-                ArrayElementClaim.string("valueArray2")
-                ArrayElementClaim.bool(true)
-                ArrayElementClaim.array {
-                    ArrayElementClaim.string("nestedNestedArray1")
-                }
-                ArrayElementClaim.object {
-                    StringClaim(key: "nestedNestedObject", value: "nestedNestedValue")
-                }
+    @JWTClaimsBuilder var resultTestClaims: ObjectClaim {
+        IssuerClaim(value: "testIssuer")
+        SubjectClaim(value: "testSubject")
+        ExpirationTimeClaim(value: Date(timeIntervalSince1970: 1609459200)) // Fixed date for testing
+        IssuedAtClaim(value: Date(timeIntervalSince1970: 1609459200))
+        NotBeforeClaim(value: Date(timeIntervalSince1970: 1609459200))
+        JWTIdentifierClaim(value: "ThisIdentifier")
+        AudienceClaim(value: "testAud")
+        StringClaim(key: "testStr1", value: "value1")
+        NumberClaim(key: "testN1", value: 0)
+        NumberClaim(key: "testN2", value: 1.1)
+        NumberClaim(key: "testN3", value: Double(1.233232))
+        BoolClaim(key: "testBool1", value: true)
+
+        if true {
+            StringClaim(key: "willShow", value: "testValue")
+            StringClaim(key: "willShow2", value: "testValue")
+        } else {
+            StringClaim(key: "dontShow", value: "testValue")
+        }
+        ArrayClaim(key: "testArray") {
+            ArrayElementClaim.string("valueArray1")
+            ArrayElementClaim.string("valueArray2")
+            ArrayElementClaim.bool(true)
+            ArrayElementClaim.array {
+                ArrayElementClaim.string("nestedNestedArray1")
             }
-            ObjectClaim(key: "testObject") {
-                StringClaim(key: "testDicStr1", value: "valueDic1")
+            ArrayElementClaim.object {
+                StringClaim(key: "nestedNestedObject", value: "nestedNestedValue")
             }
         }
-        
+        ObjectClaim(key: "testObject") {
+            StringClaim(key: "testDicStr1", value: "valueDic1")
+        }
+    }
+    
+    func testClaims() throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
         encoder.dateEncodingStrategy = .secondsSince1970
-        let coded = try encoder.encode(result.value)
+        let coded = try encoder.encode(resultTestClaims.value)
         
         let jsonString = try XCTUnwrap(String(data: coded, encoding: .utf8))
         print(jsonString)
@@ -231,40 +238,33 @@ final class JWTTests: XCTestCase {
             "testN2":1.1,
             "testN3":1.233232,
             "testObject":{"testDicStr1":"valueDic1"},
-            "testStr1":"value1"
+            "testStr1":"value1",
+            "willShow":"testValue",
+            "willShow2":"testValue"
         }
         """
-        
+        XCTAssertFalse(jsonString.contains("dontShow"))
         XCTAssertTrue(areJSONStringsEqual(jsonString, expectedJSON))
     }
     
-    func testEmptyClaims() throws {
-        let result = JWTClaimsBuilder.build {
-        }
-        
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        encoder.dateEncodingStrategy = .secondsSince1970
-        let coded = try encoder.encode(result.value)
-        
-        let jsonString = try XCTUnwrap(String(data: coded, encoding: .utf8))
-        print(jsonString)
-        
-        // Verify the structure of the resulting JSON
-        let expectedJSON = "{}"
-        
-        XCTAssertTrue(areJSONStringsEqual(jsonString, expectedJSON))
+    func testJWTClaims() throws {
+        try JWT.signed(
+            claims: {
+            },
+            protectedHeader: DefaultJWSHeaderImpl(keyID: ""),
+            key: nil as JWK?
+        )
+    }
+    
+    @JWTClaimsBuilder var resultTestSingleClaim: ObjectClaim {
+        IssuerClaim(value: "singleIssuer")
     }
     
     func testSingleClaim() throws {
-        let result = JWTClaimsBuilder.build {
-            IssuerClaim(value: "singleIssuer")
-        }
-        
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
         encoder.dateEncodingStrategy = .secondsSince1970
-        let coded = try encoder.encode(result.value)
+        let coded = try encoder.encode(resultTestSingleClaim.value)
         
         let jsonString = try XCTUnwrap(String(data: coded, encoding: .utf8))
         print(jsonString)
@@ -291,6 +291,10 @@ final class JWTTests: XCTestCase {
         return NSDictionary(dictionary: lhsObject as? [String: Any] ?? [:])
             .isEqual(to: rhsObject as? [String: Any] ?? [:])
     }
+}
+
+func build(@JWTClaimsBuilder builder: () throws -> [Claim]) rethrows -> ObjectClaim {
+    JWTClaimsBuilder.buildFinalResult(try builder())
 }
 
 extension String {

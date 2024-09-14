@@ -23,25 +23,94 @@ public struct ArrayClaim: Claim {
     /// A result builder for constructing array claims.
     @resultBuilder
     public struct ArrayClaimBuilder {
+        public typealias ClaimPartialResult = [any Claim]
+        public typealias ArrayClaimPartialResult = [ArrayElementClaim]
+        public typealias StringClaimPartialResult = [StringClaim]
         /// Builds an array of `ArrayElementClaim` from the provided components.
         /// - Parameter components: The array element claims to include in the array.
         /// - Returns: An array of `ArrayElementClaim`.
-        public static func buildBlock(_ components: ArrayElementClaim...) -> [ArrayElementClaim] {
-            components
+        public static func buildBlock(_ components: ArrayClaimPartialResult...) -> ArrayClaimPartialResult {
+            components.flatMap { $0 }
         }
         
         /// Builds an array of `ArrayElementClaim` from the provided components.
         /// - Parameter components: The array element claims to include in the array.
         /// - Returns: An array of `ArrayElementClaim`.
-        public static func buildBlock(_ components: Claim...) -> [Claim] {
-            components
+        public static func buildBlock(_ components: ClaimPartialResult...) -> ClaimPartialResult {
+            components.flatMap { $0 }
         }
         
         /// Builds an array of `StringClaim` from the provided components.
         /// - Parameter components: The string claims to include in the array.
         /// - Returns: An array of `StringClaim`.
-        public static func buildBlock(_ components: StringClaim...) -> [StringClaim] {
-            components
+        public static func buildBlock(_ components: StringClaimPartialResult...) -> StringClaimPartialResult {
+            components.flatMap { $0 }
+        }
+        
+        public static func buildExpression(_ expression: any Claim) -> ClaimPartialResult {
+            [expression]
+        }
+        
+        public static func buildExpression(_ expression: ArrayElementClaim) -> ArrayClaimPartialResult {
+            [expression]
+        }
+        
+        public static func buildExpression(_ expression: StringClaim) -> StringClaimPartialResult {
+            [expression]
+        }
+        
+        /// Adds support for optionals
+        public static func buildOptional(_ component:  ClaimPartialResult?) -> ClaimPartialResult {
+            guard let component else {
+                return []
+            }
+            return component
+        }
+        
+        
+        /// Adds support for if statements in build block
+        public static func buildEither(first component: ClaimPartialResult) -> ClaimPartialResult {
+            component
+        }
+        
+        public static func buildEither(second component: ClaimPartialResult) -> ClaimPartialResult {
+            component
+        }
+        
+        /// Adds support for optionals
+        public static func buildOptional(_ component:  ArrayClaimPartialResult?) -> ArrayClaimPartialResult {
+            guard let component else {
+                return []
+            }
+            return component
+        }
+        
+        
+        /// Adds support for if statements in build block
+        public static func buildEither(first component: ArrayClaimPartialResult) -> ArrayClaimPartialResult {
+            component
+        }
+        
+        public static func buildEither(second component: ArrayClaimPartialResult) -> ArrayClaimPartialResult {
+            component
+        }
+        
+        /// Adds support for optionals
+        public static func buildOptional(_ component:  StringClaimPartialResult?) -> StringClaimPartialResult {
+            guard let component else {
+                return []
+            }
+            return component
+        }
+        
+        
+        /// Adds support for if statements in build block
+        public static func buildEither(first component: StringClaimPartialResult) -> StringClaimPartialResult {
+            component
+        }
+        
+        public static func buildEither(second component: StringClaimPartialResult) -> StringClaimPartialResult {
+            component
         }
     }
     

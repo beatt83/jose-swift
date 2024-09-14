@@ -19,21 +19,45 @@ import Foundation
 /// A result builder for constructing JWT claims.
 @resultBuilder
 public struct JWTClaimsBuilder {
-    /// Builds a claim from the provided components.
-    /// - Parameter components: The claims to include.
-    /// - Returns: An `ObjectClaim` containing the provided claims.
-    public static func buildBlock(_ components: Claim...) -> Claim {
-        ObjectClaim(root: true, claims: components.map(\.value))
+    public typealias PartialResult = [any Claim]
+
+    public static func buildExpression(_ expression: any Claim) -> PartialResult {
+        [expression]
+    }
+
+    public static func buildExpression(_ expression: PartialResult) -> PartialResult {
+        expression
+    }
+
+    public static func buildBlock(_ components: PartialResult...) -> PartialResult {
+        components.flatMap { $0 }
     }
     
-    /// Builds a claim using a closure with the result builder.
-    /// - Parameter builder: A closure that returns a claim.
-    /// - Returns: A claim built by the closure.
-    /// - Throws: Rethrows any error thrown within the builder closure.
-    public static func build(@JWTClaimsBuilder builder: () throws -> Claim) rethrows -> Claim  {
-        try builder()
+    public static func buildBlock(_ component: PartialResult) -> PartialResult {
+        component
+    }
+
+    public static func buildOptional(_ component: PartialResult?) -> PartialResult {
+        component ?? []
+    }
+
+    public static func buildEither(first component: PartialResult) -> PartialResult {
+        component
+    }
+
+    public static func buildEither(second component: PartialResult) -> PartialResult {
+        component
+    }
+    
+    public static func buildEmpty() -> PartialResult {
+        []
+    }
+
+    public static func buildFinalResult(_ components: PartialResult) -> ObjectClaim {
+        ObjectClaim(root: true, claims: components.map(\.value))
     }
 }
+
 
 extension Value {
     func getValue<T>() -> T? {
