@@ -43,7 +43,7 @@ public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader {
     var x509URL: String? { get set }
 
     /// X.509 public key certificate or certificate chain in string format.
-    var x509CertificateChain: String? { get set }
+    var x509CertificateChain: [String]? { get set }
 
     /// Base64URL-encoded SHA-1 thumbprint of the DER encoding of an X.509 certificate, used for key identification.
     var x509CertificateSHA1Thumbprint: String? { get set }
@@ -87,7 +87,7 @@ public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader {
         jwkSetURL: String?,
         jwk: JWK?,
         x509URL: String?,
-        x509CertificateChain: String?,
+        x509CertificateChain: [String]?,
         x509CertificateSHA1Thumbprint: String?,
         x509CertificateSHA256Thumbprint: String?,
         type: String?,
@@ -113,7 +113,7 @@ extension JWERegisteredFieldsHeader {
         jwkSetURL: String? = nil,
         jwk: JWK? = nil,
         x509URL: String? = nil,
-        x509CertificateChain: String? = nil,
+        x509CertificateChain: [String]? = nil,
         x509CertificateSHA1Thumbprint: String? = nil,
         x509CertificateSHA256Thumbprint: String? = nil,
         type: String? = nil,
@@ -222,7 +222,7 @@ public struct DefaultJWEHeaderImpl: JWERegisteredFieldsHeader {
     public var jwkSetURL: String?
     public var jwk: JWK?
     public var x509URL: String?
-    public var x509CertificateChain: String?
+    public var x509CertificateChain: [String]?
     public var x509CertificateSHA1Thumbprint: String?
     public var x509CertificateSHA256Thumbprint: String?
     public var type: String?
@@ -258,7 +258,7 @@ public struct DefaultJWEHeaderImpl: JWERegisteredFieldsHeader {
         jwkSetURL: String?,
         jwk: JWK?,
         x509URL: String?,
-        x509CertificateChain: String?,
+        x509CertificateChain: [String]?,
         x509CertificateSHA1Thumbprint: String?,
         x509CertificateSHA256Thumbprint: String?,
         type: String?,

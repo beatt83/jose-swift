@@ -88,7 +88,7 @@ extension DefaultJWEHeaderImpl: Codable {
         jwk = try container.decodeIfPresent(JWK.self, forKey: .jwk)
         keyID = try container.decodeIfPresent(String.self, forKey: .keyID)
         x509URL = try container.decodeIfPresent(String.self, forKey: .x509URL)
-        x509CertificateChain = try container.decodeIfPresent(String.self, forKey: .x509CertificateChain)
+        x509CertificateChain = try container.decodeIfPresent([String].self, forKey: .x509CertificateChain)
         x509CertificateSHA1Thumbprint = try container.decodeIfPresent(String.self, forKey: .x509CertificateSHA1Thumbprint)
         x509CertificateSHA256Thumbprint = try container.decodeIfPresent(String.self, forKey: .x509CertificateSHA256Thumbprint)
         ephemeralPublicKey = try container.decodeIfPresent(JWK.self, forKey: .ephemeralPublicKey)

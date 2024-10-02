@@ -33,7 +33,7 @@ public struct JWK: Equatable, Hashable {
     public var x509URL: String?
 
     /// The X.509 Certificate Chain.
-    public var x509CertificateChain: String?
+    public var x509CertificateChain: [String]?
 
     /// The X.509 certificate SHA-1 thumbprint.
     public var x509CertificateSHA1Thumbprint: String?
@@ -84,7 +84,7 @@ public struct JWK: Equatable, Hashable {
         key: Data? = nil,
         keyID: String? = nil,
         x509URL: String? = nil,
-        x509CertificateChain: String? = nil,
+        x509CertificateChain: [String]? = nil,
         x509CertificateSHA1Thumbprint: String? = nil,
         x509CertificateSHA256Thumbprint: String? = nil,
         curve: CryptographicCurve? = nil,
