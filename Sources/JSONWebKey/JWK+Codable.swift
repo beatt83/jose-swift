@@ -74,7 +74,7 @@ extension JWK: Codable {
         }
         keyID = try container.decodeIfPresent(String.self, forKey: .keyID)
         x509URL = try container.decodeIfPresent(String.self, forKey: .x509URL)
-        x509CertificateChain = try container.decodeIfPresent(String.self, forKey: .x509CertificateChain)
+        x509CertificateChain = try container.decodeIfPresent([String].self, forKey: .x509CertificateChain)
         x509CertificateSHA1Thumbprint = try container.decodeIfPresent(String.self, forKey: .x509CertificateSHA1Thumbprint)
         x509CertificateSHA256Thumbprint = try container.decodeIfPresent(String.self, forKey: .x509CertificateSHA256Thumbprint)
         curve = try container.decodeIfPresent(JWK.CryptographicCurve.self, forKey: .curve)
