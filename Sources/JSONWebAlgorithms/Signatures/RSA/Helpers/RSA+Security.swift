@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import CryptoSwift
+@preconcurrency import CryptoSwift
 import Foundation
 import Security
 

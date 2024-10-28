@@ -19,7 +19,7 @@ import JSONWebAlgorithms
 import JSONWebKey
 
 /// JWEEncryptor protocol defines the encryption process for JWE.
-public protocol JWEEncryptor {
+public protocol JWEEncryptor: Sendable {
     /// Supported key management algorithms.
     var supportedKeyManagmentAlgorithms: [KeyManagementAlgorithm] { get }
 
@@ -62,7 +62,7 @@ public protocol JWEEncryptor {
 }
 
 /// JWEMultiEncryptor protocol defines the encryption process for JWE with multiple recipients.
-public protocol JWEMultiEncryptor {
+public protocol JWEMultiEncryptor: Sendable {
     /// Encrypts a payload for multiple recipients.
     /// - Parameters:
     ///   - payload: Data to be encrypted.

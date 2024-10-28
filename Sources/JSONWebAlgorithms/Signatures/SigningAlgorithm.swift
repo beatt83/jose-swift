@@ -25,7 +25,7 @@ import Foundation
 /// - `PS256`, `PS384`, `PS512`: RSASSA-PSS (RSA Probabilistic Signature Scheme) using SHA-256, SHA-384, and SHA-512 hash functions, respectively, and MGF1 (Mask Generation Function 1).
 /// - `none`: Represents the absence of a digital signature or MAC.
 /// - `invalid`: A placeholder for an invalid or unsupported algorithm, useful for error handling or invalid state representation.
-public enum SigningAlgorithm: String, Codable {
+public enum SigningAlgorithm: String, Codable, Sendable {
     /// HMAC using SHA-256
     case HS256 = "HS256"
     

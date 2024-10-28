@@ -29,10 +29,17 @@ public struct ES256KSigner: Signer {
         case der
     }
     
+#if swift(>=6.0)
+    /// The output format of the signature.
+    nonisolated(unsafe) public static var outputFormat = ES256KSigner.SignatureFormat.raw
+    /// Indicates whether the bytes R and S are inverted.
+    nonisolated(unsafe) public static var invertedBytesR_S = false
+#else
     /// The output format of the signature.
     public static var outputFormat = ES256KSigner.SignatureFormat.raw
     /// Indicates whether the bytes R and S are inverted.
     public static var invertedBytesR_S = false
+#endif
     
     /// The algorithm used for signing.
     public var algorithm: String { SigningAlgorithm.ES256K.rawValue }

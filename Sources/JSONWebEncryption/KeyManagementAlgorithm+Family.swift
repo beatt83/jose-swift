@@ -19,7 +19,7 @@ import JSONWebAlgorithms
 
 extension KeyManagementAlgorithm {
     /// `Family` is an enumeration representing different families of cryptographic algorithms.
-    public enum Family: String, CaseIterable {
+    public enum Family: String, Sendable, CaseIterable {
         /// RSA family of algorithms.
         case rsa = "RSA"
 

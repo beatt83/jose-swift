@@ -19,7 +19,7 @@ import JSONWebAlgorithms
 import JSONWebKey
 
 /// `JWEDecryptor` protocol defines functionality for decrypting JWE objects.
-public protocol JWEDecryptor {
+public protocol JWEDecryptor: Sendable {
     /// Supported key management algorithms by this decryptor.
     var supportedKeyManagementAlgorithms: [KeyManagementAlgorithm] { get }
 
@@ -59,7 +59,7 @@ public protocol JWEDecryptor {
 }
 
 /// `JWEMultiDecryptor` protocol defines functionality for decrypting JWE objects with multiple recipients.
-public protocol JWEMultiDecryptor {
+public protocol JWEMultiDecryptor: Sendable {
     /// Decrypts a JWE object with multiple recipients given various headers and cryptographic components.
     /// - Parameters:
     ///   - protectedHeader: Protected header, conforming to `JWERegisteredFieldsHeader`.

@@ -11,7 +11,7 @@ import Foundation
 /// Supported JWE cryptographic algorithms for key management.
 ///
 /// For more information, see [RFC7518 Section 4.1](https://www.rfc-editor.org/rfc/rfc7518#section-4.1)
-public enum KeyManagementAlgorithm: String, Equatable, Codable {
+public enum KeyManagementAlgorithm: String, Sendable, Equatable, Codable {
     /// RSA algorithm with PKCS #1 v1.5 padding.
     case rsa1_5 = "RSA1_5"
     
