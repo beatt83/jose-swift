@@ -10,7 +10,7 @@ import CryptoKit
 import Foundation
 
 /// A JSON Web Key (JWK) representation [RFC7517](https://www.rfc-editor.org/rfc/rfc7517)
-public struct JWK: Equatable, Hashable {
+public struct JWK: Equatable, Hashable, Sendable {
     /// The key type.
     public var keyType: KeyType
 
@@ -129,7 +129,7 @@ public extension JWK {
     /// For more information, see
     /// - https://www.rfc-editor.org/rfc/rfc7518#section-6.1
     /// - https://www.rfc-editor.org/rfc/rfc8037#section-2
-    enum KeyType: String, Codable, Equatable {
+    enum KeyType: String, Codable, Equatable, Sendable {
         case ellipticCurve = "EC"
         case rsa = "RSA"
         case octetSequence = "oct"
@@ -139,7 +139,7 @@ public extension JWK {
     /// The intended use of the public key.
     ///
     /// For more information, see https://www.rfc-editor.org/rfc/rfc7517#section-4.2
-    enum PublicKeyUse: String, Codable, Equatable {
+    enum PublicKeyUse: String, Codable, Equatable, Sendable {
         case signature = "sig"
         case encryption = "enc"
     }
@@ -147,14 +147,14 @@ public extension JWK {
     /// The key operations that the key is intended to be used for.
     ///
     /// For more information, see https://www.rfc-editor.org/rfc/rfc7517#section-4.3
-    enum KeyOperations: String, Codable, Equatable {
+    enum KeyOperations: String, Codable, Equatable, Sendable {
         case sign, verify, encrypt, decrypt, wrapKey, unwrapKey, deriveKey, deriveBits
     }
 
     /// The cryptographic curves.
     ///
     /// For more information, see https://www.rfc-editor.org/rfc/rfc7518#section-6.1
-    enum CryptographicCurve: String, Codable, CaseIterable, Equatable {
+    enum CryptographicCurve: String, Codable, CaseIterable, Equatable, Sendable {
         case p256 = "P-256"
         case p384 = "P-384"
         case p521 = "P-521"

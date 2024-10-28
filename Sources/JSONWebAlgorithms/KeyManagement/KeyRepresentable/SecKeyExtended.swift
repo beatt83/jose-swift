@@ -1,5 +1,5 @@
 import CryptoKit
-import CryptoSwift
+@preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
 import Security

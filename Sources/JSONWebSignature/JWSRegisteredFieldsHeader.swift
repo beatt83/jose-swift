@@ -20,7 +20,7 @@ import JSONWebKey
 
 /// `JWSProtectedFieldsHeader` protocol defines the structure for the protected header fields used in a JSON Web Signature (JWS).
 /// It includes various optional fields that can be included in a JWS Header.
-public protocol JWSRegisteredFieldsHeader: Codable {
+public protocol JWSRegisteredFieldsHeader: Codable, Sendable {
     /// The signing algorithm to be used.
     var algorithm: SigningAlgorithm? { get set }
 

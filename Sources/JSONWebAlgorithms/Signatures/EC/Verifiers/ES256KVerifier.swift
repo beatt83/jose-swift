@@ -21,9 +21,13 @@ import secp256k1
 /// `ES256KVerifier` provides methods to verify signatures using the ES256K algorithm.
 public struct ES256KVerifier: Verifier {
     
+#if swift(>=6.0)
+    /// Indicates whether to use a fail-safe mechanism compatible with Bouncy Castle.
+    nonisolated(unsafe) public static var bouncyCastleFailSafe = false
+#else
     /// Indicates whether to use a fail-safe mechanism compatible with Bouncy Castle.
     public static var bouncyCastleFailSafe = false
-    
+#endif
     /// The algorithm used for verification.
     public var algorithm: String { SigningAlgorithm.ES256K.rawValue }
     

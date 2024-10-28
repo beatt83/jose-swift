@@ -22,7 +22,7 @@ import Tools
 /// `JWS` represents a JSON Web Signature (JWS) structure as defined in [RFC7515](https://tools.ietf.org/html/rfc7515).
 /// It encapsulates the protected header, payload, and signature of a JWS,
 /// and provides functionality for initializing and manipulating JWS objects in compliance with the standard.
-public struct JWS {
+public struct JWS: Sendable {
     /// The protected header fields of the JWS as specified in RFC 7515.
     /// This header contains metadata about the type of signature and algorithm used.
     public let protectedHeader: JWSRegisteredFieldsHeader

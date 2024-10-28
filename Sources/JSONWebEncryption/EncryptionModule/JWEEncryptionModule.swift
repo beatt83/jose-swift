@@ -18,7 +18,7 @@ import Foundation
 import JSONWebAlgorithms
 
 /// `JWEEncryptionProvider` represents an encryption provider for JSON Web Encryption (JWE) with a specific algorithm family.
-public struct JWEEncryptionProvider: Hashable {
+public struct JWEEncryptionProvider: Sendable, Hashable {
     /// The family of key management algorithm.
     public let family: KeyManagementAlgorithm.Family
     
@@ -60,7 +60,7 @@ public struct JWEEncryptionProvider: Hashable {
 }
 
 /// `JWEEncryptionModule` manages a collection of `JWEEncryptionProvider` instances and provides encryption and decryption functionalities.
-public struct JWEEncryptionModule {
+public struct JWEEncryptionModule: Sendable {
     /// A set of registered encryption providers.
     public let registeredEncryptions: Set<JWEEncryptionProvider>
     
@@ -99,7 +99,7 @@ public struct JWEEncryptionModule {
 
 extension JWEEncryptionModule {
     /// The default `JWEEncryptionModule` instance with a predefined set of encryption providers.
-    public static var `default`: JWEEncryptionModule = .init(
+    public static let `default`: JWEEncryptionModule = .init(
         registeredEncryptions: Set(
             [
                 .init(
@@ -145,7 +145,7 @@ extension JWEEncryptionModule {
     
     /// The default `JWEEncryptionModule` instance with a predefined set of encryption providers, were ECDH-1PU and ECDH-ES
     /// use a master ephemeral key for multiple recipients.
-    public static var defaultWithMasterEphemeralKey: JWEEncryptionModule = .init(
+    public static let defaultWithMasterEphemeralKey: JWEEncryptionModule = .init(
         registeredEncryptions: Set(
             [
                 .init(

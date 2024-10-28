@@ -17,7 +17,7 @@
 import Foundation
 
 /// `ContentCompressionAlgorithm` is an enumeration representing the supported content compression algorithms.
-public enum ContentCompressionAlgorithm: String, Codable {
+public enum ContentCompressionAlgorithm: String, Codable, Sendable {
     /// The DEFLATE compression algorithm.
     case deflate = "DEF"
 }

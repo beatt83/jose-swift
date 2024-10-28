@@ -1,4 +1,4 @@
-import CryptoSwift
+@preconcurrency import CryptoSwift
 import Foundation
 
 /// `XC20P` provides methods to encrypt and decrypt data using the XChaCha20-Poly1305 algorithm.

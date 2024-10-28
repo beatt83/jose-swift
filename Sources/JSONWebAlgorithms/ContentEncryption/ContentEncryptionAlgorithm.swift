@@ -9,7 +9,7 @@
 import Foundation
 
 /// `ContentEncryptionAlgorithm` is an enumeration representing the supported content encryption algorithms.
-public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable, Hashable {
+public enum ContentEncryptionAlgorithm: String, Codable, Equatable, CaseIterable, Hashable, Sendable {
     /// AES encryption in CBC mode with an HMAC using SHA-256.
     /// The algorithm uses a 256-bit key and is commonly used for its balance of security and performance.
     case a128CBCHS256 = "A128CBC-HS256"

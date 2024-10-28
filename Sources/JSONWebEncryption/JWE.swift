@@ -19,7 +19,7 @@ import Tools
 
 /// `JWE` struct represents a JSON Web Encryption (JWE) structure as defined in [RFC7516](https://tools.ietf.org/html/rfc7516).
 /// It provides mechanisms to encrypt content, represented as the `cipher`, along with various headers and authentication data.
-public struct JWE {
+public struct JWE: Sendable {
     /// The `protectedHeader` is a JWE header with registered fields that are integrity protected.
     public let protectedHeader: JWERegisteredFieldsHeader
 

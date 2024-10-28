@@ -20,7 +20,7 @@ import JSONWebKey
 
 /// `JWERegisteredFieldsHeader` protocol defines the standard fields used in the header of a JSON Web Encryption (JWE) object.
 /// It includes fields for specifying algorithms, keys, and other metadata related to JWE.
-public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader {
+public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader, Sendable {
     /// The algorithm used for key management in the JWE process.
     var keyManagementAlgorithm: KeyManagementAlgorithm? { get set }
 
