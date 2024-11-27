@@ -1,6 +1,7 @@
 import JSONWebKey
 @testable import JSONWebToken
 import JSONWebSignature
+import JSONWebEncryption
 import XCTest
 
 final class JWTTests: XCTestCase {
@@ -277,6 +278,37 @@ final class JWTTests: XCTestCase {
         """
         
         XCTAssertTrue(areJSONStringsEqual(jsonString, expectedJSON))
+    }
+    
+    func testJWE() throws {
+        let expiredAt = Date().addingTimeInterval(60)
+        
+        let header = DefaultJWEHeaderImpl(
+            keyManagementAlgorithm: .direct,
+            encodingAlgorithm: .a256GCM
+        )
+
+        let kekData = Data(count: 256 / 8)
+        
+        let jwt = try JWT.encrypt(
+            claims:  {
+                ObjectClaim(key: "body") {
+                    StringClaim(key: "foo", value: "bar")
+                }
+                IssuerClaim(value: "DLTA Studio")
+                ExpirationTimeClaim(value: expiredAt)
+            },
+            protectedHeader: header,
+            senderKey: nil,
+            recipientKey: nil,
+            sharedKey: nil,
+            cek: kekData
+        )
+
+        let jwtString = jwt.jwtString
+
+        let verifiedJWT = try JWT.verify(jwtString: jwtString, sharedKey: JWK(keyType: .octetSequence, key: kekData))
+        let verifiedPayload = verifiedJWT.payload
     }
     
     private func areJSONStringsEqual(_ lhs: String, _ rhs: String) -> Bool {
