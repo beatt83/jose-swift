@@ -44,16 +44,19 @@ let privateKey = P256.Signing.PrivateKey()
 
 // Create and sign the JWT
 let jwt = try JWT.signed(
-    payload: {
+    claims: {
         // Define the claims
-        SubClaim(value: "1234567890")
-        IatClaim(value: Date())
+        SubjectClaim(value: "1234567890")
+        IssuedAtClaim(value: Date())
         StringClaim(key: "name", value: "John Doe")
     },
     protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256),
     key: privateKey
 )
+
+print(jwt.jwtString)
 ```
+Example 1.1
 
 ## Verifying a JWT
 
@@ -64,8 +67,9 @@ To verify a JWT, you need the corresponding public key. Extract the public key f
 let publicKey = privateKey.publicKey
 
 // Verify the JWT
-let isValid = try jwt.verify(key: publicKey)
+let isValid = try JWT.verify(jwtString: jwt.jwtString, senderKey: publicKey)
 ```
+Example 1.2
 
 ## Creating a JSON Web Signature (JWS)
 
@@ -74,22 +78,33 @@ A JSON Web Signature (JWS) is used to provide integrity and authenticity to data
 ```swift
 import JSONWebKey
 import JSONWebSignature
+import CryptoKit
+
+// Generate a P256 private key
+let privateKey = P256.Signing.PrivateKey()
 
 // Define the payload
 let payload = "Hello, JWS!".data(using: .utf8)!
 
 // Create and sign the JWS
 let jws = try JWS(payload: payload, protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256), key: privateKey)
+
+print(jws.compactSerialization)
 ```
+Example 1.3
 
 ## Verifying a JWS
 
 To verify a JWS, you need the corresponding public key:
 
 ```swift
+// Extract the public key
+let publicKey = privateKey.publicKey
+
 // Verify the JWS
 let isJWSValid = try jws.verify(key: publicKey)
 ```
+Example 1.4
 
 ## Creating a JSON Web Encryption (JWE)
 
@@ -102,10 +117,17 @@ import JSONWebEncryption
 // Define the payload
 let payload = "Hello, JWE!".data(using: .utf8)!
 
-// Create and encrypt the JWE
-let recipientKey = P256.KeyAgreement.PublicKey()
-let jwe = try JWE(payload: payload, keyManagementAlg: .ECDH_ES_A256KW, encryptionAlgorithm: .A256GCM, recipientKey: recipientKey)
+// Define the payload
+let payload = "Hello, JWE!".data(using: .utf8)!
+
+// Create and encrypt the JWE, only for example purpose on a production environment, on ECDHES the encryptor encrypts the content for the recipient PUBLIC KEY, only the recipient with his private key pair can decrypt it.
+let recipientKey = P256.KeyAgreement.PrivateKey()
+
+let jwe = try JWE(payload: payload, keyManagementAlg: .ecdhESA256KW, encryptionAlgorithm: .a256GCM, recipientKey: recipientKey.publicKey)
+
+print(jwe.compactSerialization)
 ```
+Example 1.5
 
 ## Decrypting a JWE
 
@@ -113,8 +135,11 @@ To decrypt a JWE, you need the corresponding private key:
 
 ```swift
 // Decrypt the JWE
-let decryptedPayload = try jwe.decrypt(recipientKey: privateKey)
+let decryptedPayload = try jwe.decrypt(recipientKey: recipientKey)
+
+print("Encrypted payload: \(String(data: decryptedPayload, encoding: .utf8))")
 ```
+Example 1.6
 
 ## Using SecKey for Signing and Verification
 
@@ -136,8 +161,9 @@ let jws = try JWS(payload: payload, protectedHeader: DefaultJWSHeaderImpl(algori
 
 //Verify the JWS using SecKey
 let secPublicKey = SecKeyCopyPublicKey(secPrivateKey)!
-let isJWSValid = try jws.verify(key: secPublicKey)
+let isJWSValid = try jws.verify(key: publicKey)
 ```
+Example 1.7
 
 ## Using JWK for Signing and Verification
 
@@ -153,5 +179,6 @@ let jws = try JWS(payload: payload, protectedHeader: DefaultJWSHeaderImpl(algori
 // Verify the JWS using JWK
 let isJWSValid = try jws.verify(key: jwk)
 ```
+Example 1.8
 
 That's it! You are now ready to use the **jose-swift** library to handle JWT, JWS, and JWE in your Swift applications.

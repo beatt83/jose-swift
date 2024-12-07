@@ -10,29 +10,34 @@ In this example, we'll encrypt a JWT using a symmetric key (a shared secret).
 
 ```swift
 // Define the encryption key and header:
-let symmetricKey = Data("your-256-bit-secret".utf8)
+let cek = Data([
+    177, 161, 244, 128, 84, 143, 225, 115, 63, 180, 3, 255, 107, 154,
+    212, 246, 138, 7, 110, 91, 112, 46, 34, 105, 47, 130, 203, 46, 122,
+    234, 64, 252,
+])
 let header = DefaultJWEHeaderImpl(
     keyManagementAlgorithm: .direct,
-    encodingAlgorithm: .A256GCM
+    encodingAlgorithm: .a256GCM
 )
 
 // Encrypt the JWT:
 let encryptedJWT = try JWT.encrypt(
-    payload: {
-        SubClaim(value: "1234567890")
+    claims: {
+        SubjectClaim(value: "1234567890")
         StringClaim(key: "name", value: "John Doe")
-        BoolClaim(key: "admin": value: true)
+        BoolClaim(key: "admin", value: true)
     },
     protectedHeader: header,
-    unprotectedHeader: nil,
     senderKey: nil,
-    recipientKey: symmetricKey,
-    sharedKey: nil
+    recipientKey: nil,
+    sharedKey: nil,
+    cek: cek
 )
 
 // Output the encrypted JWT string:
 print(encryptedJWT.jwtString)
 ```
+Example 7.1
 
 ## Encrypting a JWT with an Asymmetric Key
 
@@ -42,24 +47,23 @@ This example demonstrates how to encrypt a JWT using an asymmetric key (e.g., RS
 
 ```swift
 //Generate RSA key pair:
-let privateKey = try RSA.generate(bits: 2048)
+let privateKey = P256.KeyAgreement.PrivateKey()
 let publicKey = privateKey.publicKey
 
 // Define the encryption key and header:
 let header = DefaultJWEHeaderImpl(
-    keyManagementAlgorithm: .rsaOAEP,
-    encodingAlgorithm: .A256GCM
+    keyManagementAlgorithm: .ecdhESA256KW,
+    encodingAlgorithm: .a256GCM
 )
 
 // Encrypt the JWT:
 let encryptedJWT = try JWT.encrypt(
-    payload: {
+    claims: {
         SubClaim(value: "1234567890")
         StringClaim(key: "name", value: "John Doe")
-        BoolClaim(key: "admin": value: true)
+        BoolClaim(key: "admin", value: true)
     },
     protectedHeader: header,
-    unprotectedHeader: nil,
     senderKey: nil,
     recipientKey: publicKey,
     sharedKey: nil
@@ -68,3 +72,4 @@ let encryptedJWT = try JWT.encrypt(
 // Output the encrypted JWT string:
 print(encryptedJWT.jwtString)
 ```
+Example 7.2

@@ -87,8 +87,9 @@ let jws = try JWS(
     key: key
 )
 
-print(“JWS: (jws.compactSerialization)”)
+print("JWS: \(jws.compactSerialization)")
 ```
+Example 2.1
 
 In this example, the `JWS` initializer generates a signed JWS using the ES256 algorithm and the provided private key.
 
@@ -102,8 +103,9 @@ let publicKey = P256.Signing.PublicKey()
 let jws = try JWS(jwsString: jwsString)
 
 let isValid = try jws.verify(key: publicKey)
-print(“Signature is valid: (isValid)”)
+print("Signature is valid: \(isValid)")
 ```
+Example 2.2
 
 In this example, the `verify` method verifies the JWS using the public key.
 
@@ -112,11 +114,11 @@ In this example, the `verify` method verifies the JWS using the public key.
 You can include custom headers in your JWS to add additional metadata. Here’s an example:
 
 ```swift
-let key = secp256k1.Signing.PrivateKey()
-let payload = “Hello, World!”.data(using: .utf8)!
+let key = try secp256k1.Signing.PrivateKey()
+let payload = "Hello, World!".data(using: .utf8)!
 
 var header = DefaultJWSHeaderImpl(algorithm: .ES256K)
-header.keyID = “key-id”
+header.keyID = "key-id"
 
 let jws = try JWS(
     payload: payload,
@@ -124,8 +126,9 @@ let jws = try JWS(
     key: key
 )
 
-print(“JWS: (jws.compactSerialization)”)
+print("JWS: \(jws.compactSerialization)")
 ```
+Example 2.3
 
 In this example, the `kid` (key ID) field is added to the header to specify which key was used for signing.
 
@@ -134,8 +137,8 @@ In this example, the `kid` (key ID) field is added to the header to specify whic
 A Nested JWS is a JWS that is signed and then signed again. This provides an additional layer of security by ensuring both the integrity and authenticity of the message. Here’s how to create a nested JWS:
 
 ```swift
-let nestedKey = RSA(keySize: 1228)
-let nestedPayload = “Nested payload”.data(using: .utf8)!
+let nestedKey = try RSA(keySize: 1228)
+let nestedPayload = "Nested payload".data(using: .utf8)!
 
 let nestedHeader = DefaultJWSHeaderImpl(algorithm: .RS512)
 let nestedJws = try JWS(
@@ -145,15 +148,16 @@ let nestedJws = try JWS(
 )
 
 let outerKey = P521.Signing.PrivateKey()
-let outerHeader = DefaultJWSHeaderImpl(algorithm: .ES512, contentType: “JWT”)
+let outerHeader = DefaultJWSHeaderImpl(algorithm: .ES512, contentType: "JWT")
 let outerJws = try JWS(
     payload: JSONEncoder().encode(nestedJws.compactSerialization),
     protectedHeader: outerHeader,
     key: outerKey
 )
 
-print(“Nested JWS: (outerJws.compactSerialization)”)
+print("Nested JWS: \(outerJws.compactSerialization)")
 ```
+Example 2.4
 
 ## Conclusion
 

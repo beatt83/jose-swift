@@ -10,6 +10,7 @@ Ensure you have the **jose-swift** library installed and imported in your projec
 //Import the jose-swift library
 import JSONWebKey
 import JSONWebToken
+import JSONWebSignature
 ```
 
 ## Verifying a Signed JWT
@@ -22,19 +23,17 @@ Assume you have a JWT string and the corresponding public key.
 
 ```swift
 // Extract the public key from the private key
-let privateKey = P256.Signing.PrivateKey()
-let publicKey = privateKey.publicKey
+// Replace with the pair public key
+let publicKey = try P256.Signing.PublicKey(rawRepresentation: Data())
 
 // JWT string to verify
 let jwtString = "your.jwt.string"
 
-// Create a JWT object
-let jwt = try JWT(jwsString: jwtString)
-
 // Verify the JWT
-let isValid = try jwt.verify(key: publicKey)
-print("JWT is valid: \(isValid)")
+let jwt = try JWT.verify(jwtString: jwtString)
+print("No errors so your JWT is verified: \(jwt.jwtString)")
 ```
+Example 6.1
 
 ### Verifying with a SecKey
 
@@ -57,13 +56,11 @@ let secPublicKey = SecKeyCopyPublicKey(secPrivateKey)!
 // JWT string to verify
 let jwtString = "your.jwt.string"
 
-// Create a JWT object
-let jwt = try JWT(jwsString: jwtString)
-
 // Verify the JWT
-let isValid = try jwt.verify(key: secPublicKey)
-print("JWT is valid: \(isValid)")
+let jwt = try JWT.verify(jwtString: jwtString, senderKey: secPublicKey)
+print("No errors so your JWT is verified: \(jwt.jwtString)")
 ```
+Example 6.2
 
 ### Verifying with a JWK
 
@@ -71,18 +68,16 @@ You can also verify a JWT using a JWK (JSON Web Key).
 
 ```swift
 // Create a JWK
-let jwk = JWK(octetSequence: Data(repeating: 0, count: 32))
+let jwk = JWK(keyType: .octetSequence, key: Data(repeating: 0, count: 32))
 
 // JWT string to verify
 let jwtString = "your.jwt.string"
 
-// Create a JWT object
-let jwt = try JWT(jwsString: jwtString)
-
 // Verify the JWT
-let isValid = try jwt.verify(key: jwk)
-print("JWT is valid: \(isValid)")
+let jwt = try JWT.verify(jwtString: jwtString, senderKey: jwk)
+print("No errors so your JWT is verified: \(jwt.jwtString)")
 ```
+Example 6.3
 
 ## Additional Claims Verification
 
@@ -97,16 +92,11 @@ Assume you have a JWT payload with claims and want to validate the issuer and au
 let expectedIssuer = "your-issuer"
 let expectedAudience = "your-audience"
 
-// Parse the JWT payload
-let claims = try JSONDecoder().decode(MyClaims.self, from: jwt.payload)
-
-// Validate the issuer and audience
-guard claims.iss == expectedIssuer else {
-    throw JWTError.invalidIssuer
-}
-guard claims.aud == expectedAudience else {
-    throw JWTError.invalidAudience
-}
+let jwk = JWK(keyType: .octetSequence, key: Data(repeating: 0, count: 32))
+// The library verifies automatically iat, nbf and exp but you can pass values for iss, sub and aud
+let jwt = try JWT.verify(jwtString: "your.jwt.here", senderKey: jwk, expectedIssuer: expectedIssuer, expectedAudience: expectedAudience)
+print("No errors so your JWT is verified: \(jwt.jwtString)")
 ```
+Example 6.4
 
 That's it! You now know how to verify JWTs using different key types and validate specific claims using the **jose-swift** library.

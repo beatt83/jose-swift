@@ -68,8 +68,8 @@ Example:
 
 ```
 {
-    “alg”: “RSA-OAEP”,
-    “enc”: “A256GCM”
+    "alg": "RSA-OAEP",
+    "enc": "A256GCM"
 }
 ```
 
@@ -94,8 +94,8 @@ The authentication tag is used to ensure the integrity and authenticity of the c
 Using the **jose-swift** library, creating a JWE is straightforward. Here’s an example of how to create a JWE:
 
 ```swift
-let payload = “Hello, World!”.data(using: .utf8)!
-let recipientKey = try RSA(publicKey: Data(base64Encoded: “your-public-key”)!)
+let payload = "Hello, World!".data(using: .utf8)!
+let recipientKey = try RSA(rawRepresentation: Data(base64Encoded: “your-public-key”)!)
 
 let jwe = try JWE(
     payload: payload,
@@ -104,8 +104,9 @@ let jwe = try JWE(
     recipientKey: recipientKey
 )
 
-print(“JWE: (jwe.compactSerialization)”)
+print("JWE: \(jwe.compactSerialization)")
 ```
+Example 3.1
 
 In this example, the `JWE` initializer encrypts the payload using the RSA-OAEP key management algorithm and the A256GCM content encryption algorithm.
 
@@ -119,8 +120,9 @@ let recipientKey = try RSA(privateKey: Data(base64Encoded: “your-private-key�
 let jwe = try JWE(compactString: jweString)
 
 let decryptedPayload = try jwe.decrypt(recipientKey: recipientKey)
-print(“Decrypted payload: (String(data: decryptedPayload, encoding: .utf8)!)”)
+print("Decrypted payload: \(String(data: decryptedPayload, encoding: .utf8)!)")
 ```
+Example 3.2
 
 In this example, the `decrypt` method decrypts the JWE using the private key.
 
@@ -129,11 +131,11 @@ In this example, the `decrypt` method decrypts the JWE using the private key.
 You can include custom headers in your JWE to add additional metadata. Here’s an example:
 
 ```swift
-let payload = “Hello, World!”.data(using: .utf8)!
+let payload = "Hello, World!".data(using: .utf8)!
 let recipientKey = try RSA(publicKey: Data(base64Encoded: “your-public-key”)!)
 
-var header = DefaultJWEHeaderImpl(keyManagementAlgorithm: .a256GCMKW, encodingAlgorithm: .a256GCM)
-header.keyID = “key-id”
+var header = DefaultJWEHeaderImpl(keyManagementAlgorithm: .rsaOAEP256, encodingAlgorithm: .a256GCM)
+header.keyID = "key-id"
 
 let jwe = try JWE(
     payload: payload,
@@ -141,8 +143,9 @@ let jwe = try JWE(
     recipientKey: recipientKey
 )
 
-print(“JWE: (jwe.compactSerialization)”)
+print("JWE: \(jwe.compactSerialization)")
 ```
+Example 3.3
 
 In this example, the `kid` (key ID) field is added to the header to specify which key was used for encryption.
 
@@ -151,8 +154,8 @@ In this example, the `kid` (key ID) field is added to the header to specify whic
 A Nested JWE is a JWE that is encrypted and then encrypted again. This provides an additional layer of security by ensuring both the confidentiality and authenticity of the message. Here’s how to create a nested JWE:
 
 ```swift
-let nestedPayload = “Nested payload”.data(using: .utf8)!
-let nestedRecipientKey = try RSA(publicKey: Data(base64Encoded: “nested-public-key”)!)
+let nestedPayload = "Nested payload".data(using: .utf8)!
+let nestedRecipientKey = try RSA(publicKey: Data(base64Encoded: "nested-public-key")!)
 
 let nestedJwe = try JWE(
     payload: nestedPayload,
@@ -161,7 +164,7 @@ let nestedJwe = try JWE(
     recipientKey: nestedRecipientKey
 )
 
-let outerRecipientKey = try RSA(publicKey: Data(base64Encoded: “outer-public-key”)!)
+let outerRecipientKey = try RSA(publicKey: Data(base64Encoded: "outer-public-key")!)
 let outerJwe = try JWE(
     payload: JSONEncoder().encode(nestedJwe.compactSerialization),
     keyManagementAlg: .rsaOAEP,
@@ -169,8 +172,9 @@ let outerJwe = try JWE(
     recipientKey: outerRecipientKey
 )
 
-print(“Nested JWE: (outerJwe.compactSerialization)”)
+print("Nested JWE: \(outerJwe.compactSerialization)")
 ```
+Example 3.4
 
 ## Conclusion
 

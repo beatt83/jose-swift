@@ -322,7 +322,7 @@ let jws = try JWS(payload: payload, key: key, options: [.unencodedPayload])
 
 let jwsString = jws.compactSerialization
 
-try JWS.verify(jwsString: jwsString, payload: payload.data(using: .utf8)!, key: key)
+try JWS.verify(jwsString: jwsString, payload: payload, key: key)
 ```
 
 
@@ -382,14 +382,14 @@ let serialization = try JWE(
     payload: payload,
     keyManagementAlg: .a256KW,
     encryptionAlgorithm: .a256GCM,
-    compressionAlgorithm: .zip,
+    compressionAlgorithm: .deflate,
     recipientKey: keyJWK
 )
 
-let compact = serialization.compactSerialization()
+let compact = serialization.compactSerialization
 
 let jwe = try JWE(compactString: compact)
-let decrypted = try jwe.decrypt(recipientKey: recipientJWK)
+let decrypted = try jwe.decrypt(recipientKey: recipientKey)
 ```
 
 Example2:
@@ -403,7 +403,7 @@ let serialization = try JWE(
     payload: payload,
     keyManagementAlg: .a256KW,
     encryptionAlgorithm: .a256GCM,
-    compressionAlgorithm: .zip,
+    compressionAlgorithm: .deflate,
     recipientKey: key
 )
 
