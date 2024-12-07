@@ -42,7 +42,7 @@ public struct JWT {
     public var jwtString: String {
         switch format {
         case .jwe(let jwe):
-            return jwe.compactSerialization()
+            return jwe.compactSerialization
         case .jws(let jws):
             return jws.compactSerialization
         }

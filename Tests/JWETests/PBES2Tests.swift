@@ -157,7 +157,7 @@ final class PBES2Tests: XCTestCase {
             password: password,
             saltLength: 16,
             iterationCount: 8192
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: jweString,

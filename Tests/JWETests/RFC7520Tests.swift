@@ -97,7 +97,7 @@ final class RFC7520Tests: XCTestCase {
             cek: Base64URL.decode("3qyTVhIWt5juqZUCpfRqpvauwB956MEJL2Rt-8qXKSo"),
             initializationVector: Base64URL.decode("bbd5sTkYwhAIqfHsx8DayA"),
             additionalAuthenticationData: nil
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
@@ -226,7 +226,7 @@ final class RFC7520Tests: XCTestCase {
             cek: Base64URL.decode("mYMfsggkTAm0TbvtlFh2hyoXnbEzJQjMxmgLN3d8xXA"),
             initializationVector: Base64URL.decode("-nBoKLH0YkLZPSI9"),
             additionalAuthenticationData: nil
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
@@ -303,7 +303,7 @@ final class RFC7520Tests: XCTestCase {
             cek: Base64URL.decode("Nou2ueKlP70ZXDbq9UrRwg"),
             initializationVector: Base64URL.decode("mH-G2zVqgztUtnW_"),
             additionalAuthenticationData: nil
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
@@ -385,7 +385,7 @@ final class RFC7520Tests: XCTestCase {
             cek: nil,
             initializationVector: Base64URL.decode("yc9N8v5sYyv3iGQT926IUg"),
             additionalAuthenticationData: nil
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
@@ -465,7 +465,7 @@ final class RFC7520Tests: XCTestCase {
             cek: sharedSymmetricKey.key!,
             initializationVector: Base64URL.decode("refa467QzzKx6QAB"),
             additionalAuthenticationData: nil
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
@@ -534,7 +534,7 @@ final class RFC7520Tests: XCTestCase {
         )
         
         let decrypted = try JWE.decrypt(
-            compactString: serialization.compactSerialization(),
+            compactString: serialization.compactSerialization,
             recipientKey: recipientJWK
         )
         
@@ -598,7 +598,7 @@ final class RFC7520Tests: XCTestCase {
             cek: Base64URL.decode("aY5_Ghmk9KxWPBLu_glx1w"),
             initializationVector: Base64URL.decode("Qx0pmsDa8KnJc9Jo"),
             additionalAuthenticationData: nil
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
@@ -663,7 +663,7 @@ final class RFC7520Tests: XCTestCase {
             cek: Base64URL.decode("hC-MpLZSuwWv8sexS6ydfw"),
             initializationVector: Base64URL.decode("p9pUq6XHY0jfEZIl"),
             additionalAuthenticationData: nil
-        ).compactSerialization()
+        ).compactSerialization
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
@@ -805,7 +805,7 @@ final class RFC7520Tests: XCTestCase {
             recipientKey: recipientJWK,
             cek: Base64URL.decode("WDgEptBmQs9ouUvArz6x6g"),
             initializationVector: Base64URL.decode("WgEJsDS9bkoXQ3nR")
-        ).compactSerialization()
+        ).compactSerialization
         
         let expectedSerializationTestVector = """
         {
@@ -868,7 +868,7 @@ final class RFC7520Tests: XCTestCase {
             recipientKey: recipientJWK,
             cek: Base64URL.decode("WDgEptBmQs9ouUvArz6x6g"),
             initializationVector: Base64URL.decode("WgEJsDS9bkoXQ3nR")
-        ).compactSerialization()
+        ).compactSerialization
         
         let expectedSerializationTestVector = """
         {
