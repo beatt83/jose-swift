@@ -82,7 +82,7 @@ final class RFC7516Tests: XCTestCase {
             additionalAuthenticationData: nil
         )
         
-        let compact = serialization.compactSerialization()
+        let compact = serialization.compactSerialization
         
         let jweCompact = try JWE(compactString: compact)
         let decrypted = try jweCompact.decrypt(recipientKey: recipientJWK)
@@ -183,7 +183,7 @@ final class RFC7516Tests: XCTestCase {
         )
         
         XCTAssertEqual(
-            serialization.compactSerialization(),
+            serialization.compactSerialization,
             """
             eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.
             6KB707dM9YTIgHtLvtgWQ8mKwboJW3of9locizkDTHzBC2IlrT1oOQ.

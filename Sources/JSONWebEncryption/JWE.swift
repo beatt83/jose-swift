@@ -47,6 +47,19 @@ public struct JWE: Sendable {
     /// `additionalAuthenticatedData` is optional extra data that can be authenticated along with the payload but is not encrypted.
     public let additionalAuthenticatedData: Data?
     
+    /// Generates a compact serialization of the `JWE` object.
+    /// This serialization is a string representation consisting of base64url-encoded values separated by periods.
+    /// - Returns: A compact serialized string representation of the JWE object.
+    public var compactSerialization: String {
+        return [
+            Base64URL.encode(protectedHeaderData),
+            Base64URL.encode(encryptedKey ?? .init()),
+            Base64URL.encode(initializationVector ?? .init()),
+            Base64URL.encode(cipher),
+            Base64URL.encode(authenticationTag ?? .init())
+        ].joined(separator: ".")
+    }
+    
     /// Initializes a new `JWE` object with the specified parameters.
     /// - Parameters:
     ///   - protectedHeader: The protected header with registered fields.
@@ -106,18 +119,5 @@ public struct JWE: Sendable {
             authenticationTag: authenticationTag,
             additionalAuthenticatedData: nil
         )
-    }
-    
-    /// Generates a compact serialization of the `JWE` object.
-    /// This serialization is a string representation consisting of base64url-encoded values separated by periods.
-    /// - Returns: A compact serialized string representation of the JWE object.
-    public func compactSerialization() -> String {
-        return [
-            Base64URL.encode(protectedHeaderData),
-            Base64URL.encode(encryptedKey ?? .init()),
-            Base64URL.encode(initializationVector ?? .init()),
-            Base64URL.encode(cipher),
-            Base64URL.encode(authenticationTag ?? .init())
-        ].joined(separator: ".")
     }
 }
