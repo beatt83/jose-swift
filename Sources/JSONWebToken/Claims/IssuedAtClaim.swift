@@ -17,7 +17,7 @@
 import Foundation
 
 /// A type alias for `IssuedAtClaim`.
-typealias IatClaim = IssuedAtClaim
+public typealias IatClaim = IssuedAtClaim
 
 /// Represents the "iat" (issued at) claim in a JWT.
 public struct IssuedAtClaim: JWTRegisteredClaim {

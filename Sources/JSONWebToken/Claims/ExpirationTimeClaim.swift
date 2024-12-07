@@ -17,7 +17,7 @@
 import Foundation
 
 /// A type alias for `ExpirationTimeClaim`.
-typealias ExpClaim = ExpirationTimeClaim
+public typealias ExpClaim = ExpirationTimeClaim
 
 /// Represents the "exp" (expiration time) claim in a JWT.
 public struct ExpirationTimeClaim: JWTRegisteredClaim {

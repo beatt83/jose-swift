@@ -17,7 +17,7 @@
 import Foundation
 
 /// A type alias for `AudienceClaim`.
-typealias AudClaim = AudienceClaim
+public typealias AudClaim = AudienceClaim
 
 /// Represents the "aud" (audience) claim in a JWT.
 public struct AudienceClaim: JWTRegisteredClaim {

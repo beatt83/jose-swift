@@ -17,7 +17,7 @@
 import Foundation
 
 /// A type alias for `IssuerClaim`.
-typealias IssClaim = IssuerClaim
+public typealias IssClaim = IssuerClaim
 
 /// Represents the "iss" (issuer) claim in a JWT.
 public struct IssuerClaim: JWTRegisteredClaim {
