@@ -342,6 +342,15 @@ extension Curve25519.Signing.PrivateKey: JWKRepresentable {
     }
 }
 
+extension SymmetricKey: JWKRepresentable {
+    public var jwkRepresentation: JWK {
+        JWK(
+            keyType: .octetSequence,
+            key: Data(bytes)
+        )
+    }
+}
+
 extension Curve25519.Signing.PublicKey: JWKRepresentable {
     /// Returns the JWK representation of a `Curve25519.KeyAgreement.PublicKey` instance.
     public var jwkRepresentation: JWK {
@@ -359,6 +368,8 @@ extension CryptoSwift.RSA: JWKRepresentable {
         JWK(
             keyType: .rsa,
             e: e.serialize(),
+            p: primes?.p.serialize(),
+            q: primes?.q.serialize(),
             n: n.serialize(),
             d: d?.serialize()
         )

@@ -34,7 +34,8 @@ let package = Package(
         // For `secp256k1` support
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.8.1"))
+        // Changing to a fork I made while I create a PR, since I found a bug
+        .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5"))
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
     ],
     targets: [
@@ -97,6 +98,10 @@ let package = Package(
         .testTarget(
             name: "JWTTests",
             dependencies: ["JSONWebToken", "Tools"]
+        ),
+        .testTarget(
+            name: "ExampleTests",
+            dependencies: ["JSONWebToken", "JSONWebKey", "JSONWebEncryption", "JSONWebSignature", "Tools"]
         ),
         .target(
             name: "Tools"
