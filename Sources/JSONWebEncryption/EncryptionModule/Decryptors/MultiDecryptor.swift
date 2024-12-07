@@ -32,7 +32,6 @@ struct MultiDecryptor: JWEMultiDecryptor {
         authenticationTag: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?,
         additionalAuthenticationData: Data?,
         tryAllRecipients: Bool,
         password: Data? = nil,
@@ -40,7 +39,7 @@ struct MultiDecryptor: JWEMultiDecryptor {
     ) throws -> Data {
         let aad = try AAD.computeAAD(header: protectedHeader, aad: additionalAuthenticationData)
         
-        guard let key = recipientKey ?? sharedKey else {
+        guard let key = recipientKey else {
             throw JWE.JWEError.missingRecipientKey
         }
         
@@ -64,8 +63,7 @@ struct MultiDecryptor: JWEMultiDecryptor {
                     authenticationTag: authenticationTag,
                     additionalAuthenticationData: aad,
                     senderKey: senderKey,
-                    recipientKey: recipientKey,
-                    sharedKey: sharedKey
+                    recipientKey: recipientKey
                 )) != nil
             }
             
@@ -91,8 +89,7 @@ struct MultiDecryptor: JWEMultiDecryptor {
                 authenticationTag: authenticationTag,
                 additionalAuthenticationData: aad,
                 senderKey: senderKey,
-                recipientKey: recipientKey,
-                sharedKey: sharedKey
+                recipientKey: recipientKey
             )
         }
         
@@ -123,8 +120,7 @@ struct MultiDecryptor: JWEMultiDecryptor {
             authenticationTag: authenticationTag,
             additionalAuthenticationData: aad,
             senderKey: senderKey,
-            recipientKey: recipientKey,
-            sharedKey: sharedKey
+            recipientKey: recipientKey
         )
     }
 }

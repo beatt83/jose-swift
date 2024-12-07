@@ -55,7 +55,6 @@ final class PBES2Tests: XCTestCase {
             additionalAuthenticationData: encryption.additionalAuthenticationData,
             senderKey: nil,
             recipientKey: nil,
-            sharedKey: nil,
             password: password
         )
         
@@ -97,7 +96,6 @@ final class PBES2Tests: XCTestCase {
             additionalAuthenticationData: encryption.additionalAuthenticationData,
             senderKey: nil,
             recipientKey: nil,
-            sharedKey: nil,
             password: password
         )
         
@@ -139,7 +137,6 @@ final class PBES2Tests: XCTestCase {
             additionalAuthenticationData: encryption.additionalAuthenticationData,
             senderKey: nil,
             recipientKey: nil,
-            sharedKey: nil,
             password: password
         )
         

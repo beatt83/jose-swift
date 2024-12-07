@@ -515,7 +515,6 @@ final class ExamplesTests: XCTestCase {
             protectedHeader: header,
             senderKey: nil,
             recipientKey: nil,
-            sharedKey: nil,
             cek: cek
         )
 
@@ -543,8 +542,7 @@ final class ExamplesTests: XCTestCase {
             },
             protectedHeader: header,
             senderKey: nil,
-            recipientKey: publicKey,
-            sharedKey: nil
+            recipientKey: publicKey
         )
 
         // Output the encrypted JWT string:

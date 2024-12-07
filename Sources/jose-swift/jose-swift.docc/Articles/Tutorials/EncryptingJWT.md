@@ -30,7 +30,6 @@ let encryptedJWT = try JWT.encrypt(
     protectedHeader: header,
     senderKey: nil,
     recipientKey: nil,
-    sharedKey: nil,
     cek: cek
 )
 
@@ -65,8 +64,7 @@ let encryptedJWT = try JWT.encrypt(
     },
     protectedHeader: header,
     senderKey: nil,
-    recipientKey: publicKey,
-    sharedKey: nil
+    recipientKey: publicKey
 )
 
 // Output the encrypted JWT string:

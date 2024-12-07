@@ -38,7 +38,6 @@ public protocol JWEDecryptor: Sendable {
     ///   - additionalAuthenticationData: Additional authenticated data.
     ///   - senderKey: Optional sender's key.
     ///   - recipientKey: Optional recipient's key.
-    ///   - sharedKey: Optional shared key.
     ///   - password: Optional password for key derivation.
     /// - Returns: Decrypted data as `Data`.
     /// - Throws: Encryption related errors.
@@ -53,7 +52,6 @@ public protocol JWEDecryptor: Sendable {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?,
         password: Data?
     ) throws -> Data
 }
@@ -70,7 +68,6 @@ public protocol JWEMultiDecryptor: Sendable {
     ///   - authenticationTag: Authentication tag for verifying the integrity of the decrypted data.
     ///   - senderKey: Optional sender's key.
     ///   - recipientKey: Optional recipient's key.
-    ///   - sharedKey: Optional shared key.
     ///   - additionalAuthenticationData: Additional authenticated data.
     ///   - tryAllRecipients: Flag to attempt decryption with all provided recipient keys.
     ///   - password: Optional password for key derivation.
@@ -86,7 +83,6 @@ public protocol JWEMultiDecryptor: Sendable {
         authenticationTag: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?,
         additionalAuthenticationData: Data?,
         tryAllRecipients: Bool,
         password: Data?,
@@ -109,7 +105,6 @@ public extension JWEDecryptor {
     ///   - additionalAuthenticationData: Additional authenticated data (optional).
     ///   - senderKey: Sender's key (optional).
     ///   - recipientKey: Recipient's key (optional).
-    ///   - sharedKey: Shared key (optional).
     ///   - password: Password for key derivation (optional).
     /// - Returns: Decrypted data as `Data`.
     /// - Throws: Encryption related errors.
@@ -128,7 +123,6 @@ public extension JWEDecryptor {
         additionalAuthenticationData: Data? = nil,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
         password: Data? = nil
     ) throws -> Data {
         try self.decrypt(
@@ -142,7 +136,6 @@ public extension JWEDecryptor {
             additionalAuthenticationData: additionalAuthenticationData,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey,
             password: password
         )
     }
@@ -159,7 +152,6 @@ public extension JWEDecryptor {
     ///   - additionalAuthenticationData: Additional authenticated data (optional).
     ///   - senderKey: Sender's key (optional).
     ///   - recipientKey: Recipient's key (optional).
-    ///   - sharedKey: Shared key (optional).
     ///   - password: Password for key derivation (optional).
     /// - Returns: Decrypted data as `Data`.
     /// - Throws: Encryption related errors.
@@ -176,7 +168,6 @@ public extension JWEDecryptor {
         additionalAuthenticationData: Data? = nil,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
         password: Data? = nil
     ) throws -> Data {
         let aad = try AAD.computeAAD(header: encodedProtectedHeader, aad: additionalAuthenticationData)
@@ -194,7 +185,6 @@ public extension JWEDecryptor {
             additionalAuthenticationData: aad,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey,
             password: password
         )
     }
@@ -213,7 +203,6 @@ public extension JWEMultiDecryptor {
     ///   - authenticationTag: Authentication tag (optional).
     ///   - senderKey: Sender's key (optional).
     ///   - recipientKey: Recipient's key (optional).
-    ///   - sharedKey: Shared key (optional).
     ///   - additionalAuthenticationData: Additional authenticated data (optional).
     ///   - tryAllRecipients: Flag to attempt decryption with all provided recipient keys (optional).
     ///   - password: Password for key derivation (optional).
@@ -233,7 +222,6 @@ public extension JWEMultiDecryptor {
         authenticationTag: Data? = nil,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
         additionalAuthenticationData: Data? = nil,
         tryAllRecipients: Bool = false,
         password: Data? = nil,
@@ -248,7 +236,6 @@ public extension JWEMultiDecryptor {
             authenticationTag: authenticationTag,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey,
             additionalAuthenticationData: additionalAuthenticationData,
             tryAllRecipients: tryAllRecipients,
             password: password,
@@ -266,7 +253,6 @@ public extension JWEMultiDecryptor {
     ///   - authenticationTag: Authentication tag (optional).
     ///   - senderKey: Sender's key (optional).
     ///   - recipientKey: Recipient's key (optional).
-    ///   - sharedKey: Shared key (optional).
     ///   - additionalAuthenticationData: Additional authenticated data (optional).
     ///   - tryAllRecipients: Flag to attempt decryption with all provided recipient keys (optional).
     ///   - password: Password for key derivation (optional).
@@ -284,7 +270,6 @@ public extension JWEMultiDecryptor {
         authenticationTag: Data? = nil,
         senderKey: JWK? = nil,
         recipientKey: JWK? = nil,
-        sharedKey: JWK? = nil,
         additionalAuthenticationData: Data?,
         tryAllRecipients: Bool = false,
         password: Data? = nil,
@@ -302,7 +287,6 @@ public extension JWEMultiDecryptor {
             authenticationTag: authenticationTag,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey,
             additionalAuthenticationData: aad,
             tryAllRecipients: tryAllRecipients,
             password: password,

@@ -43,7 +43,6 @@ extension JWT {
         jwtString: String,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         nestedKeys: [KeyRepresentable] = [],
         expectedIssuer: String? = nil,
         expectedAudience: String? = nil
@@ -61,7 +60,6 @@ extension JWT {
                         jwtString: jws.payload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
-                        sharedKey: sharedKey,
                         nestedKeys: nestedKeys,
                         expectedIssuer: expectedIssuer,
                         expectedAudience: expectedAudience
@@ -72,7 +70,6 @@ extension JWT {
                     jwtString: jws.payload.tryToString(),
                     senderKey: key,
                     recipientKey: nil,
-                    sharedKey: sharedKey,
                     nestedKeys: nestedKeys,
                     expectedIssuer: expectedIssuer,
                     expectedAudience: expectedAudience
@@ -94,8 +91,7 @@ extension JWT {
             
             let decryptedPayload = try jwe.decrypt(
                 senderKey: senderKey,
-                recipientKey: recipientKey,
-                sharedKey: sharedKey
+                recipientKey: recipientKey
             )
             
             if jwe.protectedHeader.contentType == "JWT" {
@@ -107,7 +103,6 @@ extension JWT {
                         jwtString: decryptedPayload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
-                        sharedKey: sharedKey,
                         nestedKeys: nestedKeys,
                         expectedIssuer: expectedIssuer,
                         expectedAudience: expectedAudience
@@ -118,7 +113,6 @@ extension JWT {
                     jwtString: decryptedPayload.tryToString(),
                     senderKey: senderKey,
                     recipientKey: key,
-                    sharedKey: sharedKey,
                     nestedKeys: nestedKeys,
                     expectedIssuer: expectedIssuer,
                     expectedAudience: expectedAudience
@@ -158,7 +152,6 @@ extension JWT {
         signerKey: KeyRepresentable? = nil,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         nestedKeys: [KeyRepresentable] = [],
         expectedIssuer: String? = nil,
         expectedAudience: String? = nil
@@ -176,7 +169,6 @@ extension JWT {
                         jwtString: jws.payload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
-                        sharedKey: sharedKey,
                         nestedKeys: nestedKeys,
                         expectedIssuer: expectedIssuer,
                         expectedAudience: expectedAudience
@@ -187,7 +179,6 @@ extension JWT {
                     jwtString: jws.payload.tryToString(),
                     senderKey: key,
                     recipientKey: nil,
-                    sharedKey: sharedKey,
                     nestedKeys: nestedKeys,
                     expectedIssuer: expectedIssuer,
                     expectedAudience: expectedAudience
@@ -209,8 +200,7 @@ extension JWT {
             
             let decryptedPayload = try jwe.decrypt(
                 senderKey: senderKey,
-                recipientKey: recipientKey,
-                sharedKey: sharedKey
+                recipientKey: recipientKey
             )
             
             if jwe.protectedHeader.contentType == "JWT" {
@@ -222,7 +212,6 @@ extension JWT {
                         jwtString: decryptedPayload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
-                        sharedKey: sharedKey,
                         nestedKeys: nestedKeys,
                         expectedIssuer: expectedIssuer,
                         expectedAudience: expectedAudience
@@ -233,7 +222,6 @@ extension JWT {
                     jwtString: decryptedPayload.tryToString(),
                     senderKey: senderKey,
                     recipientKey: key,
-                    sharedKey: sharedKey,
                     nestedKeys: nestedKeys,
                     expectedIssuer: expectedIssuer,
                     expectedAudience: expectedAudience
@@ -256,7 +244,6 @@ extension JWT {
         jwtString: String,
         senderKey: KeyRepresentable?,
         recipientKey: KeyRepresentable?,
-        sharedKey: KeyRepresentable?,
         nestedKeys: [KeyRepresentable],
         expectedIssuer: String?,
         expectedAudience: String?
@@ -269,7 +256,6 @@ extension JWT {
                         jwtString: jwtString,
                         senderKey: key,
                         recipientKey: recipientKey,
-                        sharedKey: sharedKey,
                         nestedKeys: nestedKeys,
                         expectedIssuer: expectedIssuer,
                         expectedAudience: expectedAudience
@@ -279,7 +265,6 @@ extension JWT {
                         jwtString: jwtString,
                         senderKey: senderKey,
                         recipientKey: key,
-                        sharedKey: key,
                         nestedKeys: nestedKeys,
                         expectedIssuer: expectedIssuer,
                         expectedAudience: expectedAudience

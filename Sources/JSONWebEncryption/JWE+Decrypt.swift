@@ -56,14 +56,12 @@ extension JWE {
     /// - Parameters:
     ///   - senderKey: The sender's key, if applicable. Used in certain key agreement protocols.
     ///   - recipientKey: The recipient's key, if applicable. Typically used for asymmetric decryption.
-    ///   - sharedKey: A shared key, if applicable. Used for symmetric decryption.
     ///   - password: An optional password for decryption algorithms that require it.
     /// - Returns: The decrypted data as `Data`.
     /// - Throws: `JWEError` for errors related to missing algorithms, keys, or failed decryption.
     public func decrypt(
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
@@ -84,7 +82,6 @@ extension JWE {
             additionalAuthenticationData: additionalAuthenticatedData,
             senderKey: senderKey.map { try prepareJWK(key: $0) },
             recipientKey: recipientKey.map { try prepareJWK(key: $0) },
-            sharedKey: sharedKey.map { try prepareJWK(key: $0) },
             password: password
         )
     }
@@ -101,7 +98,6 @@ extension JWE {
     ///   - compactString: The compact serialization string of the JWE.
     ///   - senderKey: The sender's key, if applicable.
     ///   - recipientKey: The recipient's key, if applicable.
-    ///   - sharedKey: A shared key, if applicable.
     ///   - password: An optional password for decryption algorithms that require it.
     /// - Returns: The decrypted data as `Data`.
     /// - Throws: `JWEError` for errors related to parsing the compact string, missing algorithms, keys, or failed decryption.
@@ -109,14 +105,12 @@ extension JWE {
         compactString: String,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil
     ) throws -> Data {
         try JWE(compactString: compactString)
             .decrypt(
                 senderKey: senderKey,
                 recipientKey: recipientKey,
-                sharedKey: sharedKey,
                 password: password
             )
     }
@@ -133,7 +127,6 @@ extension JWE {
     ///   - jweJson: The JSON data representing the JWE.
     ///   - senderKey: The sender's key, if applicable.
     ///   - recipientKey: The recipient's key, if applicable.
-    ///   - sharedKey: A shared key, if applicable.
     ///   - password: An optional password for decryption algorithms that require it.
     ///   - tryAllRecipients: A flag to try all recipient keys in the JSON data for decryption.
     /// - Returns: The decrypted data as `Data`.
@@ -142,7 +135,6 @@ extension JWE {
         jweJson: Data,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil,
         tryAllRecipients: Bool = false
     ) throws -> Data {
@@ -151,7 +143,6 @@ extension JWE {
             jweJson: jsonObj,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey,
             password: password,
             tryAllRecipients: tryAllRecipients
         )
@@ -169,7 +160,6 @@ extension JWE {
     ///   - jweJson: The `JWEJson` object representing the JWE.
     ///   - senderKey: The sender's key, if applicable.
     ///   - recipientKey: The recipient's key, if applicable.
-    ///   - sharedKey: A shared key, if applicable.
     ///   - password: An optional password for decryption algorithms that require it.
     ///   - tryAllRecipients: A flag to try all recipient keys in the `JWEJson` object for decryption.
     /// - Returns: The decrypted data as `Data`.
@@ -182,7 +172,6 @@ extension JWE {
         jweJson: JWEJson<P, U, R>,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         password: Data? = nil,
         tryAllRecipients: Bool = false
     ) throws -> Data {
@@ -200,7 +189,6 @@ extension JWE {
             authenticationTag: jweJson.authenticationTag,
             senderKey: senderKey.map { try prepareJWK(key: $0) },
             recipientKey: recipientKey.map { try prepareJWK(key: $0) },
-            sharedKey: sharedKey.map { try prepareJWK(key: $0) },
             additionalAuthenticationData: aad,
             tryAllRecipients: tryAllRecipients, 
             password: password
