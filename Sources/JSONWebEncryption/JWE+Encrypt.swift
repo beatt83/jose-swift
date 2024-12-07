@@ -45,6 +45,7 @@ extension JWE {
         payload: Data,
         keyManagementAlg: KeyManagementAlgorithm,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
+        compressionAlgorithm: ContentCompressionAlgorithm? = nil,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
         cek: Data? = nil,
@@ -57,7 +58,7 @@ extension JWE {
         let protectedHeader = DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyManagementAlg,
             encodingAlgorithm: encryptionAlgorithm,
-            compressionAlgorithm: nil
+            compressionAlgorithm: compressionAlgorithm
         )
         
         let parts = try JWE.encryptionModule.encryptor(alg: keyManagementAlg).encrypt(
@@ -184,6 +185,7 @@ extension JWE {
         payload: Data,
         keyManagementAlg: KeyManagementAlgorithm,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
+        compressionAlgorithm: ContentCompressionAlgorithm? = nil,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
@@ -195,7 +197,8 @@ extension JWE {
     ) throws {
         let protectedHeader = DefaultJWEHeaderImpl(
             keyManagementAlgorithm: keyManagementAlg,
-            encodingAlgorithm: encryptionAlgorithm
+            encodingAlgorithm: encryptionAlgorithm,
+            compressionAlgorithm: compressionAlgorithm
         )
         
         try self.init(
@@ -314,6 +317,7 @@ extension JWE {
     public static func jsonSerialization<U: JWERegisteredFieldsHeader>(
         payload: Data,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
+        compressionAlgorithm: ContentCompressionAlgorithm? = nil,
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable? = nil,
         recipients: [(alg: KeyManagementAlgorithm, key: KeyRepresentable)],
@@ -326,7 +330,7 @@ extension JWE {
     ) throws -> JWEJson<DefaultJWEHeaderImpl, U, DefaultJWEHeaderImpl> {
         let protectedHeader = DefaultJWEHeaderImpl(
             encodingAlgorithm: encryptionAlgorithm,
-            compressionAlgorithm: nil
+            compressionAlgorithm: compressionAlgorithm
         )
         
         return try jsonSerialization(
@@ -370,6 +374,7 @@ extension JWE {
     public static func jsonSerialization(
         payload: Data,
         encryptionAlgorithm: ContentEncryptionAlgorithm,
+        compressionAlgorithm: ContentCompressionAlgorithm? = nil,
         senderKey: KeyRepresentable? = nil,
         recipients: [(alg: KeyManagementAlgorithm, key: KeyRepresentable)],
         cek: Data? = nil,
@@ -382,6 +387,7 @@ extension JWE {
         return try jsonSerialization(
             payload: payload,
             encryptionAlgorithm: encryptionAlgorithm,
+            compressionAlgorithm: compressionAlgorithm,
             unprotectedHeader: nil,
             senderKey: senderKey,
             recipients: recipients,
@@ -450,12 +456,12 @@ extension JWE {
 
 func prepareJWK(key: KeyRepresentable?) throws -> JWK {
     switch key {
-    case let value as SecKey:
-        return try SecKeyExtended(secKey: value).jwk()
     case let value as JWK:
         return value
     case let value as JWKRepresentable:
         return value.jwkRepresentation
+    case let value as SecKey:
+        return try SecKeyExtended(secKey: value).jwk()
     default:
         throw CryptoError.keyFormatNotSupported(format: String(describing: key.self), supportedFormats: ["JWK", "SecKey", "JWKRepresentable"])
     }
