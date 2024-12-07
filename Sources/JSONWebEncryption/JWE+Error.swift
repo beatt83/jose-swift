@@ -20,7 +20,7 @@ import JSONWebKey
 
 extension JWE {
     /// `JWEError` is an enumeration representing various errors that can occur during the JSON Web Encryption (JWE) processes.
-    enum JWEError: LocalizedError {
+    public enum JWEError: LocalizedError {
         /// Error indicating that decryption is not supported for the specified algorithms.
         /// - Parameters:
         ///   - alg: The key management algorithm used or attempted to be used.

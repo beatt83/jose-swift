@@ -18,7 +18,7 @@ import Foundation
 
 extension JWT {
     /// `JWTError` is an enumeration representing various errors that can occur while processing JSON Web Tokens (JWTs).
-    enum JWTError: LocalizedError {
+    public enum JWTError: LocalizedError {
         /// General error case when something goes wrong but the exact reason is unspecified or unknown.
         case somethingWentWrong
 
