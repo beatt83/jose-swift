@@ -40,20 +40,23 @@ public struct RSAOAEP256KeyUnwrap: KeyUnwrapping {
         guard let e = using.e else {
             throw JWK.Error.missingEComponent
         }
-        guard let d = using.d else {
-            throw JWK.Error.missingDComponent
+
+        let rsaPrivateKey: CryptoSwift.RSA
+        if let p = using.p, let q = using.q, let d = using.d {
+            rsaPrivateKey = try CryptoSwift.RSA(
+                n: BigUInteger(n),
+                e: BigUInteger(e),
+                d: BigUInteger(d),
+                p: BigUInteger(p),
+                q: BigUInteger(q)
+            )
+        } else {
+            rsaPrivateKey = CryptoSwift.RSA(
+                n: BigUInteger(n),
+                e: BigUInteger(e),
+                d: using.d.map { BigUInteger($0) }
+            )
         }
-        guard let p = using.p, let q = using.q else {
-            throw JWK.Error.missingPrimesComponent
-        }
-        
-        let rsaPrivateKey = try CryptoSwift.RSA(
-            n: BigUInteger(n),
-            e: BigUInteger(e),
-            d: BigUInteger(d),
-            p: BigUInteger(p),
-            q: BigUInteger(q)
-        )
         let derEncodedRSAPrivateKey = try rsaPrivateKey.externalRepresentation()
         let attributes: [String: Any] = [
             kSecAttrKeyType as String: kSecAttrKeyTypeRSA,

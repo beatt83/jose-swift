@@ -20,10 +20,11 @@ import Security
 
 extension RSA {
     func getSecKey() throws -> SecKey {
+        // CryptoSwift doesnt make much sense here, if you call externalRepresentation the condiction for public or private is if the primes exist
         let raw = try externalRepresentation()
         let attributes: [String: Any] = [
           kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-          kSecAttrKeyClass as String: d != nil ? kSecAttrKeyClassPrivate : kSecAttrKeyClassPublic,
+          kSecAttrKeyClass as String: d == nil ? kSecAttrKeyClassPublic : kSecAttrKeyClassPrivate,
           kSecAttrKeySizeInBits as String: keySize,
           kSecAttrIsPermanent as String: false
         ]

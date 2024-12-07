@@ -40,35 +40,24 @@ public struct RSAOAEPKeyUnwrap: KeyUnwrapping {
         guard let e = using.e else {
             throw JWK.Error.missingEComponent
         }
-        guard let d = using.d else {
-            throw JWK.Error.missingDComponent
-        }
-        guard let p = using.p, let q = using.q else {
-            throw JWK.Error.missingPrimesComponent
+        let rsaPrivateKey: CryptoSwift.RSA
+        if let p = using.p, let q = using.q, let d = using.d {
+            rsaPrivateKey = try CryptoSwift.RSA(
+                n: BigUInteger(n),
+                e: BigUInteger(e),
+                d: BigUInteger(d),
+                p: BigUInteger(p),
+                q: BigUInteger(q)
+            )
+        } else {
+            rsaPrivateKey = CryptoSwift.RSA(
+                n: BigUInteger(n),
+                e: BigUInteger(e),
+                d: using.d.map { BigUInteger($0) }
+            )
         }
         
-        let rsaPrivateKey = try CryptoSwift.RSA(
-            n: BigUInteger(n),
-            e: BigUInteger(e),
-            d: BigUInteger(d),
-            p: BigUInteger(p),
-            q: BigUInteger(q)
-        )
-        let derEncodedRSAPrivateKey = try rsaPrivateKey.externalRepresentation()
-        let attributes: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-            kSecAttrKeyClass as String: kSecAttrKeyClassPrivate,
-            kSecAttrKeySizeInBits as String: n.count * 8,
-            kSecAttrIsPermanent as String: false,
-        ]
-        var error: Unmanaged<CFError>?
-        guard let rsaSecKey = SecKeyCreateWithData(
-            derEncodedRSAPrivateKey as CFData,
-            attributes as CFDictionary,
-            &error
-        ) else {
-            throw CryptoError.securityLayerError(internalStatus: nil, internalError: error?.takeRetainedValue())
-        }
+        let rsaSecKey = try rsaPrivateKey.getSecKey()
         let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA1
         var decryptionError: Unmanaged<CFError>?
         guard let plaintext = SecKeyCreateDecryptedData(
