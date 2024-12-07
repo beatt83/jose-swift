@@ -50,7 +50,6 @@ struct RSAJWEDecryptor: JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?,
         password: Data?
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(

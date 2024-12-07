@@ -33,7 +33,6 @@ extension JWT {
     ///   - unprotectedHeader: An optional header with fields that will be unprotected (not encrypted).
     ///   - senderKey: An optional `JWK` representing the sender's key.
     ///   - recipientKey: An optional `JWK` representing the recipient's key.
-    ///   - sharedKey: An optional shared symmetric key used in key agreement protocols.
     ///   - cek: An optional content encryption key.
     ///   - initializationVector: An optional initialization vector for the encryption algorithm.
     ///   - additionalAuthenticationData: Optional additional data authenticated along with the payload.
@@ -48,7 +47,6 @@ extension JWT {
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable?,
         recipientKey: KeyRepresentable?,
-        sharedKey: KeyRepresentable?,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil
@@ -89,7 +87,6 @@ extension JWT {
     ///   - unprotectedHeader: An optional header conforming to `JWERegisteredFieldsHeader` that specifies the unprotected header fields.
     ///   - senderKey: An optional `KeyRepresentable` representing the sender's key, used in key agreement protocols or authenticated encryption schemes.
     ///   - recipientKey: A `KeyRepresentable` representing the recipient's key. This key is necessary to decrypt and unwrap the Content Encryption Key (CEK).
-    ///   - sharedKey: An optional `KeyRepresentable` representing a shared symmetric key used in key agreement protocols.
     ///   - cek: An optional Content Encryption Key (`Data`). If not provided, one will be automatically generated.
     ///   - initializationVector: An optional initialization vector (`Data`) for the encryption algorithm. If not provided, one will be generated.
     ///   - additionalAuthenticationData: Optional additional data that will be authenticated but not encrypted. This helps ensure the integrity of any external data.
@@ -109,7 +106,6 @@ extension JWT {
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable?,
         recipientKey: KeyRepresentable?,
-        sharedKey: KeyRepresentable?,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil
@@ -279,7 +275,6 @@ extension JWT {
     ///   - unprotectedHeader: An optional header with fields that will be unprotected (not encrypted) in the outer JWE layer.
     ///   - senderKey: An optional `JWK` representing the sender's key for the outer JWE layer.
     ///   - recipientKey: An optional `JWK` representing the recipient's key for the outer JWE layer.
-    ///   - sharedKey: An optional shared symmetric key used in key agreement protocols for the outer JWE layer.
     ///   - cek: An optional content encryption key for the outer JWE layer.
     ///   - initializationVector: An optional initialization vector for the outer JWE encryption algorithm.
     ///   - additionalAuthenticationData: Optional additional data authenticated along with the payload for the outer JWE layer.
@@ -294,7 +289,6 @@ extension JWT {
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil
@@ -333,7 +327,6 @@ extension JWT {
     ///   - unprotectedHeader: An optional header with fields that will be unprotected (not encrypted) in the outer JWE layer.
     ///   - senderKey: An optional `JWK` representing the sender's key for the outer JWE layer.
     ///   - recipientKey: An optional `JWK` representing the recipient's key for the outer JWE layer.
-    ///   - sharedKey: An optional shared symmetric key used in key agreement protocols for the outer JWE layer.
     ///   - cek: An optional content encryption key for the outer JWE layer.
     ///   - initializationVector: An optional initialization vector for the outer JWE encryption algorithm.
     ///   - additionalAuthenticationData: Optional additional data authenticated along with the payload for the outer JWE layer.
@@ -341,7 +334,6 @@ extension JWT {
     ///   - nestedUnprotectedHeader: An optional header with fields that will be unprotected (not encrypted) in the inner JWE layer.
     ///   - nestedSenderKey: An optional `JWK` representing the sender's key for the inner JWE layer.
     ///   - nestedRecipientKey: An optional `JWK` representing the recipient's key for the inner JWE layer.
-    ///   - nestedSharedKey: An optional shared symmetric key used in key agreement protocols for the inner JWE layer.
     ///   - nestedCek: An optional content encryption key for the inner JWE layer.
     ///   - nestedInitializationVector: An optional initialization vector for the inner JWE encryption algorithm.
     ///   - nestedAdditionalAuthenticationData: Optional additional data authenticated along with the payload for the inner JWE layer.
@@ -358,7 +350,6 @@ extension JWT {
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -366,7 +357,6 @@ extension JWT {
         nestedUnprotectedHeader: NU? = nil as DefaultJWEHeaderImpl?,
         nestedSenderKey: KeyRepresentable? = nil,
         nestedRecipientKey: KeyRepresentable? = nil,
-        nestedSharedKey: KeyRepresentable? = nil,
         nestedCek: Data? = nil,
         nestedInitializationVector: Data? = nil,
         nestedAdditionalAuthenticationData: Data? = nil
@@ -377,7 +367,6 @@ extension JWT {
             unprotectedHeader: nestedUnprotectedHeader,
             senderKey: nestedSenderKey,
             recipientKey: nestedRecipientKey,
-            sharedKey: nestedSharedKey,
             cek: nestedCek,
             initializationVector: nestedInitializationVector,
             additionalAuthenticationData: nestedAdditionalAuthenticationData
@@ -389,7 +378,6 @@ extension JWT {
             unprotectedHeader: unprotectedHeader,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey,
             cek: cek,
             initializationVector: initializationVector,
             additionalAuthenticationData: additionalAuthenticationData
@@ -407,7 +395,6 @@ extension JWT {
         unprotectedHeader: U? = nil as DefaultJWEHeaderImpl?,
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
-        sharedKey: KeyRepresentable? = nil,
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil,
@@ -415,7 +402,6 @@ extension JWT {
         nestedUnprotectedHeader: NU? = nil as DefaultJWEHeaderImpl?,
         nestedSenderKey: KeyRepresentable? = nil,
         nestedRecipientKey: KeyRepresentable? = nil,
-        nestedSharedKey: KeyRepresentable? = nil,
         nestedCek: Data? = nil,
         nestedInitializationVector: Data? = nil,
         nestedAdditionalAuthenticationData: Data? = nil
@@ -426,7 +412,6 @@ extension JWT {
             unprotectedHeader: nestedUnprotectedHeader,
             senderKey: nestedSenderKey,
             recipientKey: nestedRecipientKey,
-            sharedKey: nestedSharedKey,
             cek: nestedCek,
             initializationVector: nestedInitializationVector,
             additionalAuthenticationData: nestedAdditionalAuthenticationData
@@ -438,7 +423,6 @@ extension JWT {
             unprotectedHeader: unprotectedHeader,
             senderKey: senderKey,
             recipientKey: recipientKey,
-            sharedKey: sharedKey,
             cek: cek,
             initializationVector: initializationVector,
             additionalAuthenticationData: additionalAuthenticationData

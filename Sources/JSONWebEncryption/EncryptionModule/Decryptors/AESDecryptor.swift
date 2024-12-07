@@ -53,7 +53,6 @@ struct AESJWEDecryptor: JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?,
         password: Data?
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(
@@ -87,7 +86,7 @@ struct AESJWEDecryptor: JWEDecryptor {
             )
         }
         
-        guard let kek = sharedKey ?? recipientKey else{
+        guard let kek = recipientKey else{
             throw JWE.JWEError.missingKek
         }
         

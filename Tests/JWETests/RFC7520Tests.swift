@@ -469,8 +469,7 @@ final class RFC7520Tests: XCTestCase {
         
         let decrypted = try JWE.decrypt(
             compactString: serialization,
-            recipientKey: recipientJWK,
-            sharedKey: sharedSymmetricKey
+            recipientKey: sharedSymmetricKey
         )
         
         XCTAssertEqual(payload, decrypted)
@@ -494,8 +493,7 @@ final class RFC7520Tests: XCTestCase {
         
         let decryptedTestVector = try JWE.decrypt(
             compactString: expectedSerializationTestVector,
-            recipientKey: recipientJWK,
-            sharedKey: sharedSymmetricKey
+            recipientKey: sharedSymmetricKey
         )
         
         XCTAssertEqual(payload, decryptedTestVector)
@@ -733,8 +731,7 @@ final class RFC7520Tests: XCTestCase {
         let decrypted = try JWE.decrypt(
             jweJson: try JSONEncoder.jose.encode(serialization),
             senderKey: nil,
-            recipientKey: recipientJWK,
-            sharedKey: nil
+            recipientKey: recipientJWK
         )
         
         XCTAssertEqual(payload, decrypted)
@@ -769,8 +766,7 @@ final class RFC7520Tests: XCTestCase {
         let decryptedTestVector = try JWE.decrypt(
             jweJson: expectedSerializationTestVector,
             senderKey: nil,
-            recipientKey: recipientJWK,
-            sharedKey: nil
+            recipientKey: recipientJWK
         )
         
         XCTAssertEqual(payload, decryptedTestVector)
@@ -834,8 +830,7 @@ final class RFC7520Tests: XCTestCase {
         let decryptedTestVector = try JWE.decrypt(
             jweJson: expectedSerializationTestVector,
             senderKey: nil,
-            recipientKey: recipientJWK,
-            sharedKey: nil
+            recipientKey: recipientJWK
         )
         
         XCTAssertEqual(payload, decryptedTestVector)
@@ -897,8 +892,7 @@ final class RFC7520Tests: XCTestCase {
         let decryptedTestVector = try JWE.decrypt(
             jweJson: expectedSerializationTestVector,
             senderKey: nil,
-            recipientKey: recipientJWK,
-            sharedKey: nil
+            recipientKey: recipientJWK
         )
         
         XCTAssertEqual(payload, decryptedTestVector)
@@ -1028,22 +1022,19 @@ final class RFC7520Tests: XCTestCase {
         let decryptedRecipient1 = try JWE.decrypt(
             jweJson: jsonData,
             senderKey: nil,
-            recipientKey: recipientJWK1,
-            sharedKey: nil
+            recipientKey: recipientJWK1
         )
         
         let decryptedRecipient2 = try JWE.decrypt(
             jweJson: jsonData,
             senderKey: nil,
-            recipientKey: recipientJWK2,
-            sharedKey: nil
+            recipientKey: recipientJWK2
         )
         
         let decryptedRecipient3 = try JWE.decrypt(
             jweJson: jsonData,
             senderKey: nil,
-            recipientKey: recipientJWK3,
-            sharedKey: nil
+            recipientKey: recipientJWK3
         )
         
         XCTAssertEqual(payload, decryptedRecipient1)
@@ -1113,22 +1104,19 @@ final class RFC7520Tests: XCTestCase {
         let decryptedTestVectorRecipient1 = try JWE.decrypt(
             jweJson: expectedSerializationTestVector,
             senderKey: nil,
-            recipientKey: recipientJWK1,
-            sharedKey: nil
+            recipientKey: recipientJWK1
         )
         
         let decryptedTestVectorRecipient2 = try JWE.decrypt(
             jweJson: expectedSerializationTestVector,
             senderKey: nil,
-            recipientKey: recipientJWK2,
-            sharedKey: nil
+            recipientKey: recipientJWK2
         )
         
         let decryptedTestVectorRecipient3 = try JWE.decrypt(
             jweJson: expectedSerializationTestVector,
             senderKey: nil,
-            recipientKey: recipientJWK3,
-            sharedKey: nil
+            recipientKey: recipientJWK3
         )
         
         XCTAssertEqual(payload, decryptedTestVectorRecipient1)

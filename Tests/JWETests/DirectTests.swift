@@ -47,7 +47,7 @@ final class DirectTests: XCTestCase {
             initializationVector: jwe.initializationVector,
             authenticationTag: jwe.authenticationTag,
             additionalAuthenticationData: jwe.additionalAuthenticationData,
-            sharedKey: .init(keyType: .octetSequence, key: secretKey)
+            recipientKey: .init(keyType: .octetSequence, key: secretKey)
         )
         
         XCTAssertEqual(payload, decrypted)

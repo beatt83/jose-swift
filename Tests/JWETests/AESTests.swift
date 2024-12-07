@@ -47,7 +47,7 @@ final class AESTests: XCTestCase {
             initializationVector: jwe.initializationVector,
             authenticationTag: jwe.authenticationTag,
             additionalAuthenticationData: jwe.additionalAuthenticationData,
-            sharedKey: sharedKey
+            recipientKey: sharedKey
         )
         
         XCTAssertEqual(payload, decrypted)
@@ -79,7 +79,7 @@ final class AESTests: XCTestCase {
             initializationVector: jwe.initializationVector,
             authenticationTag: jwe.authenticationTag,
             additionalAuthenticationData: jwe.additionalAuthenticationData,
-            sharedKey: sharedKey
+            recipientKey: sharedKey
         )
         
         XCTAssertEqual(payload, decrypted)
@@ -111,7 +111,7 @@ final class AESTests: XCTestCase {
             initializationVector: jwe.initializationVector,
             authenticationTag: jwe.authenticationTag,
             additionalAuthenticationData: jwe.additionalAuthenticationData,
-            sharedKey: sharedKey
+            recipientKey: sharedKey
         )
         
         XCTAssertEqual(payload, decrypted)
@@ -143,7 +143,7 @@ final class AESTests: XCTestCase {
             initializationVector: jwe.initializationVector,
             authenticationTag: jwe.authenticationTag,
             additionalAuthenticationData: jwe.additionalAuthenticationData,
-            sharedKey: sharedKey
+            recipientKey: sharedKey
         )
         
         XCTAssertEqual(payload, decrypted)
@@ -175,7 +175,7 @@ final class AESTests: XCTestCase {
             initializationVector: jwe.initializationVector,
             authenticationTag: jwe.authenticationTag,
             additionalAuthenticationData: jwe.additionalAuthenticationData,
-            sharedKey: sharedKey
+            recipientKey: sharedKey
         )
         
         XCTAssertEqual(payload, decrypted)
@@ -207,7 +207,7 @@ final class AESTests: XCTestCase {
             initializationVector: jwe.initializationVector,
             authenticationTag: jwe.authenticationTag,
             additionalAuthenticationData: jwe.additionalAuthenticationData,
-            sharedKey: sharedKey
+            recipientKey: sharedKey
         )
         
         XCTAssertEqual(payload, decrypted)

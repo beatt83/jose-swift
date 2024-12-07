@@ -54,7 +54,6 @@ struct ECDH1PUJWEDecryptor: JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?,
         password: Data?
     ) throws -> Data {
         guard let alg = getKeyAlgorithm(

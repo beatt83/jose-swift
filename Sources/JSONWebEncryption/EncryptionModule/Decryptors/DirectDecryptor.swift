@@ -48,7 +48,6 @@ struct DirectJWEDecryptor: JWEDecryptor {
         additionalAuthenticationData: Data?,
         senderKey: JWK?,
         recipientKey: JWK?,
-        sharedKey: JWK?,
         password: Data?
     ) throws -> Data {
         guard let enc = getEncoding(
@@ -82,7 +81,7 @@ struct DirectJWEDecryptor: JWEDecryptor {
             throw JWE.JWEError.missingContentAuthenticationTag
         }
         
-        guard let cek = sharedKey?.key else {
+        guard let cek = recipientKey?.key else {
             throw JWE.JWEError.missingCek
         }
         
