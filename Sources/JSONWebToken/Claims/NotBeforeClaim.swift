@@ -17,7 +17,7 @@
 import Foundation
 
 /// A type alias for `NotBeforeClaim`.
-typealias NbfClaim = NotBeforeClaim
+public typealias NbfClaim = NotBeforeClaim
 
 /// Represents the "nbf" (not before) claim in a JWT.
 public struct NotBeforeClaim: JWTRegisteredClaim {

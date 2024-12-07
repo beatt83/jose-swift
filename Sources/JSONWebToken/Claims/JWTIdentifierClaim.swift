@@ -17,7 +17,7 @@
 import Foundation
 
 /// A type alias for `JWTIdentifierClaim`.
-typealias JtiClaim = JWTIdentifierClaim
+public typealias JtiClaim = JWTIdentifierClaim
 
 /// Represents the "jti" (JWT ID) claim in a JWT.
 public struct JWTIdentifierClaim: JWTRegisteredClaim {

@@ -17,7 +17,7 @@
 import Foundation
 
 /// A type alias for `SubjectClaim`.
-typealias SubClaim = SubjectClaim
+public typealias SubClaim = SubjectClaim
 
 /// Represents the "sub" (subject) claim in a JWT.
 public struct SubjectClaim: JWTRegisteredClaim {
