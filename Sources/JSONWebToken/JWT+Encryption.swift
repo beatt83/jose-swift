@@ -73,6 +73,33 @@ extension JWT {
         )
     }
     
+    /// Encrypts JWT claims into a JWE-formatted JWT using the provided headers, claims, and keys.
+    ///
+    /// This variant allows you to specify both a protected header and an optional unprotected header. The protected header
+    /// fields will be cryptographically secured and included with the encrypted payload, while the unprotected header fields
+    /// will remain in cleartext.
+    ///
+    /// The `@JWTClaimsBuilder` closure is used to construct the claims included in the JWT payload. The resulting claims are encoded
+    /// and then encrypted based on the provided cryptographic parameters.
+    ///
+    /// - Parameters:
+    ///   - claims: A closure marked with `@JWTClaimsBuilder` that constructs the JWT claims. The return value of this closure is wrapped in a `Claim` type.
+    ///   - protectedHeader: A header conforming to `JWERegisteredFieldsHeader` that specifies the protected header fields.
+    ///     If no `type` is provided in `protectedHeader`, it defaults to "JWT".
+    ///   - unprotectedHeader: An optional header conforming to `JWERegisteredFieldsHeader` that specifies the unprotected header fields.
+    ///   - senderKey: An optional `KeyRepresentable` representing the sender's key, used in key agreement protocols or authenticated encryption schemes.
+    ///   - recipientKey: A `KeyRepresentable` representing the recipient's key. This key is necessary to decrypt and unwrap the Content Encryption Key (CEK).
+    ///   - sharedKey: An optional `KeyRepresentable` representing a shared symmetric key used in key agreement protocols.
+    ///   - cek: An optional Content Encryption Key (`Data`). If not provided, one will be automatically generated.
+    ///   - initializationVector: An optional initialization vector (`Data`) for the encryption algorithm. If not provided, one will be generated.
+    ///   - additionalAuthenticationData: Optional additional data that will be authenticated but not encrypted. This helps ensure the integrity of any external data.
+    ///
+    /// - Returns: A `JWT` instance in JWE format containing the encrypted claims.
+    ///
+    /// - Throws:
+    ///   - An encoding error if the claims cannot be encoded.
+    ///   - A cryptographic error if encryption fails.
+    ///   - Any other errors encountered during the encryption and wrapping process.
     public static func encrypt<
         P: JWERegisteredFieldsHeader,
         U: JWERegisteredFieldsHeader
@@ -98,6 +125,136 @@ extension JWT {
                 payload: encodedPayload,
                 protectedHeader: protectedHeader,
                 unprotectedHeader: unprotectedHeader,
+                senderKey: senderKey,
+                recipientKey: recipientKey,
+                cek: cek,
+                initializationVector: initializationVector,
+                additionalAuthenticationData: additionalAuthenticationData
+            ))
+        )
+    }
+    
+    /// Encrypts a raw payload into a JWE-formatted JWT using the specified cryptographic algorithms and keys.
+    ///
+    /// This initializer allows you to provide a raw `Data` payload, along with explicit key management and content encryption algorithms.
+    /// You can optionally specify a compression algorithm, as well as parameters for password-based encryption.
+    ///
+    /// The `senderKey` and `recipientKey` represent the keys involved in key wrapping or agreement. If `senderKey` is provided, it may be used for
+    /// authenticated encryption or key agreement protocols. The `recipientKey` is generally required and represents the key that the recipient can
+    /// use to decrypt the JWE. If `cek` (Content Encryption Key) is not provided, it will be generated automatically.
+    ///
+    /// The `initializationVector` (IV) is optional; if not provided, it will be generated automatically for supported encryption algorithms.
+    /// The `additionalAuthenticationData` (AAD) can also be provided to add extra data that will be authenticated, but not encrypted, ensuring the integrity
+    /// of this data during decryption.
+    ///
+    /// If `password` is provided along with `saltLength` and `iterationCount`, a password-based key derivation function will be used to derive the key.
+    ///
+    /// - Parameters:
+    ///   - payload: The raw `Data` payload to encrypt.
+    ///   - keyManagementAlg: The `KeyManagementAlgorithm` used to wrap or derive the key that protects the CEK.
+    ///   - encryptionAlgorithm: The `ContentEncryptionAlgorithm` used to perform the actual encryption of the payload.
+    ///   - compressionAlgorithm: An optional `ContentCompressionAlgorithm` for compressing the payload before encryption.
+    ///   - senderKey: An optional `KeyRepresentable` for the sender's key, if key agreement or authenticated encryption is used.
+    ///   - recipientKey: A `KeyRepresentable` for the recipient's key, required to unwrap or derive the CEK.
+    ///   - cek: An optional CEK (`Data`). If not provided, one will be generated.
+    ///   - initializationVector: An optional IV (`Data`). If not provided, one will be generated.
+    ///   - additionalAuthenticationData: Additional data to authenticate, but not encrypt.
+    ///   - password: An optional password (`Data`) for password-based encryption schemes.
+    ///   - saltLength: An optional salt length for PBKDF, if password-based encryption is used.
+    ///   - iterationCount: An optional iteration count for PBKDF, if password-based encryption is used.
+    /// - Returns: A `JWT` in JWE format containing the encrypted payload.
+    /// - Throws: An error if encryption fails, or if provided parameters are invalid.
+    public static func encrypt(
+        payload: Data,
+        keyManagementAlg: KeyManagementAlgorithm,
+        encryptionAlgorithm: ContentEncryptionAlgorithm,
+        compressionAlgorithm: ContentCompressionAlgorithm? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable?,
+        cek: Data? = nil,
+        initializationVector: Data? = nil,
+        additionalAuthenticationData: Data? = nil,
+        password: Data? = nil,
+        saltLength: Int? = nil,
+        iterationCount: Int? = nil
+    ) throws -> JWT {
+        let protectedHeader = DefaultJWEHeaderImpl(
+            keyManagementAlgorithm: keyManagementAlg,
+            encodingAlgorithm: encryptionAlgorithm,
+            compressionAlgorithm: compressionAlgorithm,
+            type: "JWT"
+        )
+        
+        return JWT(
+            payload: payload,
+            format: .jwe(try JWE(
+                payload: payload,
+                protectedHeader: protectedHeader,
+                senderKey: senderKey,
+                recipientKey: recipientKey,
+                cek: cek,
+                initializationVector: initializationVector,
+                additionalAuthenticationData: additionalAuthenticationData
+            ))
+        )
+    }
+    
+    /// Encrypts JWT claims into a JWE-formatted JWT using the specified cryptographic algorithms and keys.
+    ///
+    /// This initializer takes claims built via a `@JWTClaimsBuilder` closure, allowing you to programmatically construct
+    /// the claims to be included in the JWT payload. It supports the same parameters for key management and content
+    /// encryption algorithms as its `Data`-payload counterpart, and it can also optionally compress and include
+    /// password-based encryption parameters.
+    ///
+    /// The `senderKey` and `recipientKey` parameters define the keys used for encrypting the CEK (or deriving it), while
+    /// `cek`, if not provided, will be automatically generated. The `initializationVector` is also optional, as is
+    /// `additionalAuthenticationData`.
+    ///
+    /// If a `password` is provided along with `saltLength` and `iterationCount`, the encryption keys will be derived from
+    /// the given password. This enables password-based encryption schemes.
+    ///
+    /// - Parameters:
+    ///   - claims: A builder closure that returns a `Claim`. The `Claim` defines the JWT's payload.
+    ///   - keyManagementAlg: The `KeyManagementAlgorithm` used for managing keys that protect the CEK.
+    ///   - encryptionAlgorithm: The `ContentEncryptionAlgorithm` used for encrypting the JWT payload.
+    ///   - compressionAlgorithm: An optional `ContentCompressionAlgorithm` for compressing the payload before encryption.
+    ///   - senderKey: An optional `KeyRepresentable` for the sender's key, if key agreement or authenticated encryption is used.
+    ///   - recipientKey: A `KeyRepresentable` for the recipient's key, required to unwrap or derive the CEK.
+    ///   - cek: An optional CEK (`Data`). If not provided, one will be generated.
+    ///   - initializationVector: An optional IV (`Data`). If not provided, one will be generated.
+    ///   - additionalAuthenticationData: Additional data to be authenticated during decryption.
+    ///   - password: An optional password (`Data`) for password-based encryption schemes.
+    ///   - saltLength: An optional salt length for PBKDF, if password-based encryption is used.
+    ///   - iterationCount: An optional iteration count for PBKDF, if password-based encryption is used.
+    /// - Returns: A `JWT` in JWE format containing the encrypted claims.
+    /// - Throws: An error if encryption fails, if the claims cannot be encoded, or if provided parameters are invalid.
+    public static func encrypt(
+        @JWTClaimsBuilder claims: () -> Claim,
+        keyManagementAlg: KeyManagementAlgorithm,
+        encryptionAlgorithm: ContentEncryptionAlgorithm,
+        compressionAlgorithm: ContentCompressionAlgorithm? = nil,
+        senderKey: KeyRepresentable? = nil,
+        recipientKey: KeyRepresentable?,
+        cek: Data? = nil,
+        initializationVector: Data? = nil,
+        additionalAuthenticationData: Data? = nil,
+        password: Data? = nil,
+        saltLength: Int? = nil,
+        iterationCount: Int? = nil
+    ) throws -> JWT {
+        let protectedHeader = DefaultJWEHeaderImpl(
+            keyManagementAlgorithm: keyManagementAlg,
+            encodingAlgorithm: encryptionAlgorithm,
+            compressionAlgorithm: compressionAlgorithm,
+            type: "JWT"
+        )
+        let encodedPayload = try JSONEncoder.jwt.encode(claims().value)
+        
+        return JWT(
+            payload: encodedPayload,
+            format: .jwe(try JWE(
+                payload: encodedPayload,
+                protectedHeader: protectedHeader,
                 senderKey: senderKey,
                 recipientKey: recipientKey,
                 cek: cek,
@@ -141,21 +298,23 @@ extension JWT {
         cek: Data? = nil,
         initializationVector: Data? = nil,
         additionalAuthenticationData: Data? = nil
-    ) throws -> JWE {
+    ) throws -> JWT {
         var protectedHeader = protectedHeader
         if protectedHeader.contentType == nil {
             protectedHeader.contentType = "JWT"
         }
-        
-        return try JWE(
-            payload: jwt.jwtString.tryToData(),
-            protectedHeader: protectedHeader,
-            unprotectedHeader: unprotectedHeader,
-            senderKey: senderKey,
-            recipientKey: recipientKey,
-            cek: cek,
-            initializationVector: initializationVector,
-            additionalAuthenticationData: additionalAuthenticationData
+        return JWT(
+            payload: try jwt.jwtString.tryToData(),
+            format: .jwe(try JWE(
+                payload: jwt.jwtString.tryToData(),
+                protectedHeader: protectedHeader,
+                unprotectedHeader: unprotectedHeader,
+                senderKey: senderKey,
+                recipientKey: recipientKey,
+                cek: cek,
+                initializationVector: initializationVector,
+                additionalAuthenticationData: additionalAuthenticationData
+            ))
         )
     }
     
@@ -211,7 +370,7 @@ extension JWT {
         nestedCek: Data? = nil,
         nestedInitializationVector: Data? = nil,
         nestedAdditionalAuthenticationData: Data? = nil
-    ) throws -> JWE {
+    ) throws -> JWT {
         let jwt = try encrypt(
             payload: payload,
             protectedHeader: nestedProtectedHeader,
@@ -260,7 +419,7 @@ extension JWT {
         nestedCek: Data? = nil,
         nestedInitializationVector: Data? = nil,
         nestedAdditionalAuthenticationData: Data? = nil
-    ) throws -> JWE {
+    ) throws -> JWT {
         let jwt = try encrypt(
             claims: claims,
             protectedHeader: nestedProtectedHeader,
