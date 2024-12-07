@@ -33,8 +33,11 @@ extension AES256GCM: KeyWrapping {
         using: JWK,
         arguments: [KeyEncryptionArguments]
     ) throws -> KeyEncriptionResultMetadata {
+        guard using.keyType == .octetSequence else {
+            throw CryptoError.keyFormatNotSupported(format: using.keyType.rawValue, supportedFormats: [JWK.KeyType.octetSequence.rawValue])
+        }
         guard let key = using.key else {
-            throw CryptoError.missingArguments([])
+            throw CryptoError.missingArguments(["JWK.Key"])
         }
 
         let initializationVector = try arguments.initializationVector ?? generateInitializationVector()
