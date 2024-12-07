@@ -36,7 +36,7 @@ let customHeader = CustomHeader(
 )
 
 let signedJWT = try JWT.signed(
-    payload: {
+    claims: {
         SubClaim(value: "1234567890")
         StringClaim(key: "name", value: "John Doe")
         BoolClaim(key: "admin", value: true)
@@ -80,7 +80,7 @@ let customJWEHeader = CustomJWEHeader(
 )
 
 let encryptedJWT = try JWE(
-    payload: {
+    claims: {
         SubClaim(value: "1234567890")
         StringClaim(key: "name", value: "John Doe")
         BoolClaim(key: "admin", value: true)
@@ -100,7 +100,7 @@ Create and sign an inner JWT:
 
 ```swift
 let innerJWT = try JWT.signed(
-    payload: {
+    claims: {
         SubClaim(value: "1234567890")
         StringClaim(key: "name", value: "John Doe")
         BoolClaim(key: "admin", value: true)
@@ -127,13 +127,13 @@ Encrypt a JWT:
 
 ```swift
 let encryptedJWT = try JWT.encrypt(
-    payload: {
+    claims: {
         SubClaim(value: "1234567890")
         StringClaim(key: "name", value: "John Doe")
         BoolClaim(key: "admin", value: true)
     },
     protectedHeader: DefaultJWEHeaderImpl(
-        keyManagementAlgorithm: .RSA_OAEP,
+        keyManagementAlgorithm: .rsaOAEP,
         encryptionAlgorithm: .A256GCM
     ),
     recipientKey: rsaPublicKey

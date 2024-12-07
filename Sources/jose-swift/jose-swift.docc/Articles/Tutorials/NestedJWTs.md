@@ -21,59 +21,43 @@ To create a nested JWT, you'll first sign the payload to create a JWS, and then 
 Start by signing the payload with the desired signing algorithm and key:
 
 ```swift
-let payload = "Your payload data".data(using: .utf8)!
-let protectedHeader = DefaultJWSHeaderImpl(algorithm: .HS256)
-let key = SymmetricKey(size: .bits256) // Replace with your key
+let innerJWTHeader = DefaultJWSHeaderImpl(algorithm: .ES256)
 
-let jws = try JWS(payload: payload, protectedHeader: protectedHeader, key: key)
+let p256SigningKey = P256.Signing.PrivateKey()
+let jwt = try JWT.signed(
+    claims: {
+        IssuerClaim(value: "some-issuer")
+    },
+    protectedHeader: innerJWTHeader,
+    key: p256SigningKey
+)
 ```
+Example 9.1
 
 ### Step 2: Encrypt the JWS
 
 Next, encrypt the JWS to create a nested JWT:
 
 ```swift
-let jweHeader = DefaultJWEHeaderImpl(
-    keyManagementAlgorithm: .RSAOAEP256,
-    encodingAlgorithm: .A256GCM
-)
-let rsaPublicKey = try SecKey.createPublicKey(from: rsaPublicKeyData) // Replace with your RSA public key data
+let p384EncodingKey = P384.KeyAgreement.PrivateKey()
 
-let jwe = try JWE(
-    payload: jws.compactSerialization.data(using: .utf8)!,
-    protectedHeader: jweHeader,
-    recipientKey: rsaPublicKey
+let outerJWTHeader = DefaultJWEHeaderImpl(
+    keyManagementAlgorithm: .ecdhESA256KW,
+    encodingAlgorithm: .a256GCM
 )
 
-let nestedJWT = jwe.compactSerialization
+let nestedJWT = try JWT.encryptAsNested(jwt: jwt, protectedHeader: outerJWTHeader, recipientKey: p384EncodingKey)
 ```
+Example 9.2
 
 ## Verifying a Nested JWT
 
 To verify a nested JWT, you'll first decrypt the JWE to extract the embedded JWS, and then verify the signature of the JWS.
 
-### Step 1: Decrypt the JWE
-
-Decrypt the JWE to get the embedded JWS:
+The verify API decrupts and verifies the signature of the inner JWT and returns the Inner JWT:
 
 ```swift
-let jwe = try JWE(compactString: nestedJWT)
-let rsaPrivateKey = try SecKey.createPrivateKey(from: rsaPrivateKeyData) // Replace with your RSA private key data
-
-let decryptedPayload = try jwe.decrypt(recipientKey: rsaPrivateKey)
+let verifiedJWT = try JWT.verify(jwtString: nestedJWT.jwtString, recipientKey: p256EncodingKey, nestedKeys: [p256SigningKey])
+print(try verifiedJWT.payload.tryToString())
 ```
-
-### Step 2: Verify the JWS
-
-Verify the signature of the extracted JWS:
-
-```swift
-let jws = try JWS(compactString: String(data: decryptedPayload, encoding: .utf8)!)
-let isValid = try jws.verify(key: key) // Replace with the key used for signing
-
-if isValid {
-    print("The nested JWT is valid.")
-} else {
-    print("The nested JWT is invalid.")
-}
-```
+Example 9.3

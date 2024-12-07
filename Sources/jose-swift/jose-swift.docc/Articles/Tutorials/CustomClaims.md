@@ -11,7 +11,7 @@ Ensure you have the **jose-swift** library installed and imported in your projec
 Define your custom claims by creating a struct that conforms to the `Codable` and `JWTRegisteredFieldsClaims` protocol:
 
 ```swift
-struct CustomClaims: Codable {
+struct CustomClaims: Codable, JWTRegisteredFieldsClaims {
     let iss: String?
     let sub: String?
     let aud: [String]?
@@ -21,8 +21,11 @@ struct CustomClaims: Codable {
     let jti: String?
     let userId: String
     let roles: [String]
+    
+    func validateExtraClaims() throws {}
 }
 ```
+Example 8.1
 
 ## Creating a JWT with Custom Claims
 
@@ -39,6 +42,7 @@ let customClaims = CustomClaims(
     roles: ["admin", "user"]
 )
 ```
+Example 8.2
 
 ### Step 2: Sign the JWT
 
@@ -56,6 +60,7 @@ let jwt = try JWT.signed(
 
 print("Signed JWT: \(jwt.jwtString)")
 ```
+Example 8.3
 
 ## Verifying a JWT with Custom Claims
 
@@ -69,6 +74,7 @@ Decode the JWT to extract the payload:
 let jwtString = "your.jwt.string.here" // Replace with your JWT string
 let jwt = try JWT.verify(jwtString: jwtString, signerKey: key)
 ```
+Example 8.4
 
 ### Step 2: Extract Custom Claims
 
@@ -82,3 +88,4 @@ print("User ID: \(customClaims.userId)")
 print("Roles: \(customClaims.roles)")
 print("Expiration: \(customClaims.exp)")
 ```
+Example 8.5

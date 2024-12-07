@@ -35,9 +35,9 @@ Example:
 
 ```
 {
-    “sub”: “1234567890”,
-    “name”: “John Doe”,
-    “admin”: true
+    "sub": "1234567890",
+    "name": "John Doe",
+    "admin": true
 }
 ```
 
@@ -48,7 +48,7 @@ To create the signature part, you have to take the encoded header, the encoded p
 For example, if you want to use the HMAC SHA256 algorithm, the signature will be created in the following way:
 
 ```
-HMACSHA256(base64UrlEncode(header) + “.” + base64UrlEncode(payload),secret)
+HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload),secret)
 ```
 
 ## How JWTs Work
@@ -82,35 +82,38 @@ Here's an example of how to create a signed JWT using the **jose-swift** library
 ```swift
 let key = P256.Signing.PrivateKey()
 let jwt = try JWT.signed(
-    payload: {
-        IssuerClaim(value: “your-issuer”)
-        SubjectClaim(value: “your-subject”)
+    claims: {
+        IssuerClaim(value: "your-issuer")
+        SubjectClaim(value: "your-subject")
         ExpirationTimeClaim(value: Date().addingTimeInterval(3600)) // 1 hour expiration
     },
     protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256),
     key: key.jwkRepresentation
 )
 
-print(“JWT: (jwt.jwtString)”)
+print("JWT: \(jwt.jwtString)")
 ```
+Example 4.1
 
 ### Verifying a JWT
 
 Here's an example of how to verify a JWT using the **jose-swift** library:
 
 ```swift
-let jwtString = “your.jwt.token.here”
+let jwtString = "your.jwt.token.here"
 let key = P256.Signing.PublicKey()
 let verifiedJWT = try JWT.verify(jwtString: jwtString, signerKey: key)
 
-print(“Verified JWT Payload: (verifiedJWT.payload)”)
+print("Verified JWT Payload: \(verifiedJWT.payload)")
 ```
+Example 4.2
 
 ### Using Custom Claims
 
 You can also define and use custom claims in your JWTs. Here's an example:
 
 ```swift
+struct DemoError: Error {}
 struct CustomClaims: JWTRegisteredFieldsClaims, Codable {
     let iss: String?
     let sub: String?
@@ -120,10 +123,37 @@ struct CustomClaims: JWTRegisteredFieldsClaims, Codable {
     let iat: Date?
     let jti: String?
     let customClaim: String
+    
+    init(
+        iss: String? = nil,
+        sub: String? = nil,
+        aud: [String]? = nil,
+        exp: Date? = nil,
+        nbf: Date? = nil,
+        iat: Date? = nil,
+        jti: String? = nil,
+        customClaim: String
+    ) {
+        self.iss = iss
+        self.sub = sub
+        self.aud = aud
+        self.exp = exp
+        self.nbf = nbf
+        self.iat = iat
+        self.jti = jti
+        self.customClaim = customClaim
+    }
+    
+    func validateExtraClaims() throws {
+        // Any extra validation
+        guard customClaim == "custom-value" else {
+            throw DemoError()
+        }
+    }
 }
 
 let key = P256.Signing.PrivateKey()
-let claims = CustomClaims(iss: “your-issuer”, sub: “your-subject”, custom: “custom-value”)
+let claims = CustomClaims(iss: "your-issuer", sub: "your-subject", customClaim: "custom-value")
 
 let jwt = try JWT.signed(
     payload: claims,
@@ -131,14 +161,15 @@ let jwt = try JWT.signed(
     key: key
 )
 ```
+Example 4.3
 
 Or through the DSL API. Here's an example:
 
 ```swift
 let jwt = try JWT.signed(
-    payload: {
-        IssuerClaim(value: “your-issuer”)
-        SubjectClaim(value: “your-subject”)
+    claims: {
+        IssuerClaim(value: "your-issuer")
+        SubjectClaim(value: "your-subject")
         ExpirationTimeClaim(value: Date().addingTimeInterval(3600)) // 1 hour expiration
         ObjectClaim(key: "address") {
             StringClaim(key: "street", value: "Rua Sesamo")
@@ -146,15 +177,16 @@ let jwt = try JWT.signed(
             BoolClaim(key: "isBuilding", value: true)
         }
         ArrayClaim(key: "nickNames") {
-            .string("Me")
-            .string("Myself")
-            .string("I")
+            ArrayElementClaim.string("Me")
+            ArrayElementClaim.string("Myself")
+            ArrayElementClaim.string("I")
         }
     },
     protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256),
     key: key.jwkRepresentation
 )
 ```
+Example 4.4
 
 ## Conclusion
 
