@@ -56,7 +56,17 @@ extension JWT {
                 guard let key = getKeyForJWSHeader(
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jws.protectedHeader
-                ) else { throw JWTError.missingNestedJWTKey }
+                ) else {
+                    return try verifyNestedWithMultipleKeys(
+                        jwtString: jws.payload.tryToString(),
+                        senderKey: senderKey,
+                        recipientKey: recipientKey,
+                        sharedKey: sharedKey,
+                        nestedKeys: nestedKeys,
+                        expectedIssuer: expectedIssuer,
+                        expectedAudience: expectedAudience
+                    )
+                }
                 
                 return try verify(
                     jwtString: jws.payload.tryToString(),
@@ -92,7 +102,17 @@ extension JWT {
                 guard let key = getKeyForJWEHeader(
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jwe.protectedHeader
-                ) else { throw JWTError.missingNestedJWTKey }
+                ) else {
+                    return try verifyNestedWithMultipleKeys(
+                        jwtString: decryptedPayload.tryToString(),
+                        senderKey: senderKey,
+                        recipientKey: recipientKey,
+                        sharedKey: sharedKey,
+                        nestedKeys: nestedKeys,
+                        expectedIssuer: expectedIssuer,
+                        expectedAudience: expectedAudience
+                    )
+                }
                 
                 return try verify(
                     jwtString: decryptedPayload.tryToString(),
@@ -151,7 +171,17 @@ extension JWT {
                 guard let key = getKeyForJWSHeader(
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jws.protectedHeader
-                ) else { throw JWTError.missingNestedJWTKey }
+                ) else {
+                    return try verifyNestedWithMultipleKeys(
+                        jwtString: jws.payload.tryToString(),
+                        senderKey: senderKey,
+                        recipientKey: recipientKey,
+                        sharedKey: sharedKey,
+                        nestedKeys: nestedKeys,
+                        expectedIssuer: expectedIssuer,
+                        expectedAudience: expectedAudience
+                    )
+                }
                 
                 return try verify(
                     jwtString: jws.payload.tryToString(),
@@ -187,7 +217,17 @@ extension JWT {
                 guard let key = getKeyForJWEHeader(
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jwe.protectedHeader
-                ) else { throw JWTError.missingNestedJWTKey }
+                ) else {
+                    return try verifyNestedWithMultipleKeys(
+                        jwtString: decryptedPayload.tryToString(),
+                        senderKey: senderKey,
+                        recipientKey: recipientKey,
+                        sharedKey: sharedKey,
+                        nestedKeys: nestedKeys,
+                        expectedIssuer: expectedIssuer,
+                        expectedAudience: expectedAudience
+                    )
+                }
                 
                 return try verify(
                     jwtString: decryptedPayload.tryToString(),
@@ -210,6 +250,47 @@ extension JWT {
         default:
             throw JWTError.somethingWentWrong
         }
+    }
+    
+    private static func verifyNestedWithMultipleKeys(
+        jwtString: String,
+        senderKey: KeyRepresentable?,
+        recipientKey: KeyRepresentable?,
+        sharedKey: KeyRepresentable?,
+        nestedKeys: [KeyRepresentable],
+        expectedIssuer: String?,
+        expectedAudience: String?
+    ) throws -> JWT {
+        for key in nestedKeys {
+            do {
+                switch try jwtFormat(jwtString: jwtString) {
+                case .jws:
+                    return try verify(
+                        jwtString: jwtString,
+                        senderKey: key,
+                        recipientKey: recipientKey,
+                        sharedKey: sharedKey,
+                        nestedKeys: nestedKeys,
+                        expectedIssuer: expectedIssuer,
+                        expectedAudience: expectedAudience
+                    )
+                case .jwe:
+                    return try verify(
+                        jwtString: jwtString,
+                        senderKey: senderKey,
+                        recipientKey: key,
+                        sharedKey: key,
+                        nestedKeys: nestedKeys,
+                        expectedIssuer: expectedIssuer,
+                        expectedAudience: expectedAudience
+                    )
+                }
+                
+            } catch {
+                continue
+            }
+        }
+        throw JWTError.missingNestedJWTKey
     }
 }
 
