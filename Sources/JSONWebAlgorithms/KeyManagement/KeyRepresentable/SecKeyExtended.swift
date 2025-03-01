@@ -1,4 +1,4 @@
-import CryptoKit
+import Crypto
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey

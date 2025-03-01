@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import CryptoKit
+import Crypto
 import Foundation
 
 /// `AES128GCM` provides methods to encrypt and decrypt data using AES-128-GCM.

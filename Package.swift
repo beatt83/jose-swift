@@ -31,6 +31,7 @@ let package = Package(
         )
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "4.0.0"),
         // For `secp256k1` support
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
@@ -44,8 +45,9 @@ let package = Package(
             dependencies: [
                 "JSONWebKey",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
-                .product(name: "CryptoSwift", package: "CryptoSwift")
-            ]
+                .product(name: "CryptoSwift", package: "CryptoSwift"),
+                .product(name: "Crypto", package: "swift-crypto")
+   ]
         ),
         .testTarget(
             name: "JWATests",
@@ -80,7 +82,8 @@ let package = Package(
                 "CryptoSwift",
                 "Tools",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
-            ]
+                .product(name: "Crypto", package: "swift-crypto")
+          ]
         ),
         .testTarget(
             name: "JWKTests",

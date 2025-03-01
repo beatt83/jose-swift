@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import CryptoKit
+import Crypto
 import Foundation
 import JSONWebKey
 import secp256k1
