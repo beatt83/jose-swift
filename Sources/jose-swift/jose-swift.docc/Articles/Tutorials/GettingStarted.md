@@ -78,7 +78,7 @@ A JSON Web Signature (JWS) is used to provide integrity and authenticity to data
 ```swift
 import JSONWebKey
 import JSONWebSignature
-import CryptoKit
+import Crypto
 
 // Generate a P256 private key
 let privateKey = P256.Signing.PrivateKey()

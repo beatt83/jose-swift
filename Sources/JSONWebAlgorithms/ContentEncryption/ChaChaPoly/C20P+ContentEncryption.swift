@@ -1,4 +1,4 @@
-import CryptoKit
+import Crypto
 import Foundation
 
 /// `C20P` provides methods to encrypt and decrypt data using the ChaCha20-Poly1305 algorithm.
