@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import CryptoKit
+import Crypto
 import Foundation
 
 /// `AESCBC_SHA384` provides methods to encrypt and decrypt data using AES-CBC with SHA-384 for authentication.
