@@ -41,7 +41,7 @@ extension ECDHES: KeyDerivation {
         let suppPrivInfoData = Data()
         let tagData = Data()
 
-        return try ConcatKDF<CryptoKit.SHA256>.deriveKey(
+        return try ConcatKDF<Crypto.SHA256>.deriveKey(
             z: key,
             keyDataLen: keyLengthInBits,
             algorithmID: algorithmIDData,

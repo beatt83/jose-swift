@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import SWCompression
 
 /// `Zip` provides methods to compress and decompress data using zlib.
 public struct Zip: ContentCompressor, ContentDecompressor {
@@ -23,7 +24,7 @@ public struct Zip: ContentCompressor, ContentDecompressor {
     /// - Throws: An error if the compression fails.
     /// - Returns: The compressed data.
     public func compress(input: Data) throws -> Data {
-        try (input as NSData).compressed(using: .zlib) as Data
+        return ZlibArchive.archive(data: input)
     }
     
     /// Decompresses the input data using zlib.
@@ -31,6 +32,6 @@ public struct Zip: ContentCompressor, ContentDecompressor {
     /// - Throws: An error if the decompression fails.
     /// - Returns: The decompressed data.
     public func decompress(input: Data) throws -> Data {
-        try (input as NSData).decompressed(using: .zlib) as Data
+        return try ZlibArchive.unarchive(archive: input)
     }
 }

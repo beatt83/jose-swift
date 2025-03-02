@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import CommonCrypto
 import Foundation
 
 /// `CryptoError` is an enumeration representing various errors that can occur in cryptographic operations.
@@ -81,5 +80,4 @@ public enum CryptoError: LocalizedError {
     
     case keyFormatNotSupported(format: String, supportedFormats: [String])
     
-    case commonCryptoError(status: CCStatus)
 }

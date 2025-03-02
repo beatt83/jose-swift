@@ -38,13 +38,9 @@ struct AESKeyUnwrap: KeyUnwrapping {
             throw CryptoError.missingOctetSequenceKey
         }
         
-        if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, *) {
-            return try AES.KeyWrap.unwrap(
-                encryptedKey,
-                using: .init(data: key)
-            ).withUnsafeBytes { Data($0) }
-        } else {
-            return try AESKeyWrapperCommonCrypto().unwrap(key: encryptedKey, encryptionKey: key)
-        }
+        return try AES.KeyWrap.unwrap(
+               encryptedKey,
+               using: .init(data: key)
+        ).withUnsafeBytes { Data($0) }
     }
 }

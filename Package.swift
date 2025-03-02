@@ -36,8 +36,9 @@ let package = Package(
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
         // Changing to a fork I made while I create a PR, since I found a bug
-        .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5"))
+        .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5")),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
+        .package(url: "https://github.com/tsolomko/SWCompression.git",from: "4.8.5")
     ],
     targets: [
         .target(
@@ -46,8 +47,10 @@ let package = Package(
                 "JSONWebKey",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
                 .product(name: "CryptoSwift", package: "CryptoSwift"),
-                .product(name: "Crypto", package: "swift-crypto")
-   ]
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "_CryptoExtras", package: "swift-crypto"),
+                .product(name: "SWCompression", package: "SWCompression")
+ ]
         ),
         .testTarget(
             name: "JWATests",
@@ -82,8 +85,9 @@ let package = Package(
                 "CryptoSwift",
                 "Tools",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
-                .product(name: "Crypto", package: "swift-crypto")
-          ]
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "_CryptoExtras", package: "swift-crypto")
+    ]
         ),
         .testTarget(
             name: "JWKTests",
