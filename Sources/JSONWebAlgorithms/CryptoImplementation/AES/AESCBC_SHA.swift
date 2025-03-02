@@ -53,7 +53,7 @@ public struct AESCBC_SHA<H: HashFunction> {
         let addLength = UInt64(additionalAuthenticatedData.count * 8).bigEndian.dataRepresentation
         let dataToAuthenticate = additionalAuthenticatedData + initializationVector + ciphertext + addLength
         
-        let authenticationTag = CryptoKit.HMAC<H>
+        let authenticationTag = Crypto.HMAC<H>
             .authenticationCode(
                 for: dataToAuthenticate,
                 using: .init(data: macKey)
@@ -89,7 +89,7 @@ public struct AESCBC_SHA<H: HashFunction> {
         let addLength = UInt64(additionalAuthenticatedData.count * 8).bigEndian.dataRepresentation
         let dataToAuthenticate = additionalAuthenticatedData + initializationVector + cipher + addLength
         
-        let computedTag = CryptoKit.HMAC<H>
+        let computedTag = Crypto.HMAC<H>
             .authenticationCode(
                 for: dataToAuthenticate,
                 using: .init(data: macKey)

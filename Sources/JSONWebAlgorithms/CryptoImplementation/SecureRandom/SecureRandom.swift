@@ -28,23 +28,29 @@ public struct SecureRandom {
     /// - Throws: `CryptoError.securityLayerError` if the random number generation fails. This includes an error status code for debugging purposes.
     /// - Note: The function relies on `SecRandomCopyBytes` from Apple's Security framework, ensuring high-quality randomness.
     public static func secureRandomData(count: Int) throws -> Data {
-        var bytes = [Int8](repeating: 0, count: count)
 
-        let status = SecRandomCopyBytes(
-            kSecRandomDefault,
-            count,
-            &bytes
-        )
-
-        if status == errSecSuccess {
-            let data = Data(bytes: bytes, count: count)
-            return data
-        }
-        else {
-            throw CryptoError.securityLayerError(
-                internalStatus: Int(status),
-                internalError: nil
+    #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+            var bytes = [Int8](repeating: 0, count: count)
+            
+            let status = SecRandomCopyBytes(
+                kSecRandomDefault,
+                count,
+                &bytes
             )
-        }
+            
+            if status == errSecSuccess {
+                let data = Data(bytes: bytes, count: count)
+                return data
+            }
+            else {
+                throw CryptoError.securityLayerError(
+                    internalStatus: Int(status),
+                    internalError: nil
+                )
+            }
+        
+    #else
+            return Data((0 ..< count).map { _ in UInt8.random(in: UInt8.min ... UInt8.max) })
+    #endif
     }
 }

@@ -45,15 +45,10 @@ struct AESKeyWrap: KeyWrapping {
             throw CryptoError.notValidPrivateKey
         }
         
-        let encryptedKey: Data
-        if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, *) {
-            encryptedKey = try AES.KeyWrap.wrap(
+        let encryptedKey = try AES.KeyWrap.wrap(
                 .init(data: cek),
                 using: .init(data: key)
             )
-        } else {
-            encryptedKey = try AESKeyWrapperCommonCrypto().wrap(key: cek, encryptionKey: key)
-        }
 
         return .init(
             encryptedKey: encryptedKey,

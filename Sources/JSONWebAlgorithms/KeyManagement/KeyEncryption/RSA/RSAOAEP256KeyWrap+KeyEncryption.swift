@@ -17,7 +17,7 @@
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
-import Security
+import _CryptoExtras
 
 /// `RSAOAEP256KeyWrapper` provides methods to encrypt content encryption keys (CEKs) using RSAES-OAEP with SHA-256.
 public struct RSAOAEP256KeyWrapper: KeyWrapping {
@@ -49,30 +49,14 @@ public struct RSAOAEP256KeyWrapper: KeyWrapping {
         }
         let rsaPublicKey = CryptoSwift.RSA(n: BigUInteger(n), e: BigUInteger(e))
         let derEncodedRSAPublicKey = try rsaPublicKey.publicKeyExternalRepresentation()
-        let attributes: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-            kSecAttrKeyClass as String: kSecAttrKeyClassPublic,
-            kSecAttrKeySizeInBits as String: n.count * 8,
-            kSecAttrIsPermanent as String: false,
-        ]
-        var error: Unmanaged<CFError>?
-        guard let rsaSecKey = SecKeyCreateWithData(
-            derEncodedRSAPublicKey as CFData,
-            attributes as CFDictionary,
-            &error
-        ) else {
+                
+        guard let encryptionKey = try? _RSA.Encryption.PublicKey(derRepresentation: derEncodedRSAPublicKey) else {
             throw CryptoError.invalidRSAKey
         }
-        let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA256
-        var encryptionError: Unmanaged<CFError>?
-        guard let ciphertext = SecKeyCreateEncryptedData(
-            rsaSecKey,
-            secKeyAlgorithm,
-            cek as CFData,
-            &encryptionError
-        ) else {
-            throw CryptoError.securityLayerError(internalStatus: nil, internalError: encryptionError?.takeRetainedValue())
+        
+        guard let encryptedData = try? Data(encryptionKey.encrypt(cek, padding: _RSA.Encryption.Padding.PKCS1_OAEP_SHA256)) else {
+            throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
-        return .init(encryptedKey: ciphertext as Data)
+        return .init(encryptedKey: encryptedData)
     }
 }

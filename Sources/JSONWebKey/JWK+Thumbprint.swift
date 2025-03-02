@@ -18,7 +18,7 @@ public extension JWK {
     /// - Returns: The Base64URL-encoded JWK thumbprint.
     /// - Throws: `JWK.Error.notSupported` if the JWK type is not supported.
     func thumbprint<H>(
-        with _: H = CryptoKit.SHA256()
+        with _: H = Crypto.SHA256()
     ) throws -> String where H: HashFunction {
         // Get required members of JWK
         // See https://www.rfc-editor.org/rfc/rfc7638#section-3.2
