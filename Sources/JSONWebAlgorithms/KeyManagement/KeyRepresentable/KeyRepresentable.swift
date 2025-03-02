@@ -79,10 +79,4 @@ extension secp256k1.KeyAgreement.PublicKey: KeyRepresentable {
 extension SymmetricKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
-extension SecKey: KeyRepresentable {
-    public var jwk: JWK {
-        get throws {
-            try SecKeyExtended(secKey: self).jwk()
-        }
-    }
-}
+

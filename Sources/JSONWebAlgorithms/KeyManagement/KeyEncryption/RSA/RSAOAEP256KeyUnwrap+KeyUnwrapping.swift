@@ -17,7 +17,9 @@
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
-import Security
+import Crypto
+import _CryptoExtras
+
 
 /// `RSAOAEP256KeyUnwrap` provides methods to decrypt content encryption keys (CEKs) using RSAES-OAEP with SHA-256.
 public struct RSAOAEP256KeyUnwrap: KeyUnwrapping {
@@ -58,30 +60,15 @@ public struct RSAOAEP256KeyUnwrap: KeyUnwrapping {
             )
         }
         let derEncodedRSAPrivateKey = try rsaPrivateKey.externalRepresentation()
-        let attributes: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-            kSecAttrKeyClass as String: kSecAttrKeyClassPrivate,
-            kSecAttrKeySizeInBits as String: n.count * 8,
-            kSecAttrIsPermanent as String: false,
-        ]
-        var error: Unmanaged<CFError>?
-        guard let rsaSecKey = SecKeyCreateWithData(
-            derEncodedRSAPrivateKey as CFData,
-            attributes as CFDictionary,
-            &error
-        ) else {
-            throw CryptoError.securityLayerError(internalStatus: nil, internalError: error?.takeRetainedValue())
+        
+        guard let decryptionKey = try? _RSA.Encryption.PrivateKey(derRepresentation: derEncodedRSAPrivateKey) else {
+            throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
-        let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA256
-        var decryptionError: Unmanaged<CFError>?
-        guard let plaintext = SecKeyCreateDecryptedData(
-            rsaSecKey,
-            secKeyAlgorithm,
-            encryptedKey as CFData,
-            &decryptionError
-        ) else {
+        
+        guard let decryptedData = try? Data(decryptionKey.decrypt(encryptedKey, padding: _RSA.Encryption.Padding.PKCS1_OAEP_SHA256)) else {
             throw CryptoError.failedRSAKeyUnwrap
+
         }
-        return plaintext as Data
+        return decryptedData
     }
 }

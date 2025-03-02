@@ -17,7 +17,6 @@
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
-import Security
 
 /// `RSA15KeyUnwrap` provides methods to decrypt content encryption keys (CEKs) using RSAES-PKCS1-v1_5.
 public struct RSA15KeyUnwrap: KeyUnwrapping {
@@ -57,31 +56,11 @@ public struct RSA15KeyUnwrap: KeyUnwrapping {
                 d: using.d.map { BigUInteger($0) }
             )
         }
-        let derEncodedRSAPrivateKey = try rsaPrivateKey.externalRepresentation()
-        let attributes: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-            kSecAttrKeyClass as String: kSecAttrKeyClassPrivate,
-            kSecAttrKeySizeInBits as String: n.count * 8,
-            kSecAttrIsPermanent as String: false,
-        ]
-        var error: Unmanaged<CFError>?
-        guard let rsaSecKey = SecKeyCreateWithData(
-            derEncodedRSAPrivateKey as CFData,
-            attributes as CFDictionary,
-            &error
-        ) else {
-            throw CryptoError.securityLayerError(internalStatus: nil, internalError: error?.takeRetainedValue())
+        guard let decryptedData = try? Data(rsaPrivateKey.decrypt(encryptedKey.bytes,variant: .pksc1v15)) else {
+            throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
-        let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionPKCS1
-        var decryptionError: Unmanaged<CFError>?
-        guard let plaintext = SecKeyCreateDecryptedData(
-            rsaSecKey,
-            secKeyAlgorithm,
-            encryptedKey as CFData,
-            &decryptionError
-        ) else {
-            throw CryptoError.securityLayerError(internalStatus: nil, internalError: decryptionError?.takeRetainedValue())
-        }
-        return plaintext as Data
+        
+        return decryptedData
+   
     }
 }

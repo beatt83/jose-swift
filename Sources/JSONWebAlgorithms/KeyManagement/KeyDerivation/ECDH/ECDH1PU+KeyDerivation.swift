@@ -42,7 +42,7 @@ extension ECDH1PU: KeyDerivation {
         let suppPrivInfoData = Data()
         let tagData = UInt32(tag.count).bigEndian.dataRepresentation + tag
 
-        return try ConcatKDF<CryptoKit.SHA256>.deriveKey(
+        return try ConcatKDF<Crypto.SHA256>.deriveKey(
             z: key,
             keyDataLen: keyLengthInBits,
             algorithmID: algorithmIDData,

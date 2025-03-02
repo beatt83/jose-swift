@@ -17,7 +17,7 @@
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
-import Security
+import _CryptoExtras
 
 /// `RSAOAEPKeyUnwrap` provides methods to decrypt content encryption keys (CEKs) using RSAES-OAEP with SHA-1.
 public struct RSAOAEPKeyUnwrap: KeyUnwrapping {
@@ -57,17 +57,17 @@ public struct RSAOAEPKeyUnwrap: KeyUnwrapping {
             )
         }
         
-        let rsaSecKey = try rsaPrivateKey.getSecKey()
-        let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA1
-        var decryptionError: Unmanaged<CFError>?
-        guard let plaintext = SecKeyCreateDecryptedData(
-            rsaSecKey,
-            secKeyAlgorithm,
-            encryptedKey as CFData,
-            &decryptionError
-        ) else {
-            throw CryptoError.failedRSAKeyUnwrap
+        let derEncodedRSAPrivateKey = try rsaPrivateKey.externalRepresentation()
+        
+        guard let decryptionKey = try? _RSA.Encryption.PrivateKey(derRepresentation: derEncodedRSAPrivateKey) else {
+            throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
-        return plaintext as Data
+        
+        guard let decryptedData = try? Data(decryptionKey.decrypt(encryptedKey, padding: _RSA.Encryption.Padding.PKCS1_OAEP)) else {
+            throw CryptoError.failedRSAKeyUnwrap
+
+        }
+        return decryptedData
+
     }
 }
