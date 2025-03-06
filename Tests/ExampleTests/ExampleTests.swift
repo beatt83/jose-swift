@@ -170,7 +170,7 @@ final class ExamplesTests: XCTestCase {
     
     func testExample3_1And3_2() throws {
         let payload = "Hello, World!".data(using: .utf8)!
-        let recipientKey = try RSA(keySize: 1024)
+        let recipientKey = try RSA(keySize: 2048)
 
         let jwe = try JWE(
             payload: payload,
@@ -190,7 +190,7 @@ final class ExamplesTests: XCTestCase {
     
     func testExample3_3() throws {
         let payload = "Hello, World!".data(using: .utf8)!
-        let recipientKey = try RSA(keySize: 1024)
+        let recipientKey = try RSA(keySize: 2048)
 
         var header = DefaultJWEHeaderImpl(keyManagementAlgorithm: .rsaOAEP256, encodingAlgorithm: .a256GCM)
         header.keyID = "key-id"
@@ -206,7 +206,7 @@ final class ExamplesTests: XCTestCase {
     
     func testExample3_4() throws {
         let nestedPayload = "Nested payload".data(using: .utf8)!
-        let nestedRecipientKey = try RSA(keySize: 1024)
+        let nestedRecipientKey = try RSA(keySize: 2048)
 
         let nestedJwe = try JWE(
             payload: nestedPayload,
@@ -215,7 +215,7 @@ final class ExamplesTests: XCTestCase {
             recipientKey: nestedRecipientKey
         )
 
-        let outerRecipientKey = try RSA(keySize: 1024)
+        let outerRecipientKey = try RSA(keySize: 2048)
         let outerJwe = try JWE(
             payload: JSONEncoder().encode(nestedJwe.compactSerialization),
             keyManagementAlg: .rsaOAEP,
