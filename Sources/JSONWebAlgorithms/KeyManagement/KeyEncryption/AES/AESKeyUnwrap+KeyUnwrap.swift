@@ -37,10 +37,20 @@ struct AESKeyUnwrap: KeyUnwrapping {
         guard let key = using.key else {
             throw CryptoError.missingOctetSequenceKey
         }
-        
-        return try AES.KeyWrap.unwrap(
-               encryptedKey,
-               using: .init(data: key)
-        ).withUnsafeBytes { Data($0) }
+        if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, *) {
+            return try AES.KeyWrap.unwrap(
+                encryptedKey,
+                using: .init(data: key)
+            ).withUnsafeBytes { Data($0) }
+        } else {
+#if canImport(Security)
+            return try AESKeyWrapperCommonCrypto().unwrap(key: encryptedKey, encryptionKey: key)
+#else
+            return try AES.KeyWrap.unwrap(
+                encryptedKey,
+                using: .init(data: key)
+            ).withUnsafeBytes { Data($0) }
+#endif
+        }
     }
 }

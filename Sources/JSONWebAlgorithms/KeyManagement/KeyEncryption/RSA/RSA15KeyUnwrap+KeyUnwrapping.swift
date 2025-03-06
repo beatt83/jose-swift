@@ -56,11 +56,11 @@ public struct RSA15KeyUnwrap: KeyUnwrapping {
                 d: using.d.map { BigUInteger($0) }
             )
         }
+
         guard let decryptedData = try? Data(rsaPrivateKey.decrypt(encryptedKey.bytes,variant: .pksc1v15)) else {
             throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
         
         return decryptedData
-   
     }
 }

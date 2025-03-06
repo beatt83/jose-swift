@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#if canImport(CommonCrypto)
+import CommonCrypto
+#endif
 import Foundation
 
 /// `CryptoError` is an enumeration representing various errors that can occur in cryptographic operations.
@@ -79,5 +82,7 @@ public enum CryptoError: LocalizedError {
     case cannotGenerateKeyForTypeAndCurve(type: String, curve: String?)
     
     case keyFormatNotSupported(format: String, supportedFormats: [String])
-    
+#if canImport(CommonCrypto)
+    case commonCryptoError(status: CCStatus)
+#endif
 }

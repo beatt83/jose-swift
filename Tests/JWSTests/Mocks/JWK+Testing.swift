@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import CryptoKit
+import Crypto
 import Foundation
 import JSONWebKey
 import secp256k1
@@ -30,6 +30,7 @@ extension JWK {
         return privateKey.rawRepresentation
     }
     
+#if canImport(Security)
     static var testingES256PairSecKey: SecKey {
         let p256Data = P256.Signing.PrivateKey().x963Representation
         let attributes: [String: Any] = [
@@ -46,6 +47,7 @@ extension JWK {
         }
         fatalError()
     }
+#endif
     
     static var testingES384Pair: JWK {
         let privateKey = P384.Signing.PrivateKey()

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * Copyright 2024 Gonçalo Frade
  *
@@ -15,23 +14,12 @@
  * limitations under the License.
  */
 
-import CryptoKit
-import Crypto
-@preconcurrency import CryptoSwift
-import Foundation
-import JSONWebKey
-import Security
-=======
-@preconcurrency import CryptoSwift
-import Foundation
-import JSONWebKey
 #if canImport(Security)
-import Security
-//import CryptoKit
-#endif
 import Crypto
-import _CryptoExtras
->>>>>>> 4c9c261 (Fixe test issues)
+@preconcurrency import CryptoSwift
+import Foundation
+import JSONWebKey
+import Security
 
 public struct SecKeyExtended {
     public enum SupportedKeyType {
@@ -53,26 +41,13 @@ public struct SecKeyExtended {
         case keyDataExtractionFailed
     }
     
-<<<<<<< HEAD
     public let key: SecKey
-=======
-#if canImport(Security)
-   public let key: SecKey
-#endif // canImport(Security)
-
-    
->>>>>>> 4c9c261 (Fixe test issues)
     public let keyType: SupportedKeyType
     public let isPrivate: Bool
     public let keyData: Data
     public let keyUsage: KeyUsage
     
-<<<<<<< HEAD
     public init(secKey: SecKey) throws {
-=======
-#if canImport(Security)
-   public init(secKey: SecKey) throws {
->>>>>>> 4c9c261 (Fixe test issues)
         self.key = secKey
         
         // Get key attributes
@@ -135,10 +110,6 @@ public struct SecKeyExtended {
             self.keyUsage = .unknown
         }
     }
-<<<<<<< HEAD
-=======
-    #endif // canImport(Security)
->>>>>>> 4c9c261 (Fixe test issues)
     
     public func jwk() throws -> JWK {
         return try buildJWK()
@@ -215,3 +186,4 @@ public struct SecKeyExtended {
         }
     }
 }
+#endif
