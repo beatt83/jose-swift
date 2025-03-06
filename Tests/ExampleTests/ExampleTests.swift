@@ -1,15 +1,13 @@
-
 import JSONWebKey
 import JSONWebToken
 import JSONWebSignature
 import JSONWebEncryption
-import CryptoKit
+import Crypto
 import CryptoSwift
 import secp256k1
 import XCTest
 
 final class ExamplesTests: XCTestCase {
-
     func testExample1_1AndExample1_2() throws {
         // Generate a P256 private key
         let privateKey = P256.Signing.PrivateKey()
@@ -73,6 +71,7 @@ final class ExamplesTests: XCTestCase {
         print("Encrypted payload: \(String(data: decryptedPayload, encoding: .utf8)!)")
     }
     
+#if canImport(Security)
     func testExample1_7() throws {
         let payload = "Hello JSW!".data(using: .utf8)!
         // Generate a SecKey private key
@@ -94,6 +93,7 @@ final class ExamplesTests: XCTestCase {
         
         print("Valid: \(isJWSValid)")
     }
+#endif
     
     func testExample1_8() throws {
         let payload = "Hello JSW!".data(using: .utf8)!
@@ -170,7 +170,7 @@ final class ExamplesTests: XCTestCase {
     
     func testExample3_1And3_2() throws {
         let payload = "Hello, World!".data(using: .utf8)!
-        let recipientKey = try RSA(keySize: 2048)
+        let recipientKey = try RSA(keySize: 1024)
 
         let jwe = try JWE(
             payload: payload,
@@ -190,7 +190,7 @@ final class ExamplesTests: XCTestCase {
     
     func testExample3_3() throws {
         let payload = "Hello, World!".data(using: .utf8)!
-        let recipientKey = try RSA(keySize: 2048)
+        let recipientKey = try RSA(keySize: 1024)
 
         var header = DefaultJWEHeaderImpl(keyManagementAlgorithm: .rsaOAEP256, encodingAlgorithm: .a256GCM)
         header.keyID = "key-id"
@@ -206,7 +206,7 @@ final class ExamplesTests: XCTestCase {
     
     func testExample3_4() throws {
         let nestedPayload = "Nested payload".data(using: .utf8)!
-        let nestedRecipientKey = try RSA(keySize: 2048)
+        let nestedRecipientKey = try RSA(keySize: 1024)
 
         let nestedJwe = try JWE(
             payload: nestedPayload,
@@ -215,7 +215,7 @@ final class ExamplesTests: XCTestCase {
             recipientKey: nestedRecipientKey
         )
 
-        let outerRecipientKey = try RSA(keySize: 2048)
+        let outerRecipientKey = try RSA(keySize: 1024)
         let outerJwe = try JWE(
             payload: JSONEncoder().encode(nestedJwe.compactSerialization),
             keyManagementAlg: .rsaOAEP,
@@ -377,6 +377,7 @@ final class ExamplesTests: XCTestCase {
         print("JWT is valid: \(isValid)")
     }
     
+#if canImport(Security)
     func testExample5_6() throws {
         // Generate a SecKey private key
         let attributes: [String: Any] = [
@@ -402,6 +403,7 @@ final class ExamplesTests: XCTestCase {
         let isValid = try JWT.verify(jwtString: jwt.jwtString, senderKey: secPublicKey)
         print("JWT is valid: \(isValid)")
     }
+#endif
     
     func testExample5_7() throws {
         // Create a JWK
@@ -438,7 +440,8 @@ final class ExamplesTests: XCTestCase {
         let encodedJWT = try JWT.verify(jwtString: jwtString, senderKey: publicKey)
         print("No errors so your JWT is verified: \(signedJWT.jwtString)")
     }
-    
+
+#if canImport(Security)
     func example6_2() throws {
         // Generate a SecKey private key
         let attributes: [String: Any] = [
@@ -460,6 +463,7 @@ final class ExamplesTests: XCTestCase {
         let jwt = try JWT.verify(jwtString: jwtString, senderKey: secPublicKey)
         print("No errors so your JWT is verified: \(jwt.jwtString)")
     }
+#endif
     
     func example6_3() throws {
         // Create a JWK

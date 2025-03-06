@@ -49,8 +49,7 @@ public struct RSAOAEP256KeyWrapper: KeyWrapping {
         }
         let rsaPublicKey = CryptoSwift.RSA(n: BigUInteger(n), e: BigUInteger(e))
         let derEncodedRSAPublicKey = try rsaPublicKey.publicKeyExternalRepresentation()
-                
-        guard let encryptionKey = try? _RSA.Encryption.PublicKey(derRepresentation: derEncodedRSAPublicKey) else {
+        guard let encryptionKey = try? _RSA.Encryption.PublicKey(unsafeDERRepresentation: derEncodedRSAPublicKey) else {
             throw CryptoError.invalidRSAKey
         }
         

@@ -60,8 +60,7 @@ public struct RSAOAEP256KeyUnwrap: KeyUnwrapping {
             )
         }
         let derEncodedRSAPrivateKey = try rsaPrivateKey.externalRepresentation()
-        
-        guard let decryptionKey = try? _RSA.Encryption.PrivateKey(derRepresentation: derEncodedRSAPrivateKey) else {
+        guard let decryptionKey = try? _RSA.Encryption.PrivateKey(unsafeDERRepresentation: derEncodedRSAPrivateKey) else {
             throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
         
