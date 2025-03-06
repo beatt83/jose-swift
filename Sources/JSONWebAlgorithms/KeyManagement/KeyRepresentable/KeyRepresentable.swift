@@ -20,6 +20,9 @@ import Crypto
 import Foundation
 import JSONWebKey
 import secp256k1
+#if canImport(Security)
+import Security
+#endif
 
 public protocol KeyRepresentable {
     var jwk: JWK { get throws }
@@ -97,3 +100,12 @@ extension SymmetricKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
 
+#if canImport(Security)
+extension SecKey: KeyRepresentable {
+    public var jwk: JWK {
+        get throws {
+            try SecKeyExtended(secKey: self).jwk()
+        }
+    }
+}
+#endif
