@@ -33,10 +33,6 @@ public protocol JWTRegisteredFieldsClaims {
     var iat: Date? { get }
     // "jti" claim representing a unique identifier for the JWT.
     var jti: String? { get }
-
-    /// Validates extra claims in the JWT.
-    /// - Throws: `JWTError` if any claim validations fail.
-    func validateExtraClaims() throws
 }
 
 /// `DefaultJWTClaimsImpl` is a struct implementing the `JWTRegisteredFieldsClaims` protocol, providing a default set of claims.
@@ -67,6 +63,4 @@ public struct DefaultJWTClaimsImpl: JWTRegisteredFieldsClaims, Codable {
         self.iat = iat
         self.jti = jti
     }
-    
-    public func validateExtraClaims() throws {}
 }

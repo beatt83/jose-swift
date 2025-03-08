@@ -94,7 +94,14 @@ let expectedAudience = "your-audience"
 
 let jwk = JWK(keyType: .octetSequence, key: Data(repeating: 0, count: 32))
 // The library verifies automatically iat, nbf and exp but you can pass values for iss, sub and aud
-let jwt = try JWT.verify(jwtString: "your.jwt.here", senderKey: jwk, expectedIssuer: expectedIssuer, expectedAudience: expectedAudience)
+let jwt = try JWT.verify(
+    jwtString: "your.jwt.here", 
+    senderKey: jwk, 
+    validators: [
+        .iss(expectedIssuer: expectedIssuer, required: false),
+        .aud(expectedAudience: [expectedAudience], required: false)
+    ]
+)
 print("No errors so your JWT is verified: \(jwt.jwtString)")
 ```
 Example 6.4

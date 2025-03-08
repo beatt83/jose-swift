@@ -21,8 +21,6 @@ struct CustomClaims: Codable, JWTRegisteredFieldsClaims {
     let jti: String?
     let userId: String
     let roles: [String]
-    
-    func validateExtraClaims() throws {}
 }
 ```
 Example 8.1

@@ -143,13 +143,6 @@ struct CustomClaims: JWTRegisteredFieldsClaims, Codable {
         self.jti = jti
         self.customClaim = customClaim
     }
-    
-    func validateExtraClaims() throws {
-        // Any extra validation
-        guard customClaim == "custom-value" else {
-            throw DemoError()
-        }
-    }
 }
 
 let key = P256.Signing.PrivateKey()

@@ -35,6 +35,9 @@ extension JWT {
 
         /// Error indicating a mismatch between the expected issuer (`iss` claim) and the actual issuer of the JWT.
         case issuerMismatch
+        
+        /// Error indicating a mismatch between the expected subject (`sub` claim) and the actual subject of the JWT.
+        case subjectMismatch
 
         /// Error indicating that the JWT has expired (`exp` claim) and is no longer valid.
         case expired
@@ -48,10 +51,16 @@ extension JWT {
         /// Error indicating a mismatch between the expected audience (`aud` claim) and the actual audience of the JWT.
         case audienceMismatch
         
-        // Error indicating that JWT formats supported are JWS strings and JWE strings
+        /// Error indicating that JWT formats supported are JWS strings and JWE strings
         case unsupportedFormat
         
-        // Error indicating that JWT of JWE format cannot retrieve payload without decryption
+        /// Error indicating that JWT of JWE format cannot retrieve payload without decryption
         case cannotRetrievePayloadFromJWE
+        
+        /// Error indicating that the JWT is missing a claim required by a validator
+        case requiredClaimMissing(String)
+        
+        /// Error that is a collection of all the issues with the validation of a JWT claims
+        case multipleValidatingErrors([Error])
     }
 }

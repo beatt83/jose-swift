@@ -144,7 +144,7 @@ final class JWTTests: XCTestCase {
         XCTAssertThrowsError(try JWT.verify(
             jwtString: jwtString,
             senderKey: key,
-            expectedIssuer: "Bob"
+            validators: [.iss(expectedIssuer: "Bob", required: false)]
         ))
     }
     
@@ -168,7 +168,7 @@ final class JWTTests: XCTestCase {
         XCTAssertThrowsError(try JWT.verify(
             jwtString: jwtString,
             senderKey: key,
-            expectedAudience: "Bob"
+            validators: [.aud(expectedAudience: ["Bob"], required: false)]
         ))
     }
     

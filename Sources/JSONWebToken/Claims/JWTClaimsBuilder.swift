@@ -107,6 +107,4 @@ extension ObjectClaim: JWTRegisteredFieldsClaims {
     public var jti: String? {
         objectClaims.first { $0.key == "jti" }?.element.getValue()
     }
-    
-    public func validateExtraClaims() throws {}
 }
