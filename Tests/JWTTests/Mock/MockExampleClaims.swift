@@ -30,6 +30,4 @@ struct MockExampleClaims: JWTRegisteredFieldsClaims, Codable {
         self.jti = jti
         self.testClaim = testClaim
     }
-    
-    func validateExtraClaims() throws {}
 }

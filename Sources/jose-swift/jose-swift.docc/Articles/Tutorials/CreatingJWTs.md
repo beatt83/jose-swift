@@ -37,8 +37,6 @@ struct MyClaims: JWTRegisteredFieldsClaims, Codable {
         self.sub = sub
         self.name = name
     }
-    
-    func validateExtraClaims() throws {}
 }
 
 let _ = MyClaims(iat: Date(), sub: "1234567890", name: "John Doe")

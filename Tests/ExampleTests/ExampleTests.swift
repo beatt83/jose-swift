@@ -277,13 +277,6 @@ final class ExamplesTests: XCTestCase {
                 self.jti = jti
                 self.customClaim = customClaim
             }
-            
-            func validateExtraClaims() throws {
-                // Any extra validation
-                guard customClaim == "custom-value" else {
-                    throw DemoError()
-                }
-            }
         }
 
         let key = P256.Signing.PrivateKey()
@@ -349,8 +342,6 @@ final class ExamplesTests: XCTestCase {
                 self.sub = sub
                 self.name = name
             }
-            
-            func validateExtraClaims() throws {}
         }
 
         let _ = MyClaims(iat: Date(), sub: "1234567890", name: "John Doe")
@@ -489,7 +480,14 @@ final class ExamplesTests: XCTestCase {
 
         let jwk = JWK(keyType: .octetSequence, key: Data(repeating: 0, count: 32))
         // The library verifies automatically iat, nbf and exp but you can pass values for iss, sub and aud
-        let jwt = try JWT.verify(jwtString: "your.jwt.here", senderKey: jwk, expectedIssuer: expectedIssuer, expectedAudience: expectedAudience)
+        let jwt = try JWT.verify(
+            jwtString: "your.jwt.here",
+            senderKey: jwk,
+            validators: [
+                .iss(expectedIssuer: expectedIssuer, required: false),
+                .aud(expectedAudience: [expectedAudience], required: false)
+            ]
+        )
         print("No errors so your JWT is verified: \(jwt.jwtString)")
     }
     
@@ -582,8 +580,6 @@ final class ExamplesTests: XCTestCase {
                 self.userId = userId
                 self.roles = roles
             }
-            
-            func validateExtraClaims() throws {}
         }
         
         let customClaims = CustomClaims(
