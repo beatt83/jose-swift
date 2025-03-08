@@ -16,6 +16,7 @@
 
 import Foundation
 
+
 /// `ContentCompressor` is a protocol defining the functionality for compressing data.
 public protocol ContentCompressor {
     /// Compresses the provided input data.

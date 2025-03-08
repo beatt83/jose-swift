@@ -15,7 +15,12 @@
  */
 
 import Foundation
-import SWCompression
+import ZlibSwift
+
+enum ZipError : Error {
+    case compressionFailed
+    case decompressionFailed
+}
 
 /// `Zip` provides methods to compress and decompress data using zlib.
 public struct Zip: ContentCompressor, ContentDecompressor {
@@ -24,7 +29,10 @@ public struct Zip: ContentCompressor, ContentDecompressor {
     /// - Throws: An error if the compression fails.
     /// - Returns: The compressed data.
     public func compress(input: Data) throws -> Data {
-        return ZlibArchive.archive(data: input)
+        guard let compressed = input.zCompressed else {
+            throw ZipError.compressionFailed
+        }
+        return compressed;
     }
     
     /// Decompresses the input data using zlib.
@@ -32,6 +40,10 @@ public struct Zip: ContentCompressor, ContentDecompressor {
     /// - Throws: An error if the decompression fails.
     /// - Returns: The decompressed data.
     public func decompress(input: Data) throws -> Data {
-        return try ZlibArchive.unarchive(archive: input)
+        guard let decompressed = input.zDecompressed else {
+            throw ZipError.decompressionFailed
+
+        }
+        return decompressed;
     }
 }
