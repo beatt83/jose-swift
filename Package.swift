@@ -38,7 +38,7 @@ let package = Package(
         // Changing to a fork I made while I create a PR, since I found a bug
         .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5")),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
-        .package(url: "https://github.com/tsolomko/SWCompression.git",from: "4.8.5")
+        .package(url: "https://github.com/DLTAStudio/zlib.git",from:"1.0.0")
     ],
     targets: [
         .target(
@@ -49,7 +49,7 @@ let package = Package(
                 .product(name: "CryptoSwift", package: "CryptoSwift"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "_CryptoExtras", package: "swift-crypto"),
-                .product(name: "SWCompression", package: "SWCompression")
+                .product(name: "Zlib", package: "ZLib")
  ]
         ),
         .testTarget(
