@@ -460,9 +460,11 @@ func prepareJWK(key: KeyRepresentable?) throws -> JWK {
         return value
     case let value as JWKRepresentable:
         return value.jwkRepresentation
+#if canImport(Security)
     case let value as SecKey:
         return try SecKeyExtended(secKey: value).jwk()
+#endif
     default:
-        throw CryptoError.keyFormatNotSupported(format: String(describing: key.self), supportedFormats: ["JWK", "SecKey", "JWKRepresentable"])
+        throw CryptoError.keyFormatNotSupported(format: String(describing: key.self), supportedFormats: ["JWK", "JWKRepresentable"])
     }
 }

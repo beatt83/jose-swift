@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#if canImport(Security)
 @preconcurrency import CryptoSwift
 import Foundation
 import Security
@@ -40,3 +41,4 @@ extension RSA {
         return key
     }
 }
+#endif

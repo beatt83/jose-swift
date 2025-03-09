@@ -634,6 +634,7 @@ final class RFC7520Tests: XCTestCase {
     func testSection_5_9() throws {
         let payload = "You can trust us to stick with you through thick and thin–to the bitter end. And you can trust us to keep any secret of yours–closer than you keep it yourself. But you cannot trust us to let you face trouble alone, and go off without a word. We are your friends, Frodo.".data(using: .utf8)!
         
+
         let recipientJWK = try JSONDecoder().decode(
             JWK.self,
             from: """
@@ -662,7 +663,8 @@ final class RFC7520Tests: XCTestCase {
             initializationVector: Base64URL.decode("p9pUq6XHY0jfEZIl"),
             additionalAuthenticationData: nil
         ).compactSerialization
-        
+
+
         let decrypted = try JWE.decrypt(
             compactString: serialization,
             recipientKey: recipientJWK
@@ -671,26 +673,15 @@ final class RFC7520Tests: XCTestCase {
         XCTAssertEqual(payload, decrypted)
         
         let expectedSerializationTestVector = """
-        eyJhbGciOiJBMTI4S1ciLCJraWQiOiI4MWIyMDk2NS04MzMyLTQzZDktYTQ2OC
-        04MjE2MGFkOTFhYzgiLCJlbmMiOiJBMTI4R0NNIiwiemlwIjoiREVGIn0
-        .
-        5vUT2WOtQxKWcekM_IzVQwkGgzlFDwPi
-        .
-        p9pUq6XHY0jfEZIl
-        .
-        HbDtOsdai1oYziSx25KEeTxmwnh8L8jKMFNc1k3zmMI6VB8hry57tDZ61jXyez
-        SPt0fdLVfe6Jf5y5-JaCap_JQBcb5opbmT60uWGml8blyiMQmOn9J--XhhlYg0
-        m-BHaqfDO5iTOWxPxFMUedx7WCy8mxgDHj0aBMG6152PsM-w5E_o2B3jDbrYBK
-        hpYA7qi3AyijnCJ7BP9rr3U8kxExCpG3mK420TjOw
-        .
-        VILuUwuIxaLVmh5X-T7kmA
+        eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4R0NNIiwia2lkIjoiODFiMjA5NjUtODMzMi00M2Q5LWE0NjgtODIxNjBhZDkxYWM4IiwiemlwIjoiREVGIn0.5vUT2WOtQxKWcekM_IzVQwkGgzlFDwPi.p9pUq6XHY0jfEZIl.CKNBuMRnRS9DcnAcBcdX1LLy5OmZJM1ZBH57d6lNMvMoCDxBzbwv0dV81bntDjiDDBfcwwgPtr_TR3t8kCGSbL0ZRp7U5NcwAacefPvZho4GHLKnx25WoXDzeMcjH9zA5491-_8ZJOavdO2hweBE-4aZU1FS9IPYBXp_omsmtBNs8pkuFP5EWvIz7pUjO3z6CZSwH30si7dFC9Vpuaydwg_hkWchI42dqnozEravo10.g8xWJo2kqzd7-XBV6mMV_Q
         """.replacingWhiteSpacesAndNewLines()
         
+
         let decryptedTestVector = try JWE.decrypt(
             compactString: expectedSerializationTestVector,
             recipientKey: recipientJWK
         )
-        
+
         XCTAssertEqual(payload, decryptedTestVector)
     }
     

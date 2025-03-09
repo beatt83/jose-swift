@@ -17,7 +17,6 @@
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
-import Security
 
 /// `RSA15KeyWrapper` provides methods to encrypt content encryption keys (CEKs) using RSAES-PKCS1-v1_5.
 public struct RSA15KeyWrapper: KeyWrapping {
@@ -48,31 +47,10 @@ public struct RSA15KeyWrapper: KeyWrapping {
             throw JWK.Error.missingEComponent
         }
         let rsaPublicKey = CryptoSwift.RSA(n: BigUInteger(n), e: BigUInteger(e))
-        let derEncodedRSAPublicKey = try rsaPublicKey.publicKeyExternalRepresentation()
-        let attributes: [String: Any] = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeRSA,
-            kSecAttrKeyClass as String: kSecAttrKeyClassPublic,
-            kSecAttrKeySizeInBits as String: n.count * 8,
-            kSecAttrIsPermanent as String: false,
-        ]
-        var error: Unmanaged<CFError>?
-        guard let rsaSecKey = SecKeyCreateWithData(
-            derEncodedRSAPublicKey as CFData,
-            attributes as CFDictionary,
-            &error
-        ) else {
-            throw CryptoError.invalidRSAKey
+        
+        guard let cipheredData = try? Data(rsaPublicKey.encrypt(cek.bytes,variant: .pksc1v15)) else {
+            throw CryptoError.securityLayerError(internalStatus: nil, internalError:nil)
         }
-        let secKeyAlgorithm = SecKeyAlgorithm.rsaEncryptionPKCS1
-        var encryptionError: Unmanaged<CFError>?
-        guard let ciphertext = SecKeyCreateEncryptedData(
-            rsaSecKey,
-            secKeyAlgorithm,
-            cek as CFData,
-            &encryptionError
-        ) else {
-            throw CryptoError.securityLayerError(internalStatus: nil, internalError: encryptionError?.takeRetainedValue())
-        }
-        return .init(encryptedKey: ciphertext as Data)
+        return .init(encryptedKey: cipheredData)
     }
 }

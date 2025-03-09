@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import CryptoKit
+#if canImport(Security)
+import Crypto
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
@@ -185,3 +186,4 @@ public struct SecKeyExtended {
         }
     }
 }
+#endif

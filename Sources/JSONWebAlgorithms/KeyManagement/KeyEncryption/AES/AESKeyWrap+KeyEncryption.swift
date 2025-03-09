@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import CryptoKit
+import Crypto
 import Foundation
 import JSONWebKey
 import Tools
@@ -52,7 +52,14 @@ struct AESKeyWrap: KeyWrapping {
                 using: .init(data: key)
             )
         } else {
+#if canImport(Security)
             encryptedKey = try AESKeyWrapperCommonCrypto().wrap(key: cek, encryptionKey: key)
+#else
+            encryptedKey = try AES.KeyWrap.wrap(
+                .init(data: cek),
+                using: .init(data: key)
+            )
+#endif
         }
 
         return .init(

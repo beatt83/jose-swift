@@ -215,8 +215,6 @@ final class JWTTests: XCTestCase {
         let coded = try encoder.encode(resultTestClaims.value)
         
         let jsonString = try XCTUnwrap(String(data: coded, encoding: .utf8))
-        print(jsonString)
-        
         // Verify the structure of the resulting JSON
         let expectedJSON = """
         {
@@ -243,9 +241,9 @@ final class JWTTests: XCTestCase {
             "willShow":"testValue",
             "willShow2":"testValue"
         }
-        """
+        """.replacingWhiteSpacesAndNewLines()
         XCTAssertFalse(jsonString.contains("dontShow"))
-        XCTAssertTrue(areJSONStringsEqual(jsonString, expectedJSON))
+        XCTAssertEqual(jsonString, expectedJSON)
     }
     
     func testJWTClaims() throws {

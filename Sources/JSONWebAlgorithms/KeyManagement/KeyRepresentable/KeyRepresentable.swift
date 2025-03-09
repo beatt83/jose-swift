@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import CryptoKit
+import Crypto
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
 import secp256k1
+#if canImport(Security)
+import Security
+#endif
 
 public protocol KeyRepresentable {
     var jwk: JWK { get throws }
@@ -95,6 +98,8 @@ extension secp256k1.KeyAgreement.PublicKey: KeyRepresentable {
 extension SymmetricKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
+
+#if canImport(Security)
 extension SecKey: KeyRepresentable {
     public var jwk: JWK {
         get throws {
@@ -102,3 +107,4 @@ extension SecKey: KeyRepresentable {
         }
     }
 }
+#endif

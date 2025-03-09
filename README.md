@@ -1,7 +1,7 @@
 ![Screenshot](jose-swift-logo.png)
 # Jose Swift Library
 
-[![Swift](https://img.shields.io/badge/swift-brightgreen.svg)]() [![Swift6](https://img.shields.io/badge/swift6-brightgreen.svg)]() [![iOS](https://img.shields.io/badge/ios-brightgreen.svg)]() [![MacOS](https://img.shields.io/badge/macos-brightgreen.svg)]() [![WatchOS](https://img.shields.io/badge/watchos-brightgreen.svg)]() [![TvOS](https://img.shields.io/badge/tvos-brightgreen.svg)]()
+[![Swift](https://img.shields.io/badge/swift-brightgreen.svg)]() [![Swift6](https://img.shields.io/badge/swift6-brightgreen.svg)]() [![iOS](https://img.shields.io/badge/ios-brightgreen.svg)]() [![MacOS](https://img.shields.io/badge/macos-brightgreen.svg)]() [![WatchOS](https://img.shields.io/badge/watchos-brightgreen.svg)]() [![TvOS](https://img.shields.io/badge/tvos-brightgreen.svg)]() [![Linux](https://img.shields.io/badge/linux-brightgreen.svg)]()
 
 This library provides comprehensive support for the Jose suite of standards, including JWA (JSON Web Algorithms), JWK (JSON Web Key), JWE (JSON Web Encryption), JWS (JSON Web Signature), and JWT (JSON Web Token). These standards are integral to modern security protocols on the web, offering methods for secure key management, data encryption, signing, and representation of claims among different parties.
 
@@ -175,9 +175,12 @@ Note: JWS Unencoded payload as referenced in the [RFC-7797](https://datatracker.
 - Mac Catalyst 15.0 or later
 - tvOS 15.0 or later
 - watchOS 8.0 or later
+- Linux
 - Dependencies:
+    - [swift-crypto](https://github.com/apple/swift-crypto)
     - [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift)
     - [secp256k1.swift](https://github.com/GigaBitcoin/secp256k1.swift)
+    - [zlib](https://github.com/DLTAStudio/zlib)
 
 ## Swift Package Manager (SPM)
 

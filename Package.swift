@@ -10,7 +10,7 @@ let package = Package(
         .macOS(.v12),
         .macCatalyst(.v14),
         .tvOS(.v14),
-        .watchOS(.v5)
+        .watchOS(.v6)
     ],
     products: [
         .library(
@@ -31,12 +31,14 @@ let package = Package(
         )
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "4.0.0"),
         // For `secp256k1` support
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
         // Changing to a fork I made while I create a PR, since I found a bug
-        .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5"))
+        .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5")),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
+        .package(url: "https://github.com/DLTAStudio/zlib.git",from:"1.0.1"),
     ],
     targets: [
         .target(
@@ -44,8 +46,11 @@ let package = Package(
             dependencies: [
                 "JSONWebKey",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
-                .product(name: "CryptoSwift", package: "CryptoSwift")
-            ]
+                .product(name: "CryptoSwift", package: "CryptoSwift"),
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "_CryptoExtras", package: "swift-crypto"),
+                .product(name: "Zlib", package: "ZLib"),
+ ]
         ),
         .testTarget(
             name: "JWATests",
@@ -80,7 +85,9 @@ let package = Package(
                 "CryptoSwift",
                 "Tools",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
-            ]
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "_CryptoExtras", package: "swift-crypto")
+    ]
         ),
         .testTarget(
             name: "JWKTests",

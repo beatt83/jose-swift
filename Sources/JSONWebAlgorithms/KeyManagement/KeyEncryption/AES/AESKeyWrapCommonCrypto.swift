@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#if canImport(CommonCrypto)
 import CommonCrypto
 import Foundation
 
@@ -86,3 +87,4 @@ fileprivate extension Data {
         }
     }
 }
+#endif

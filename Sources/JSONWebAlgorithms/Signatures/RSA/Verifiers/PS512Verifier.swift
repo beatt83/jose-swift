@@ -17,6 +17,8 @@
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
+import Crypto
+import _CryptoExtras
 
 /// `PS512Verifier` provides methods to verify signatures using the PS512 algorithm.
 public struct PS512Verifier: Verifier {
@@ -40,23 +42,14 @@ public struct PS512Verifier: Verifier {
             publicKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key?.d.map { BigUInteger($0) })
         }
         
-        let secKey = try publicKey.getSecKey()
-        guard SecKeyIsAlgorithmSupported(secKey, .sign, .rsaSignatureMessagePSSSHA512) else {
-            throw CryptoError.algorithmNotSupported(alg: SecKeyAlgorithm.rsaSignatureMessagePSSSHA512.rawValue as String)
+        let derEncodedRSAPublicKey = try publicKey.publicKeyExternalRepresentation()
+                
+        guard let verificationKey = try? _RSA.Signing.PublicKey(derRepresentation: derEncodedRSAPublicKey) else {
+            throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
         
-        var verificationError: Unmanaged<CFError>?
-        let result = SecKeyVerifySignature(
-            secKey,
-            .rsaSignatureMessagePSSSHA512,
-            data as CFData,
-            signature as CFData,
-            &verificationError
-        )
-        if let error = verificationError?.takeRetainedValue() as? NSError {
-            throw CryptoError.securityLayerError(internalStatus: error.code, internalError: error)
-        }
-        
-        return result
+        let rsaSignature = _RSA.Signing.RSASignature(rawRepresentation: signature)
+        let isValidSignature = verificationKey.isValidSignature(rsaSignature,for: data,padding: .PSS)
+        return isValidSignature
     }
 }

@@ -6,7 +6,7 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import CryptoKit
+import Crypto
 import Foundation
 import Tools
 
@@ -18,7 +18,7 @@ public extension JWK {
     /// - Returns: The Base64URL-encoded JWK thumbprint.
     /// - Throws: `JWK.Error.notSupported` if the JWK type is not supported.
     func thumbprint<H>(
-        with _: H = CryptoKit.SHA256()
+        with _: H = Crypto.SHA256()
     ) throws -> String where H: HashFunction {
         // Get required members of JWK
         // See https://www.rfc-editor.org/rfc/rfc7638#section-3.2

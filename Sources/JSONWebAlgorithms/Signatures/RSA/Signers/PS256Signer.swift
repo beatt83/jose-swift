@@ -17,6 +17,8 @@
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
+import Crypto
+import _CryptoExtras
 
 /// `PS256Signer` provides methods to sign data using the PS256 algorithm.
 public struct PS256Signer: Signer {
@@ -39,17 +41,11 @@ public struct PS256Signer: Signer {
             privateKey = RSA(n: BigUInteger(n), e: BigUInteger(e), d: key.d.map { BigUInteger($0) })
         }
         
-        let secKey = try privateKey.getSecKey()
-        guard SecKeyIsAlgorithmSupported(secKey, .sign, .rsaSignatureMessagePSSSHA256) else {
-            throw CryptoError.algorithmNotSupported(alg: SecKeyAlgorithm.rsaSignatureMessagePSSSHA256.rawValue as String)
+        let derEncodedRSAPrivateKey = try privateKey.externalRepresentation()
+        guard let signingKey = try? _RSA.Signing.PrivateKey(derRepresentation: derEncodedRSAPrivateKey),
+                let signature = try? signingKey.signature(for:SHA256.hash(data: data), padding: .PSS) else {
+            throw CryptoError.securityLayerError(internalStatus: nil, internalError: nil)
         }
-        
-        var signingError: Unmanaged<CFError>?
-        guard let signature = SecKeyCreateSignature(secKey, .rsaSignatureMessagePSSSHA256, data as CFData, &signingError) else {
-            let error = signingError?.takeRetainedValue() as? NSError
-            throw CryptoError.securityLayerError(internalStatus: error?.code, internalError: error)
-        }
-
-        return signature as Data
+        return signature.rawRepresentation
     }
 }
