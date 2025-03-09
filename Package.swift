@@ -10,7 +10,7 @@ let package = Package(
         .macOS(.v12),
         .macCatalyst(.v14),
         .tvOS(.v14),
-        .watchOS(.v5)
+        .watchOS(.v6)
     ],
     products: [
         .library(
@@ -38,7 +38,7 @@ let package = Package(
         // Changing to a fork I made while I create a PR, since I found a bug
         .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5")),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
-        .package(url: "https://github.com/DLTAStudio/zlib.git",from:"1.0.0")
+        .package(url: "https://github.com/DLTAStudio/zlib.git",from:"1.0.1"),
     ],
     targets: [
         .target(
@@ -49,7 +49,7 @@ let package = Package(
                 .product(name: "CryptoSwift", package: "CryptoSwift"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "_CryptoExtras", package: "swift-crypto"),
-                .product(name: "Zlib", package: "ZLib")
+                .product(name: "Zlib", package: "ZLib"),
  ]
         ),
         .testTarget(
