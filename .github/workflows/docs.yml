@@ -21,13 +21,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Pages
-      uses: actions/configure-pages@v1
+      uses: actions/configure-pages@v5
         
     - name: Generate Docs
       run: xcodebuild docbuild -scheme jose-swift-docs -destination "platform=macOS" -derivedDataPath ./doccBuild OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path ./docc --hosting-base-path '/jose-swift'"
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       with:
         path: ./docc
 
@@ -40,4 +40,4 @@ jobs:
 
     steps:
     - name: Deploy Docs
-      uses: actions/deploy-pages@v1
+      uses: actions/deploy-pages@v4
