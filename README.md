@@ -58,9 +58,12 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | iat               |:white_check_mark:|
 | typ               |:white_check_mark:|
 | cty               |:white_check_mark:|
+| x5c               |:white_check_mark:|
 | DSL Claims Builder|:white_check_mark:|
 
 </td></tr> </table>
+
+Note: JWT supports X.509 validation in conformance with [RFC-7797](https://datatracker.ietf.org/doc/html/rfc7797)
 
 ### JWE
 
@@ -147,6 +150,7 @@ This library provides comprehensive support for the Jose suite of standards, inc
 | PS512           |:white_check_mark:|
 | EdDSA           |:white_check_mark:|
 
+
 </td></tr> </table>
 
 Note: JWS Unencoded payload as referenced in the [RFC-7797](https://datatracker.ietf.org/doc/html/rfc7797)
@@ -154,7 +158,7 @@ Note: JWS Unencoded payload as referenced in the [RFC-7797](https://datatracker.
 ### JWK
 
 <table>
-<tr><th>JWK Supported Key Types</th></tr>
+<tr><th>JWK Supported Key Types</th><th>JWK Supported Functionalities</th></tr>
 <tr><td valign="top">
 
 | Key Type | Supported        |
@@ -163,6 +167,15 @@ Note: JWS Unencoded payload as referenced in the [RFC-7797](https://datatracker.
 | RSA      |:white_check_mark:|
 | OKT      |:white_check_mark:|
 | OCK      |:white_check_mark:|
+
+<tr><td valign="top">
+
+| Key Type                 | Supported        |
+|--------------------------|------------------|
+| PEM decoding             |:white_check_mark:|
+| JWKSet                   |:white_check_mark:|
+| Thumbprint               |:white_check_mark:|
+| Crypto keys encoding     |:white_check_mark:|
 
 </td></tr> </table>
 
@@ -246,6 +259,12 @@ For more examples on how to use this library please try to check the unit tests,
 JWK is a standard way to represent cryptographic keys in a JSON format, as defined in [RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517). This module provides functionalities for generating, parsing, and managing JWKs, which are essential for encryption, decryption, and signing processes.
 
 Please check our documentation for more on [JWS Signatures](https://beatt83.github.io/jose-swift/documentation/jose-swift/jwssignatures).
+
+JWK now also supports initialization from PEM-encoded key strings. This allows you to directly create a JWK from a PEM string containing either public or private keys in various formats including:
+- PKCS#8 formatted private keys,
+- SEC1 EC private keys ("EC PRIVATE KEY"),
+- PKCS#1 RSA private keys ("RSA PRIVATE KEY"),
+- SubjectPublicKeyInfo formatted public keys.
 
 ```swift
 let keyJWK = JWK(keyType: .rsa, algorithm: "A256GCM", keyID: rsaKeyId, e: rsaKeyExponent, n: rsaKeyModulus)
@@ -458,6 +477,12 @@ Please check our documentation for more on [JWT tokens](https://beatt83.github.i
     - Offers extensive capabilities to validate JWT claims.
     - Includes standard claims like issuer (`iss`), subject (`sub`), audience (`aud`), expiration (`exp`), not before (`nbf`), and issued at (`iat`).
     - Custom claim validation to meet specific security requirements.
+    
+6. **X5C Validation**:
+    - Adds support for validating the `x5c` (X.509 Certificate Chain) header as specified in [RFC 7515 Section 4.1.6](https://www.rfc-editor.org/rfc/rfc7515#section-4.1.6).
+    - Verifies that the JWT’s certificate chain is valid against a provided trusted certificate store using the validator `X5CValidator`.
+    - Supports P256, P384, P521, secp256k1, Ed25519 and RSA.
+    - Throws detailed errors when the certificate chain is missing or fails validation.
 
 Example:
 

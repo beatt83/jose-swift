@@ -24,7 +24,13 @@ public extension JWK {
         }
         
         switch type {
-        case is P256.KeyAgreement.PrivateKey.Type,
+        case
+            is P256.Signing.PrivateKey.Type,
+            is P384.Signing.PrivateKey.Type,
+            is P521.Signing.PrivateKey.Type,
+            is secp256k1.Signing.PrivateKey.Type,
+            is Curve25519.Signing.PrivateKey.Type,
+            is P256.KeyAgreement.PrivateKey.Type,
             is P384.KeyAgreement.PrivateKey.Type,
             is P521.KeyAgreement.PrivateKey.Type,
             is secp256k1.KeyAgreement.PrivateKey.Type,
@@ -34,6 +40,16 @@ public extension JWK {
                 throw JWK.Error.missingDComponent
             }
             switch type {
+            case is P256.Signing.PrivateKey.Type:
+                return try P256.Signing.PrivateKey(rawRepresentation: d) as! T
+            case is P384.Signing.PrivateKey.Type:
+                return try P384.Signing.PrivateKey(rawRepresentation: d) as! T
+            case is P521.Signing.PrivateKey.Type:
+                return try P521.Signing.PrivateKey(rawRepresentation: d) as! T
+            case is secp256k1.Signing.PrivateKey.Type:
+                return try secp256k1.Signing.PrivateKey(dataRepresentation: d, format: .uncompressed) as! T
+            case is Curve25519.Signing.PrivateKey.Type:
+                return try Curve25519.Signing.PrivateKey(rawRepresentation: d) as! T
             case is P256.KeyAgreement.PrivateKey.Type:
                 return try P256.KeyAgreement.PrivateKey(rawRepresentation: d) as! T
             case is P384.KeyAgreement.PrivateKey.Type:
@@ -48,7 +64,11 @@ public extension JWK {
                 throw JWK.Error.notSupported
             }
             
-        case is P256.KeyAgreement.PublicKey.Type,
+        case is P256.Signing.PublicKey.Type,
+            is P384.Signing.PublicKey.Type,
+            is P521.Signing.PublicKey.Type,
+            is secp256k1.Signing.PublicKey.Type,
+            is P256.KeyAgreement.PublicKey.Type,
             is P384.KeyAgreement.PublicKey.Type,
             is P521.KeyAgreement.PublicKey.Type,
             is secp256k1.KeyAgreement.PublicKey.Type:
@@ -61,6 +81,18 @@ public extension JWK {
             }
             let data = x + y
             switch type {
+            case is P256.Signing.PublicKey.Type:
+                return try P256.Signing.PublicKey(rawRepresentation: data) as! T
+            case is P384.Signing.PublicKey.Type:
+                return try P384.Signing.PublicKey(rawRepresentation: data) as! T
+            case is P521.Signing.PublicKey.Type:
+                return try P521.Signing.PublicKey(rawRepresentation: data) as! T
+            case is secp256k1.Signing.PublicKey.Type:
+                // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
+                return try secp256k1.Signing.PublicKey(
+                    dataRepresentation: [0x04] + data,
+                    format: .uncompressed
+                ) as! T
             case is P256.KeyAgreement.PublicKey.Type:
                 return try P256.KeyAgreement.PublicKey(rawRepresentation: data) as! T
             case is P384.KeyAgreement.PublicKey.Type:
@@ -77,13 +109,15 @@ public extension JWK {
                 throw JWK.Error.notSupported
             }
             
-        case is Curve25519.KeyAgreement.PublicKey.Type:
+        case is Curve25519.Signing.PublicKey.Type, is Curve25519.KeyAgreement.PublicKey.Type:
             
             guard let x else {
                 throw JWK.Error.missingXComponent
             }
             let data = x
             switch type {
+            case is Curve25519.Signing.PublicKey.Type:
+                return try Curve25519.Signing.PublicKey(rawRepresentation: data) as! T
             case is Curve25519.KeyAgreement.PublicKey.Type:
                 return try Curve25519.KeyAgreement.PublicKey(rawRepresentation: data) as! T
             default:

@@ -37,8 +37,10 @@ let package = Package(
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
         // Changing to a fork I made while I create a PR, since I found a bug
         .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5")),
+        .package(url: "https://github.com/apple/swift-certificates.git", from: "1.7.0"),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
         .package(url: "https://github.com/DLTAStudio/zlib.git",from:"1.0.1"),
+        .package(url: "https://github.com/apple/swift-asn1.git", .upToNextMajor(from: "1.3.1"))
     ],
     targets: [
         .target(
@@ -86,12 +88,13 @@ let package = Package(
                 "Tools",
                 .product(name: "secp256k1", package: "secp256k1.swift"),
                 .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "_CryptoExtras", package: "swift-crypto")
+                .product(name: "_CryptoExtras", package: "swift-crypto"),
+                .product(name: "SwiftASN1", package: "swift-asn1"),
     ]
         ),
         .testTarget(
             name: "JWKTests",
-            dependencies: ["JSONWebKey", "Tools"]
+            dependencies: ["JSONWebKey", "JSONWebAlgorithms", "Tools"]
         ),
         .target(
             name: "JSONWebToken",
@@ -99,6 +102,7 @@ let package = Package(
                 "JSONWebKey",
                 "JSONWebSignature",
                 "JSONWebEncryption",
+                .product(name: "X509", package: "swift-certificates"),
                 "Tools"
             ]
         ),

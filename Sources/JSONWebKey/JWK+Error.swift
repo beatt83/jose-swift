@@ -40,5 +40,8 @@ public extension JWK {
 
         /// The key was not found in the JWK set.
         case keyNotFound
+        
+        /// Error decoding PEM
+        case pemDecodingError
     }
 }

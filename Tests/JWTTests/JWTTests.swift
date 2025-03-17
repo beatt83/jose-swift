@@ -247,7 +247,7 @@ final class JWTTests: XCTestCase {
     }
     
     func testJWTClaims() throws {
-        try JWT.signed(
+        _ = try JWT.signed(
             claims: {
             },
             protectedHeader: DefaultJWSHeaderImpl(keyID: ""),
