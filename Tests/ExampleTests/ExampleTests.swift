@@ -282,7 +282,7 @@ final class ExamplesTests: XCTestCase {
         let key = P256.Signing.PrivateKey()
         let claims = CustomClaims(iss: "your-issuer", sub: "your-subject", customClaim: "custom-value")
 
-        let jwt = try JWT.signed(
+        let _ = try JWT.signed(
             payload: claims,
             protectedHeader: DefaultJWSHeaderImpl(algorithm: .ES256),
             key: key
@@ -291,7 +291,7 @@ final class ExamplesTests: XCTestCase {
     
     func testExample4_4() throws {
         let key = P256.Signing.PrivateKey()
-        let jwt = try JWT.signed(
+        let _ = try JWT.signed(
             claims: {
                 IssuerClaim(value: "your-issuer")
                 SubjectClaim(value: "your-subject")
@@ -437,7 +437,7 @@ final class ExamplesTests: XCTestCase {
         // Signed JWT
         let signedJWT = try JWT.verify(jwtString: jwtString, senderKey: publicKey)
         // Encoded JWT
-        let encodedJWT = try JWT.verify(jwtString: jwtString, senderKey: publicKey)
+        let _ = try JWT.verify(jwtString: jwtString, senderKey: publicKey)
         print("No errors so your JWT is verified: \(signedJWT.jwtString)")
     }
 
@@ -604,7 +604,7 @@ final class ExamplesTests: XCTestCase {
         print("Signed JWT: \(jwt.jwtString)")
         
         let jwtString = "your.jwt.string.here" // Replace with your JWT string
-        let verifiedJWT = try JWT.verify(jwtString: jwtString, signerKey: key)
+        let _ = try JWT.verify(jwtString: jwtString, signerKey: key)
         
         let decoder = JSONDecoder.jwt
         let decodedCustomClaims = try decoder.decode(CustomClaims.self, from: jwt.payload)

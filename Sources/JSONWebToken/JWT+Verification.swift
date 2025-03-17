@@ -19,6 +19,7 @@ import JSONWebAlgorithms
 import JSONWebEncryption
 import JSONWebKey
 import JSONWebSignature
+import X509
 
 extension JWT {
     
@@ -39,6 +40,11 @@ extension JWT {
         case nbf(required: Bool = true)
         /// Validates the 'iat' (issued at) claim.
         case iat(required: Bool = true)
+        /// Validates the 'x5c' (x509CertificateChain) header, with common `RFC5280Policy` for custom policies, use the validator initializer and pass it as a `.custom`
+        case x5c(
+            rootCertificates: [Certificate],
+            required: Bool = true
+        )
         /// Uses a custom validator conforming to `ClaimValidator`.
         case custom(ClaimValidator)
         
@@ -50,7 +56,8 @@ extension JWT {
                  .aud(expectedAudience: _, required: let required),
                  .exp(required: let required),
                  .nbf(required: let required),
-                 .iat(required: let required):
+                 .iat(required: let required),
+                 .x5c(rootCertificates: _, required: let required):
                 return required
             case .custom(let validator):
                 return validator.required
@@ -72,6 +79,8 @@ extension JWT {
                 return NotBeforeTimeValidator(required: required)
             case .iat(let required):
                 return IssuedAtValidator(required: required)
+            case .x5c(rootCertificates: let certificates, required: let required):
+                return X5CValidator(rootCertificates: certificates, required: required)
             case .custom(let claimValidator):
                 return claimValidator
             }

@@ -62,5 +62,17 @@ extension JWT {
         
         /// Error that is a collection of all the issues with the validation of a JWT claims
         case multipleValidatingErrors([Error])
+        
+        /// Error indicating that no root certificates were provided for X5C Validator
+        case invalidX5CChainNoRootCertificates
+        
+        /// Error indicating that the JWT doesnt contain the `x5c` header
+        case invalidX5CChainMissingX5CHeader
+        
+        /// Error indicating that a certificate is invalid or not supported
+        case invalidX5CChainInvalidCertificate
+        
+        /// Error indicating that could not validate chain
+        case invalidX5Chain(errors: [String])
     }
 }

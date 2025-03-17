@@ -193,4 +193,24 @@ extension JWT {
             key: key
         )
     }
+    
+    /// Resigns a signed JSON Web Token (JWT) using a new key.
+    ///
+    /// This initializer supports different types for the `Key` parameter, including `Data`, and `KeyRepresentable`.
+    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
+    /// and CriptoKit EC Keys and Curve25519.
+    ///
+    /// - Parameters:
+    ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
+    ///
+    /// - Throws: An error if the signing process or encoding fails.
+    /// - Returns: A `JWT` instance in JWS format with the signed payload.
+    public func resign(key: KeyRepresentable) throws -> JWT {
+        guard case let .jws(jws) = self.format else {
+            throw JWTError.unsupportedFormat
+        }
+        
+        let newJWS = try JWS(payload: jws.payload, protectedHeaderData: jws.protectedHeaderData, key: key)
+        return JWT(payload: newJWS.payload, format: .jws(newJWS))
+    }
 }
