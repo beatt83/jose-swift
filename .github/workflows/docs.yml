@@ -16,17 +16,12 @@ permissions:
 
 jobs:
   build-docs:
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v3
     - name: Set up Pages
       uses: actions/configure-pages@v1
-      
-    - name: Set up Swift
-      uses: fwal/setup-swift@v1
-      with:
-        swift-version: '5.8'
         
     - name: Generate Docs
       run: xcodebuild docbuild -scheme jose-swift-docs -destination "platform=macOS" -derivedDataPath ./doccBuild OTHER_DOCC_FLAGS="--transform-for-static-hosting --output-path ./docc --hosting-base-path '/jose-swift'"
