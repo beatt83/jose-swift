@@ -168,9 +168,9 @@ Note: JWS Unencoded payload as referenced in the [RFC-7797](https://datatracker.
 | OKT      |:white_check_mark:|
 | OCK      |:white_check_mark:|
 
-<tr><td valign="top">
+</td><td valign="top">
 
-| Key Type                 | Supported        |
+| Feature                  | Supported        |
 |--------------------------|------------------|
 | PEM decoding             |:white_check_mark:|
 | JWKSet                   |:white_check_mark:|
