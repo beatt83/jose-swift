@@ -14,7 +14,7 @@ public extension JWK {
     /// Calculates the JWK thumbprint as per [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638)
     ///
     /// - Parameters:
-    ///   - hashFunction: The hash function to use for the JWK thumbprint calculation. Defaults to SHA-256.
+    ///   - with: The hash function to use for the JWK thumbprint calculation. Defaults to SHA-256.
     /// - Returns: The Base64URL-encoded JWK thumbprint.
     /// - Throws: `JWK.Error.notSupported` if the JWK type is not supported.
     func thumbprint<H>(

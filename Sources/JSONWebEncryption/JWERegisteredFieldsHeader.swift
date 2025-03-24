@@ -71,13 +71,20 @@ public protocol JWERegisteredFieldsHeader: JWARegisteredFieldsHeader, Sendable {
     ///   - keyID: Optional identifier for the key.
     ///   - jwkSetURL: Optional URL for the JSON Web Key Set.
     ///   - jwk: Optional JSON Web Key.
-    ///   - x509URL: Optional URL for X.509 public key certificate.
+    ///   - x509URL: Optional URL for the X.509 public key certificate.
     ///   - x509CertificateChain: Optional X.509 certificate chain.
-    ///   - x509CertificateSHA1Thumbprint: Optional SHA-1 thumbprint of X.509 certificate.
-    ///   - x509CertificateSHA256Thumbprint: Optional SHA-256 thumbprint of X.509 certificate.
+    ///   - x509CertificateSHA1Thumbprint: Optional SHA-1 thumbprint of the X.509 certificate.
+    ///   - x509CertificateSHA256Thumbprint: Optional SHA-256 thumbprint of the X.509 certificate.
     ///   - type: Optional type of the token.
     ///   - contentType: Optional content type of the JWE.
     ///   - critical: Optional list of critical headers.
+    ///   - ephemeralPublicKey: Optional ephemeral public key used in key agreement.
+    ///   - agreementPartyUInfo: Optional additional data provided by the first party in the key agreement.
+    ///   - agreementPartyVInfo: Optional additional data provided by the second party in the key agreement.
+    ///   - initializationVector: Optional initialization vector used for encryption.
+    ///   - authenticationTag: Optional authentication tag for authenticated encryption.
+    ///   - pbes2SaltInput: Optional salt input used with PBES2 key derivation.
+    ///   - pbes2SaltCount: Optional iteration count used with PBES2 key derivation.
     ///   - senderKeyId: Optional Key ID of the sender's key.
     init(
         keyManagementAlgorithm: KeyManagementAlgorithm?,
@@ -237,19 +244,30 @@ public struct DefaultJWEHeaderImpl: JWERegisteredFieldsHeader {
     public var pbes2SaltCount: Int?
     public var senderKeyID: String?
     
-    /// Initializes a new `DefaultJWSHeaderImpl` instance with optional parameters for each field.
+    /// Initializes a new `DefaultJWSHeaderImpl` instance with the specified parameters.
+    ///
     /// - Parameters:
-    ///   - algorithm: The signing algorithm to be used (optional).
-    ///   - keyID: The Key ID hint (optional).
+    ///   - keyManagementAlgorithm: The algorithm used for key management (optional).
+    ///   - encodingAlgorithm: The algorithm used for content encryption (optional).
+    ///   - compressionAlgorithm: The compression algorithm to be applied (optional).
+    ///   - keyID: A hint indicating the key identifier (optional).
     ///   - jwkSetURL: The URL for a set of JSON-encoded public keys (optional).
-    ///   - jwk: The JSON Web Key (optional).
+    ///   - jwk: The JSON Web Key containing key parameters (optional).
     ///   - x509URL: The URL for the X.509 public key certificate or certificate chain (optional).
-    ///   - x509CertificateChain: The X.509 public key certificate or certificate chain (optional).
+    ///   - x509CertificateChain: The X.509 certificate or certificate chain (optional).
     ///   - x509CertificateSHA1Thumbprint: The SHA-1 thumbprint of the X.509 certificate (optional).
     ///   - x509CertificateSHA256Thumbprint: The SHA-256 thumbprint of the X.509 certificate (optional).
-    ///   - type: The type of token (optional).
+    ///   - type: The type of the token (optional).
     ///   - contentType: The media type of the complete JWS (optional).
-    ///   - critical: Indications of extensions that must be understood and processed (optional).
+    ///   - critical: A list of header parameter names that indicate extensions which must be understood and processed (optional).
+    ///   - ephemeralPublicKey: The ephemeral public key used for key agreement (optional).
+    ///   - agreementPartyUInfo: Additional data provided by the first party in the key agreement (optional).
+    ///   - agreementPartyVInfo: Additional data provided by the second party in the key agreement (optional).
+    ///   - initializationVector: The initialization vector used for encryption (optional).
+    ///   - authenticationTag: The authentication tag for authenticated encryption (optional).
+    ///   - pbes2SaltInput: The salt input used with PBES2 key derivation (optional).
+    ///   - pbes2SaltCount: The iteration count used with PBES2 key derivation (optional).
+    ///   - senderKeyId: The identifier for the sender's key (optional).
     public init(
         keyManagementAlgorithm: KeyManagementAlgorithm?,
         encodingAlgorithm: ContentEncryptionAlgorithm?,

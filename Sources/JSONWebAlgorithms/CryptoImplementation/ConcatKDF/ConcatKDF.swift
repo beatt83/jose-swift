@@ -35,6 +35,7 @@ public struct ConcatKDF<H> where H: HashFunction, H: HashFunctionMaxInputLength 
     ///     - partyVInfo: Additional data supplied by the party receiving the key.
     ///     - suppPubInfo: Public data supplied by the party generating the key.
     ///     - suppPrivInfo: Private data supplied by the party generating the key.
+    ///     - tag: Additional data relating to the authentication tag.
     ///
     /// - Returns: The derived symmetric key.
     ///

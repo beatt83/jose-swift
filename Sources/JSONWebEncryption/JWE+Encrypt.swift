@@ -32,6 +32,7 @@ extension JWE {
     ///   - payload: The data to be encrypted.
     ///   - keyManagementAlg: The key management algorithm to use.
     ///   - encryptionAlgorithm: The content encryption algorithm.
+    ///   - compressionAlgorithm: The content compression algorithm (optional).
     ///   - senderKey: Optional sender's key for certain key agreement or wrapping algorithms.
     ///   - recipientKey: Optional recipient's key for asymmetric encryption.
     ///   - cek: Optional Content Encryption Key, providing the ability to specify a pre-determined key.
@@ -171,11 +172,11 @@ extension JWE {
     ///   - payload: The data to be encrypted.
     ///   - keyManagementAlg: The key management algorithm.
     ///   - encryptionAlgorithm: The content encryption algorithm.
+    ///   - compressionAlgorithm: The content compression algorithm (optional).
     ///   - unprotectedHeader: Optional shared header for additional metadata.
     ///   - senderKey: Optional sender's key.
     ///   - recipientKey: Optional recipient's key.
     ///   - cek: Optional Content Encryption Key.
-    ///   - initializationVector: Optional initialization vector.
     ///   - additionalAuthenticationData: Optional additional authenticated data.
     ///   - password: Optional password for key derivation.
     ///   - saltLength: Optional salt length for key derivation.
@@ -303,6 +304,7 @@ extension JWE {
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - encryptionAlgorithm: The content encryption algorithm to be used.
+    ///   - compressionAlgorithm: The content compression algorithm (optional).
     ///   - unprotectedHeader: Optional custom shared unprotected header.
     ///   - senderKey: Optional sender's key.
     ///   - recipients: An array of tuples, each containing a key management algorithm and a recipient's key.
@@ -361,6 +363,7 @@ extension JWE {
     /// - Parameters:
     ///   - payload: The data to be encrypted.
     ///   - encryptionAlgorithm: The content encryption algorithm to be used.
+    ///   - compressionAlgorithm: The content compression algorithm (optional).
     ///   - senderKey: Optional sender's key.
     ///   - recipients: An array of tuples, each containing a key management algorithm and a recipient's key.
     ///   - cek: Optional Content Encryption Key.

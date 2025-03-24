@@ -25,7 +25,6 @@ extension JWE {
     /// 
     /// - Parameters:
     ///   - compactString: The compact serialization string of the JWE.
-    ///   - encryptionModule: The encryption module to use, defaulting to the standard module.
     /// - Throws: `JWEError.invalidJWECompactString` if the compact string format is invalid.
     public init(
         compactString: String

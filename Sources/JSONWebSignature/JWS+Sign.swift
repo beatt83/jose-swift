@@ -24,19 +24,17 @@ public enum JWSSignOptions {
 }
 
 extension JWS {
-    /// Initializes a new JWS (JSON Web Signature) instance with the given payload, protected header data, and key.
+    /// Initializes a new JWS (JSON Web Signature) instance with the given payload, protected header data, and cryptographic key.
     ///
-    /// This initializer supports different types for the `Key` parameter, including `Data`, and `KeyRepresentable`.
-    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
-    /// and CriptoKit EC Keys and Curve25519.
-    /// When using `Data` as the key type, the `alg` (algorithm) field must be set in the header.
+    /// This initializer supports various key types conforming to `KeyRepresentable`, including `Data`, `JWK`, `SecKey`, `CryptoSwift.RSA`,
+    /// CryptoKit EC Keys, and Curve25519. When using `Data` as the key type, ensure that the header’s `alg` (algorithm) field is set.
     ///
     /// - Parameters:
     ///   - payload: The data to be signed and included in the JWS.
-    ///   - protectedHeaderData: The data for the protected header, which must be JSON encoded.
-    ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
-    ///
-    /// - Throws: An error if the initialization or signing process fails.
+    ///   - protectedHeaderData: The JSON-encoded data for the protected header.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data` or any type conforming to `KeyRepresentable`.
+    ///   - options: An optional array of `JWSSignOptions` to customize the signing process.
+    /// - Throws: An error if the initialization, header preparation, or signing process fails.
     public init<Key>(payload: Data, protectedHeaderData: Data, key: Key?, options: [JWSSignOptions] = []) throws {
         let signature: Data
         let key = try key.map { try prepareJWK(header: protectedHeaderData, key: $0, isPrivate: true) }
@@ -60,19 +58,24 @@ extension JWS {
         self.compactSerialization = try JWS.buildJWSString(header: protectedHeaderData, data: payload, signature: signature)
     }
     
-    /// Initializes a new `JWS` instance using a `JWSProtectedFieldsHeader` instance, payload data, and a JSON Web Key (JWK).
+    // Initializes a new `JWS` instance using a protected header, payload data, and a cryptographic key.
     ///
-    /// This initializer supports different types for the `Key` parameter, including `Data`, and `KeyRepresentable`.
-    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
-    /// and CriptoKit EC Keys and Curve25519.
-    /// When using `Data` as the key type, the `alg` (algorithm) field must be set in the header.
+    /// This initializer supports various key types, including `Data` and types conforming to `KeyRepresentable`.
+    /// By default, types such as `JWK`, `SecKey`, `CryptoSwift.RSA`, CryptoKit EC Keys, and Curve25519 conform to `KeyRepresentable`
+    /// and can be used for signing. When using `Data` as the key type, the header’s `alg` (algorithm) field must be set.
     ///
     /// - Parameters:
-    ///   - header: The `JWSProtectedFieldsHeader` instance.
-    ///   - data: The payload data.
-    ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
-    /// - Throws: An error if the signing process fails, or if the key is missing.
-    public init<Key>(payload: Data, protectedHeader: JWSRegisteredFieldsHeader, key: Key?, options: [JWSSignOptions] = []) throws {
+    ///   - payload: The payload data to be signed.
+    ///   - protectedHeader: The header containing the JWS registered fields.
+    ///   - key: The cryptographic key used for signing, which may be of type `Data` or any type conforming to `KeyRepresentable`.
+    ///   - options: An optional array of `JWSSignOptions` to further configure the signing process.
+    /// - Throws: An error if the signing process fails or if the key is missing.
+    public init<Key>(
+        payload: Data,
+        protectedHeader: JWSRegisteredFieldsHeader,
+        key: Key?,
+        options: [JWSSignOptions] = []
+    ) throws {
         let signature: Data
         let headerData = try JSONEncoder.jose.encode(protectedHeader)
         let (_, protectedHeaderData): (DefaultJWSHeaderImpl, Data) = try setHeaderForOptions(
@@ -96,19 +99,22 @@ extension JWS {
         self.compactSerialization = try JWS.buildJWSString(header: protectedHeaderData, data: payload, signature: signature)
     }
     
-    /// Convenience initializer to create a `JWS` instance using payload data and a JSON Web Key (JWK).
-    /// The signing algorithm is determined from the key, and a default header is created and used.
+    /// Convenience initializer to create a `JWS` instance using payload data and a cryptographic key.
     ///
-    /// This initializer supports different types for the `Key` parameter, including `Data`, and `KeyRepresentable`.
-    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
-    /// and CriptoKit EC Keys and Curve25519.
-    /// When using `Data` as the key type, the `alg` (algorithm) field must be set in the header.
+    /// The signing algorithm is automatically determined from the provided key, and a default header is created based on that algorithm.
+    /// This initializer supports various key types conforming to `KeyRepresentable`, including `Data`, `JWK`, `SecKey`, `CryptoSwift.RSA`,
+    /// CryptoKit EC Keys, and Curve25519. When using `Data` as the key type, ensure that the header’s `alg` (algorithm) field is set.
     ///
     /// - Parameters:
-    ///   - data: The payload data.
-    ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
+    ///   - payload: The data to be signed and included in the JWS.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data` or any type conforming to `KeyRepresentable`.
+    ///   - options: An optional array of `JWSSignOptions` to customize the signing process.
     /// - Throws: An error if the signing process fails or if the key is inappropriate for the determined algorithm.
-    public init<Key>(payload: Data, key: Key, options: [JWSSignOptions] = []) throws {
+    public init<Key>(
+        payload: Data,
+        key: Key,
+        options: [JWSSignOptions] = []
+    ) throws {
         let jwkKey = try prepareJWK(header: nil, key: key)
         let algorithm = try jwkKey.signingAlgorithm()
         let header = DefaultJWSHeaderImpl(algorithm: algorithm)

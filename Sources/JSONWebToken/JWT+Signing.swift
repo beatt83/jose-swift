@@ -54,20 +54,17 @@ extension JWT {
         )
     }
     
-    /// Creates a signed JSON Web Token (JWT) using the provided claims, header, and key.
+    /// Creates a signed JSON Web Token (JWT) using the provided claims, protected header, and cryptographic key.
     ///
-    /// This initializer supports different types for the `Key` parameter, including `Data`, and `KeyRepresentable`.
-    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
-    /// and CriptoKit EC Keys and Curve25519.
-    /// When using `Data` as the key type, the `alg` (algorithm) field must be set in the header.
+    /// This method supports various key types conforming to `KeyRepresentable`, including `Data`, `JWK`, `SecKey`, `CryptoSwift.RSA`,
+    /// CryptoKit EC Keys, and Curve25519. When using `Data` as the key type, ensure that the header’s `alg` (algorithm) field is set.
     ///
     /// - Parameters:
-    ///   - payload: A closure that returns the claims to be included in the JWT, using the `JWTClaimsBuilder`.
+    ///   - claims: A closure that returns the claims to be included in the JWT using the `JWTClaimsBuilder`.
     ///   - protectedHeader: The protected header fields conforming to `JWSRegisteredFieldsHeader`.
-    ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
-    ///
-    /// - Throws: An error if the signing process or encoding fails.
-    /// - Returns: A `JWT` instance in JWS format with the signed claims.
+    ///   - key: The cryptographic key used for signing, which can be of type `Data` or any type conforming to `KeyRepresentable`.
+    /// - Throws: An error if the signing or encoding process fails.
+    /// - Returns: A `JWT` instance in JWS format containing the signed claims.
     public static func signed<P: JWSRegisteredFieldsHeader, Key>(
         @JWTClaimsBuilder claims: () -> Claim,
         protectedHeader: P,
@@ -126,20 +123,21 @@ extension JWT {
         )
     }
     
-    /// Creates a nested JSON Web Signature (JWS) object by first signing the claims as a JWT and then nesting it inside another JWS.
+    /// Creates a nested JWS (JSON Web Signature) by signing claims into an inner JWT and then wrapping it in an outer JWS.
     ///
-    /// This initializer supports different types for the `KeyRepresentable`.
-    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
-    /// and CriptoKit EC Keys and Curve25519.
+    /// This method first creates an inner JWT using the provided claims, nested protected header, and nested signing key.
+    /// It then signs the resulting JWT string with the outer protected header and signing key, producing a nested JWS.
+    ///
+    /// This initializer supports various key types conforming to `KeyRepresentable`, including `Data`, `JWK`, `SecKey`, `CryptoSwift.RSA`,
+    /// CryptoKit EC Keys, and Curve25519. When using `Data` as the key type, ensure that the header’s `alg` (algorithm) field is set.
     ///
     /// - Parameters:
-    ///   - payload: A closure that returns the claims to be included in the inner JWT, using the `JWTClaimsBuilder`.
-    ///   - protectedHeader: The protected header fields for the outer JWS, conforming to `JWSRegisteredFieldsHeader`.
-    ///   - key: The cryptographic key used for signing, which can be of type `KeyRepresentable`.
-    ///   - nestedProtectedHeader: The protected header fields for the inner JWT, conforming to `JWSRegisteredFieldsHeader`.
-    ///   - nestedKey: The cryptographic key used for signing the inner JWT, which can be of type `Data`, `SecKey`, or `JWK`.
-    ///
-    /// - Throws: An error if the signing process or encoding fails.
+    ///   - claims: A closure that returns the claims to be included in the inner JWT using the `JWTClaimsBuilder`.
+    ///   - protectedHeader: The protected header for the outer JWS layer.
+    ///   - key: The cryptographic key used for signing the outer JWS, which can be of type `Data` or any type conforming to `KeyRepresentable`.
+    ///   - nestedProtectedHeader: The protected header for the inner (nested) JWT.
+    ///   - nestedKey: The cryptographic key used for signing the inner JWT, which can be of type `Data` or any type conforming to `KeyRepresentable`.
+    /// - Throws: An error if either the inner or outer signing process fails.
     /// - Returns: A `JWS` instance representing the nested signed JWT.
     public static func signedAsNested<
         P: JWSRegisteredFieldsHeader,

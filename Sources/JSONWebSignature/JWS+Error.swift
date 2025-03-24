@@ -54,5 +54,7 @@ extension JWS {
 
         /// Indicates a failure in decoding either the complete JSON or the flattened JSON structure.
         case couldNotDecodeCompleteJsonOrFlattened
+        
+        case customHeaderIsNotCorrectlyFormatted(error: Error)
     }
 }
