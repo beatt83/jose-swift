@@ -73,19 +73,20 @@ public struct DefaultJWSHeaderImpl: JWSRegisteredFieldsHeader {
     public var critical: [String]?
     public var base64EncodedUrlPayload: Bool?
     
-    /// Initializes a new `DefaultJWSHeaderImpl` instance with optional parameters for each field.
+    /// Initializes a new `DefaultJWSHeaderImpl` instance with optional parameters for each header field.
     /// - Parameters:
     ///   - algorithm: The signing algorithm to be used (optional).
-    ///   - keyID: The Key ID hint (optional).
-    ///   - jwkSetURL: The URL for a set of JSON-encoded public keys (optional).
-    ///   - jwk: The JSON Web Key (optional).
-    ///   - x509URL: The URL for the X.509 public key certificate or certificate chain (optional).
+    ///   - keyID: A hint indicating the Key ID (optional).
+    ///   - jwkSetURL: The URL pointing to a JSON-encoded set of public keys (optional).
+    ///   - jwk: The JSON Web Key containing key parameters (optional).
+    ///   - x509URL: The URL pointing to the X.509 public key certificate or certificate chain (optional).
     ///   - x509CertificateChain: The X.509 public key certificate or certificate chain (optional).
     ///   - x509CertificateSHA1Thumbprint: The SHA-1 thumbprint of the X.509 certificate (optional).
     ///   - x509CertificateSHA256Thumbprint: The SHA-256 thumbprint of the X.509 certificate (optional).
     ///   - type: The type of token (optional).
     ///   - contentType: The media type of the complete JWS (optional).
-    ///   - critical: Indications of extensions that must be understood and processed (optional).
+    ///   - critical: A list of header parameter names that indicate extensions that must be understood and processed (optional).
+    ///   - base64EncodedUrlPayload: A flag indicating whether the payload is base64url encoded (optional).
     public init(
         algorithm: SigningAlgorithm? = nil,
         keyID: String? = nil,
@@ -114,6 +115,11 @@ public struct DefaultJWSHeaderImpl: JWSRegisteredFieldsHeader {
         self.base64EncodedUrlPayload = base64EncodedUrlPayload
     }
     
+    
+    /// Initializes a new `DefaultJWSHeaderImpl` instance using the properties from a given `JWK`.
+    ///
+    /// This initializer copies the relevant properties from a `JWK` instance to create a header.
+    /// - Parameter from: A `JWK` instance from which the header properties are extracted.
     public init(from: JWK) {
         self.init(
             keyID: from.keyID,

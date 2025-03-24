@@ -46,7 +46,7 @@ public struct JWS: Sendable {
     /// Throws an error if the header data cannot be decoded into a `JWSProtectedFieldsHeader`.
     ///
     /// - Parameters:
-    ///   - header: The raw header data.
+    ///   - protectedHeaderData: The raw header data.
     ///   - data: The payload data.
     ///   - signature: The signature data.
     public init(protectedHeaderData: Data, data: Data, signature: Data) throws {
@@ -65,7 +65,7 @@ public struct JWS: Sendable {
     /// encoding the header.
     ///
     /// - Parameters:
-    ///   - header: The `JWSProtectedFieldsHeader` instance.
+    ///   - protectedHeader: The `JWSProtectedFieldsHeader` instance.
     ///   - data: The payload data.
     ///   - signature: The signature data.
     public init(protectedHeader: JWSRegisteredFieldsHeader, data: Data, signature: Data) throws {

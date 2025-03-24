@@ -260,25 +260,22 @@ extension JWT {
         )
     }
     
-    /// Encrypts a JWT string as a nested JWT in JWE format.
+    /// Encrypts an inner JWT into a nested JWT represented in JWE format.
     ///
-    /// This method is used for creating a nested JWT, where the payload is another JWT string.
-    /// It encrypts the provided JWT string and wraps it in a new JWE structure.
-    ///
-    /// This initializer supports different types for the `KeyRepresentable`.
-    /// The following types by default extend `KeyRepresentable` and can be used as the Key `JWK`, `SecKey`, `CryptoSwift.RSA`
-    /// and CriptoKit EC Keys and Curve25519.
+    /// This method creates a nested JWT by encrypting the inner JWT string and wrapping it within a new JWE structure.
+    /// It supports various key types conforming to `KeyRepresentable`, including `JWK`, `SecKey`, `CryptoSwift.RSA`,
+    /// CryptoKit EC Keys, and Curve25519.
     ///
     /// - Parameters:
-    ///   - jwtString: The JWT string to be encrypted.
-    ///   - protectedHeader: A header with fields that will be protected (encrypted) in the outer JWE layer.
-    ///   - unprotectedHeader: An optional header with fields that will be unprotected (not encrypted) in the outer JWE layer.
-    ///   - senderKey: An optional `JWK` representing the sender's key for the outer JWE layer.
-    ///   - recipientKey: An optional `JWK` representing the recipient's key for the outer JWE layer.
+    ///   - jwt: The inner JWT to be encrypted.
+    ///   - protectedHeader: A header with fields that will be protected (encrypted) in the outer JWE layer. If the `contentType` is not set, it will default to `"JWT"`.
+    ///   - unprotectedHeader: An optional header with fields that will remain unprotected (not encrypted) in the outer JWE layer.
+    ///   - senderKey: An optional key representing the sender's key for the outer JWE encryption layer.
+    ///   - recipientKey: An optional key representing the recipient's key for the outer JWE encryption layer.
     ///   - cek: An optional content encryption key for the outer JWE layer.
     ///   - initializationVector: An optional initialization vector for the outer JWE encryption algorithm.
-    ///   - additionalAuthenticationData: Optional additional data authenticated along with the payload for the outer JWE layer.
-    /// - Returns: A string representing the encrypted JWT in JWE format.
+    ///   - additionalAuthenticationData: Optional additional data to be authenticated along with the payload in the outer JWE layer.
+    /// - Returns: A `JWT` instance representing the nested encrypted JWT in JWE format.
     /// - Throws: An error if the encryption process fails.
     public static func encryptAsNested<
         P: JWERegisteredFieldsHeader,

@@ -40,6 +40,7 @@ public protocol JWEEncryptor: Sendable {
     ///   - password: Password for key derivation (optional).
     ///   - saltLength: Salt length for PBES2 (optional).
     ///   - iterationCount: Iteration count for PBES2 (optional).
+    ///   - ephemeralKey: JWK that represents the ephemeral key needed for some protocols (optional).
     ///   - hasMultiRecipients: Flag indicating multiple recipients (affects AAD computation).
     /// - Returns: JWEParts containing the components of the encrypted JWE.
     /// - Throws: Encryption related errors.
