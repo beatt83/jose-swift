@@ -11,6 +11,14 @@ import Foundation
 import Tools
 
 public extension JWK {
+    
+    private struct ThumbprintRequiredMembers: Codable {
+        let crv: String
+        let kty: String
+        let x: String
+        let y: String?
+    }
+    
     /// Calculates the JWK thumbprint as per [RFC 7638](https://www.rfc-editor.org/rfc/rfc7638)
     ///
     /// - Parameters:
@@ -22,36 +30,36 @@ public extension JWK {
     ) throws -> String where H: HashFunction {
         // Get required members of JWK
         // See https://www.rfc-editor.org/rfc/rfc7638#section-3.2
-        let requiredMembers: [String: Any]
+        let requiredMembers: ThumbprintRequiredMembers
         switch keyType {
         case .ellipticCurve:
             guard let curve, let x, let y else {
                 throw JWK.Error.notSupported
             }
-            requiredMembers = [
-                "crv": curve.rawValue,
-                "kty": keyType.rawValue,
-                "x": Base64URL.encode(x),
-                "y": Base64URL.encode(y),
-            ]
+            requiredMembers = .init(
+                crv: curve.rawValue,
+                kty: keyType.rawValue,
+                x: Base64URL.encode(x),
+                y: Base64URL.encode(y)
+            )
         case .octetKeyPair:
             guard let curve, let x else {
                 throw JWK.Error.notSupported
             }
-            requiredMembers = [
-                "crv": curve.rawValue,
-                "kty": keyType.rawValue,
-                "x": Base64URL.encode(x),
-            ]
+            requiredMembers = .init(
+                crv: curve.rawValue,
+                kty: keyType.rawValue,
+                x: Base64URL.encode(x),
+                y: nil
+            )
         default:
             throw JWK.Error.notSupported
         }
 
         // Construct JSON object with sorted keys
-        let jsonData = try JSONSerialization.data(
-            withJSONObject: requiredMembers,
-            options: .sortedKeys
-        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let jsonData = try encoder.encode(requiredMembers)
 
         // Hash the JSON data using the specified hash function
         let hashData = H.hash(data: jsonData).withUnsafeBytes { Data($0) }
