@@ -36,7 +36,7 @@ let package = Package(
         .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
         // Changing to a fork I made while I create a PR, since I found a bug
-        .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.5")),
+        .package(url: "https://github.com/beatt83/CryptoSwift.git", .upToNextMinor(from: "1.8.7")),
         .package(url: "https://github.com/apple/swift-certificates.git", from: "1.7.0"),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
         .package(url: "https://github.com/DLTAStudio/zlib.git",from:"1.0.1"),
