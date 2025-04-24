@@ -1,4 +1,3 @@
-#if !os(Android)
 import JSONWebKey
 import JSONWebToken
 import JSONWebSignature
@@ -663,4 +662,3 @@ final class ExamplesTests: XCTestCase {
         _ = try JWS.verify(jwsString: jwsString, payload: payload, key: key)
     }
 }
-#endif
