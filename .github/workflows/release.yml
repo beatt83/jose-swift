@@ -10,11 +10,31 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
+          - name: "Test Linux"
+            os: ubuntu-latest
+          - name: "Test Macos"
+            os: macos-latest
+          - name: "Test Windows"
+            os: windows-latest
+          - name: "Test Android"
+            os: macos-13
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: swift test
+      - uses: actions/checkout@v3
+      - name: Setup windows environment
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: compnerd/gha-setup-swift@main
+        with:
+          branch: swift-6.1-release
+          tag: 6.1-RELEASE
+      - name: ${{ matrix.name }}
+        if: ${{ matrix.name != 'Test Android' }}
+        run: swift test
+      - name: ${{ matrix.name }}
+        if: ${{ matrix.name == 'Test Android' }}
+        uses: skiptools/swift-android-action@v2
+        with:
+          swift-version: 6.1
