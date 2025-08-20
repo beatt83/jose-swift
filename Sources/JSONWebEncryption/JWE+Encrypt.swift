@@ -62,18 +62,22 @@ extension JWE {
             compressionAlgorithm: compressionAlgorithm
         )
         
-        let parts = try JWE.encryptionModule.encryptor(alg: keyManagementAlg).encrypt(
-            payload: payload,
-            senderKey: senderKey.map { try prepareJWK(key: $0) },
-            recipientKey: recipientKey.map { try prepareJWK(key: $0) },
-            protectedHeader: protectedHeader,
-            cek: cek,
-            initializationVector: initializationVector,
-            additionalAuthenticationData: additionalAuthenticationData,
-            password: password,
-            saltLength: saltLength,
-            iterationCount: iterationCount
-        )
+        let parts = try JWE
+            .encryptionModuleContainer
+            .encryptionModule
+            .encryptor(alg: keyManagementAlg)
+            .encrypt(
+                payload: payload,
+                senderKey: senderKey.map { try prepareJWK(key: $0) },
+                recipientKey: recipientKey.map { try prepareJWK(key: $0) },
+                protectedHeader: protectedHeader,
+                cek: cek,
+                initializationVector: initializationVector,
+                additionalAuthenticationData: additionalAuthenticationData,
+                password: password,
+                saltLength: saltLength,
+                iterationCount: iterationCount
+            )
         let finalProtectedHeader = parts.protectedHeader ?? protectedHeader
         self.protectedHeader = finalProtectedHeader
         self.protectedHeaderData = try JSONEncoder.jose.encode(finalProtectedHeader)
@@ -130,19 +134,23 @@ extension JWE {
             throw JWE.JWEError.missingKeyAlgorithm
         }
         
-        let parts = try JWE.encryptionModule.encryptor(alg: alg).encrypt(
-            payload: payload,
-            senderKey: senderKey.map { try prepareJWK(key: $0) },
-            recipientKey: recipientKey.map { try prepareJWK(key: $0) },
-            protectedHeader: protectedHeader,
-            unprotectedHeader: unprotectedHeader,
-            cek: cek,
-            initializationVector: initializationVector,
-            additionalAuthenticationData: additionalAuthenticationData,
-            password: password,
-            saltLength: saltLength,
-            iterationCount: iterationCount
-        )
+        let parts = try JWE
+            .encryptionModuleContainer
+            .encryptionModule
+            .encryptor(alg: alg)
+            .encrypt(
+                payload: payload,
+                senderKey: senderKey.map { try prepareJWK(key: $0) },
+                recipientKey: recipientKey.map { try prepareJWK(key: $0) },
+                protectedHeader: protectedHeader,
+                unprotectedHeader: unprotectedHeader,
+                cek: cek,
+                initializationVector: initializationVector,
+                additionalAuthenticationData: additionalAuthenticationData,
+                password: password,
+                saltLength: saltLength,
+                iterationCount: iterationCount
+            )
         
         let finalProtectedHeader = parts.protectedHeader.map { P.init(from: $0) }
         ?? protectedHeader
@@ -255,7 +263,7 @@ extension JWE {
         saltLength: Int? = nil,
         iterationCount: Int? = nil
     ) throws -> JWEJson<P, U, R> {
-        let recipientParts = try encryptionModule.multiEncryptor.encrypt(
+        let recipientParts = try encryptionModuleContainer.encryptionModule.multiEncryptor.encrypt(
             payload: payload,
             senderKey: senderKey.map { try prepareJWK(key: $0) },
             recipients: try recipients.map { ($0.header, try prepareJWK(key: $0.key)) },
@@ -266,8 +274,7 @@ extension JWE {
             additionalAuthenticationData: additionalAuthenticationData,
             password: password,
             saltLength: saltLength,
-            iterationCount: iterationCount,
-            encryptionModule: encryptionModule
+            iterationCount: iterationCount
         )
         
         guard let firstRecipient = recipientParts.first else {

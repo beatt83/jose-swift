@@ -34,8 +34,7 @@ struct MultiEncryptor: JWEMultiEncryptor {
         additionalAuthenticationData: Data?,
         password: Data?,
         saltLength: Int?,
-        iterationCount: Int?,
-        encryptionModule: JWEEncryptionModule = .default
+        iterationCount: Int?
     ) throws -> [JWEParts<P, R>] {
         guard !recipients.isEmpty else {
             throw JWE.JWEError.noRecipients
@@ -60,22 +59,26 @@ struct MultiEncryptor: JWEMultiEncryptor {
             throw JWE.JWEError.missingKeyAlgorithm
         }
         
-        let firstEncryption = try encryptionModule.encryptor(alg: alg).encrypt(
-            payload: payload,
-            senderKey: senderKey,
-            recipientKey: firstRecipient.key,
-            protectedHeader: protectedHeader,
-            unprotectedHeader: unprotectedHeader,
-            recipientHeader: firstRecipient.header ?? R.init(from: firstRecipient.key),
-            cek: cek,
-            initializationVector: initializationVector,
-            additionalAuthenticationData: additionalAuthenticationData,
-            password: password,
-            saltLength: saltLength,
-            iterationCount: iterationCount,
-            ephemeralKey: nil,
-            hasMultiRecipients: true
-        )
+        let firstEncryption = try JWE
+            .encryptionModuleContainer
+            .encryptionModule
+            .encryptor(alg: alg)
+            .encrypt(
+                payload: payload,
+                senderKey: senderKey,
+                recipientKey: firstRecipient.key,
+                protectedHeader: protectedHeader,
+                unprotectedHeader: unprotectedHeader,
+                recipientHeader: firstRecipient.header ?? R.init(from: firstRecipient.key),
+                cek: cek,
+                initializationVector: initializationVector,
+                additionalAuthenticationData: additionalAuthenticationData,
+                password: password,
+                saltLength: saltLength,
+                iterationCount: iterationCount,
+                ephemeralKey: nil,
+                hasMultiRecipients: true
+            )
         
         return try [firstEncryption] + recipients.map { recipientHeader, key in
             guard let alg = getKeyAlgorithm(
@@ -86,22 +89,26 @@ struct MultiEncryptor: JWEMultiEncryptor {
                 throw JWE.JWEError.missingKeyAlgorithm
             }
             
-            return try encryptionModule.encryptor(alg: alg).encrypt(
-                payload: payload,
-                senderKey: senderKey,
-                recipientKey: key,
-                protectedHeader: firstEncryption.protectedHeader,
-                unprotectedHeader: unprotectedHeader,
-                recipientHeader: recipientHeader ?? R.init(from: key),
-                cek: cek,
-                initializationVector: initializationVector,
-                additionalAuthenticationData: additionalAuthenticationData,
-                password: password,
-                saltLength: saltLength,
-                iterationCount: iterationCount,
-                ephemeralKey: firstEncryption.ephemeralKey,
-                hasMultiRecipients: true
-            )
+            return try JWE
+                .encryptionModuleContainer
+                .encryptionModule
+                .encryptor(alg: alg)
+                .encrypt(
+                    payload: payload,
+                    senderKey: senderKey,
+                    recipientKey: key,
+                    protectedHeader: firstEncryption.protectedHeader,
+                    unprotectedHeader: unprotectedHeader,
+                    recipientHeader: recipientHeader ?? R.init(from: key),
+                    cek: cek,
+                    initializationVector: initializationVector,
+                    additionalAuthenticationData: additionalAuthenticationData,
+                    password: password,
+                    saltLength: saltLength,
+                    iterationCount: iterationCount,
+                    ephemeralKey: firstEncryption.ephemeralKey,
+                    hasMultiRecipients: true
+                )
         }
     }
 }

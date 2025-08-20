@@ -190,7 +190,7 @@ public struct X5CValidator<Policy: VerifierPolicy>: ClaimValidator, Sendable {
 private func verifyChain(
     trustedStore: CertificateStore,
     certificates: [Certificate],
-    policy: () throws -> some VerifierPolicy
+    policy: @escaping @Sendable () throws -> some VerifierPolicy
 ) async throws -> VerificationResult {
     let untrustedChain = CertificateStore(certificates)
     var verifier = try Verifier(rootCertificates: trustedStore, policy: policy)

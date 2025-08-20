@@ -71,18 +71,21 @@ extension JWE {
             throw JWEError.missingKeyAlgorithm
         }
         
-        return try JWE.encryptionModule.decryptor(alg: alg).decrypt(
-            encodedProtectedHeader: protectedHeaderData,
-            encodedUnprotectedHeaderData: unprotectedHeaderData,
-            cipher: cipher,
-            encryptedKey: encryptedKey,
-            initializationVector: initializationVector,
-            authenticationTag: authenticationTag,
-            additionalAuthenticationData: additionalAuthenticatedData,
-            senderKey: senderKey.map { try prepareJWK(key: $0) },
-            recipientKey: recipientKey.map { try prepareJWK(key: $0) },
-            password: password
-        )
+        return try JWE
+            .encryptionModuleContainer
+            .encryptionModule
+            .decryptor(alg: alg).decrypt(
+                encodedProtectedHeader: protectedHeaderData,
+                encodedUnprotectedHeaderData: unprotectedHeaderData,
+                cipher: cipher,
+                encryptedKey: encryptedKey,
+                initializationVector: initializationVector,
+                authenticationTag: authenticationTag,
+                additionalAuthenticationData: additionalAuthenticatedData,
+                senderKey: senderKey.map { try prepareJWK(key: $0) },
+                recipientKey: recipientKey.map { try prepareJWK(key: $0) },
+                password: password
+            )
     }
     
     /// Static method to decrypt a JWE from a compact serialization string.
@@ -179,7 +182,7 @@ extension JWE {
             aad: jweJson.addtionalAuthenticatedData
         )
         
-        return try encryptionModule.multiDecryptor.decrypt(
+        return try encryptionModuleContainer.encryptionModule.multiDecryptor.decrypt(
             encodedProtectedHeader: jweJson.protectedData,
             encodedUnprotectedHeaderData: jweJson.sharedProtectedData,
             cipher: jweJson.cipherText,
