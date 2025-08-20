@@ -91,8 +91,7 @@ public protocol JWEMultiEncryptor: Sendable {
         additionalAuthenticationData: Data?,
         password: Data?,
         saltLength: Int?,
-        iterationCount: Int?,
-        encryptionModule: JWEEncryptionModule
+        iterationCount: Int?
     ) throws -> [JWEParts<P, R>]
 }
 
@@ -185,8 +184,7 @@ extension JWEMultiEncryptor {
         additionalAuthenticationData: Data? = nil,
         password: Data? = nil,
         saltLength: Int? = nil,
-        iterationCount: Int? = nil,
-        encryptionModule: JWEEncryptionModule = .default
+        iterationCount: Int? = nil
     ) throws -> [JWEParts<P, DefaultJWEHeaderImpl>] {
         try self.encrypt(
             payload: payload,
@@ -201,8 +199,7 @@ extension JWEMultiEncryptor {
             additionalAuthenticationData: additionalAuthenticationData,
             password: password,
             saltLength: saltLength,
-            iterationCount: iterationCount,
-            encryptionModule: encryptionModule
+            iterationCount: iterationCount
         )
     }
 }
