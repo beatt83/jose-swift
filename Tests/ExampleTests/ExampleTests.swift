@@ -9,7 +9,7 @@ import secp256k1
 import XCTest
 
 final class ExamplesTests: XCTestCase {
-    func testExample1_1AndExample1_2() throws {
+    func testExample1_1AndExample1_2() async throws {
         // Generate a P256 private key
         let privateKey = P256.Signing.PrivateKey()
 
@@ -31,7 +31,7 @@ final class ExamplesTests: XCTestCase {
         let publicKey = privateKey.publicKey
 
         // Verify the JWT
-        let isValid = try JWT.verify(jwtString: jwt.jwtString, senderKey: publicKey)
+        let isValid = try await JWT.verify(jwtString: jwt.jwtString, senderKey: publicKey)
         
         print("Valid: \(isValid)")
     }
@@ -227,7 +227,7 @@ final class ExamplesTests: XCTestCase {
         print("Nested JWE: \(outerJwe.compactSerialization)")
     }
     
-    func testExample4_1And4_2() throws {
+    func testExample4_1And4_2() async throws {
         let key = P256.Signing.PrivateKey()
         let jwt = try JWT.signed(
             claims: {
@@ -242,7 +242,7 @@ final class ExamplesTests: XCTestCase {
         print("JWT: \(jwt.jwtString)")
         
         let jwtString = jwt.jwtString
-        let verifiedJWT = try JWT.verify(jwtString: jwtString, signerKey: key)
+        let verifiedJWT = try await JWT.verify(jwtString: jwtString, signerKey: key)
 
         print("Verified JWT Payload: \(verifiedJWT.payload)")
     }
@@ -348,7 +348,7 @@ final class ExamplesTests: XCTestCase {
         let _ = MyClaims(iat: Date(), sub: "1234567890", name: "John Doe")
     }
     
-    func testExample5_2And5_3And5_4And5_5() throws {
+    func testExample5_2And5_3And5_4And5_5() async throws {
         // Generate a P256 private key
         let privateKey = P256.Signing.PrivateKey()
 
@@ -374,12 +374,12 @@ final class ExamplesTests: XCTestCase {
         let publicKey = privateKey.publicKey
 
         // Verify the JWT
-        let isValid = try JWT.verify(jwtString: jwt.jwtString, senderKey: publicKey)
+        let isValid = try await JWT.verify(jwtString: jwt.jwtString, senderKey: publicKey)
         print("JWT is valid: \(isValid)")
     }
     
 #if canImport(Security)
-    func testExample5_6() throws {
+    func testExample5_6() async throws {
         // Generate a SecKey private key
         let attributes: [String: Any] = [
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
@@ -401,12 +401,12 @@ final class ExamplesTests: XCTestCase {
 
         // Verify the JWT using SecKey
         let secPublicKey = SecKeyCopyPublicKey(secPrivateKey)!
-        let isValid = try JWT.verify(jwtString: jwt.jwtString, senderKey: secPublicKey)
+        let isValid = try await JWT.verify(jwtString: jwt.jwtString, senderKey: secPublicKey)
         print("JWT is valid: \(isValid)")
     }
 #endif
     
-    func testExample5_7() throws {
+    func testExample5_7() async throws {
         // Create a JWK
         let jwk = JWK(keyType: .octetSequence, key: Data(repeating: 0, count: 32))
 
@@ -420,12 +420,12 @@ final class ExamplesTests: XCTestCase {
         )
 
         // Verify the JWT using JWK
-        let isValid = try JWT.verify(jwtString: jwt.jwtString, senderKey: jwk)
+        let isValid = try await JWT.verify(jwtString: jwt.jwtString, senderKey: jwk)
         print("JWT is valid: \(isValid)")
     }
     
     // This is not supposed to run but exist to verify the code sintax is correct of the example
-    func example6_1() throws {
+    func example6_1() async throws {
         // Extract the public key from the private key
         // Replace with the pair public key
         let publicKey = try P256.Signing.PublicKey(rawRepresentation: Data())
@@ -436,14 +436,14 @@ final class ExamplesTests: XCTestCase {
         // Verify the JWT works for both Signed and Encoded JWTs, it will automatically identify
         // the correct algorithm and type of JWT
         // Signed JWT
-        let signedJWT = try JWT.verify(jwtString: jwtString, senderKey: publicKey)
+        let signedJWT = try await JWT.verify(jwtString: jwtString, senderKey: publicKey)
         // Encoded JWT
-        let _ = try JWT.verify(jwtString: jwtString, senderKey: publicKey)
+        let _ = try await JWT.verify(jwtString: jwtString, senderKey: publicKey)
         print("No errors so your JWT is verified: \(signedJWT.jwtString)")
     }
 
 #if canImport(Security)
-    func example6_2() throws {
+    func example6_2() async throws {
         // Generate a SecKey private key
         let attributes: [String: Any] = [
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
@@ -461,12 +461,12 @@ final class ExamplesTests: XCTestCase {
         let jwtString = "your.jwt.string"
 
         // Verify the JWT
-        let jwt = try JWT.verify(jwtString: jwtString, senderKey: secPublicKey)
+        let jwt = try await JWT.verify(jwtString: jwtString, senderKey: secPublicKey)
         print("No errors so your JWT is verified: \(jwt.jwtString)")
     }
 #endif
     
-    func example6_3() throws {
+    func example6_3() async throws {
         // Create a JWK
         let jwk = JWK(keyType: .octetSequence, key: Data(repeating: 0, count: 32))
 
@@ -474,18 +474,18 @@ final class ExamplesTests: XCTestCase {
         let jwtString = "your.jwt.string"
 
         // Verify the JWT
-        let jwt = try JWT.verify(jwtString: jwtString, senderKey: jwk)
+        let jwt = try await JWT.verify(jwtString: jwtString, senderKey: jwk)
         print("No errors so your JWT is verified: \(jwt.jwtString)")
     }
     
-    func example6_4() throws {
+    func example6_4() async throws {
         // Define the expected issuer and audience
         let expectedIssuer = "your-issuer"
         let expectedAudience = "your-audience"
 
         let jwk = JWK(keyType: .octetSequence, key: Data(repeating: 0, count: 32))
         // The library verifies automatically iat, nbf and exp but you can pass values for iss, sub and aud
-        let jwt = try JWT.verify(
+        let jwt = try await JWT.verify(
             jwtString: "your.jwt.here",
             senderKey: jwk,
             validators: [
@@ -552,7 +552,7 @@ final class ExamplesTests: XCTestCase {
         print(encryptedJWT.jwtString)
     }
     
-    func examples8() throws {
+    func examples8() async throws {
         struct CustomClaims: Codable, JWTRegisteredFieldsClaims {
             let iss: String?
             let sub: String?
@@ -605,7 +605,7 @@ final class ExamplesTests: XCTestCase {
         print("Signed JWT: \(jwt.jwtString)")
         
         let jwtString = "your.jwt.string.here" // Replace with your JWT string
-        let _ = try JWT.verify(jwtString: jwtString, signerKey: key)
+        let _ = try await JWT.verify(jwtString: jwtString, signerKey: key)
         
         let decoder = JSONDecoder.jwt
         let decodedCustomClaims = try decoder.decode(CustomClaims.self, from: jwt.payload)
@@ -615,7 +615,7 @@ final class ExamplesTests: XCTestCase {
         print("Expiration: \(decodedCustomClaims.exp!)")
     }
     
-    func testExample9_1() throws {
+    func testExample9_1() async throws {
         let innerJWTHeader = DefaultJWSHeaderImpl(algorithm: .ES256)
         
         let p256SigningKey = P256.Signing.PrivateKey()
@@ -637,7 +637,7 @@ final class ExamplesTests: XCTestCase {
         let nestedJWT = try JWT.encryptAsNested(jwt: jwt, protectedHeader: outerJWTHeader, recipientKey: p256EncodingKey)
         print(nestedJWT.jwtString)
         
-        let verifiedJWT = try JWT.verify(jwtString: nestedJWT.jwtString, recipientKey: p256EncodingKey, nestedKeys: [p256SigningKey])
+        let verifiedJWT = try await JWT.verify(jwtString: nestedJWT.jwtString, recipientKey: p256EncodingKey, nestedKeys: [p256SigningKey])
         print(try verifiedJWT.payload.tryToString())
     }
     
