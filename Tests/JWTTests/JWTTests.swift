@@ -6,12 +6,12 @@ import XCTest
 
 final class JWTTests: XCTestCase {
 
-    func testParseSignedJWT() throws {
+    func testParseSignedJWT() async throws {
         let jwtString = """
         eyJhbGciOiJub25lIn0.eyJpc3MiOiJ0ZXN0QWxpY2UiLCJzdWIiOiJBbGljZSIsInRlc3RDbGFpbSI6InRlc3RlZENsYWltIn0.
         """
         
-        let jwt = try JWT.verify(jwtString: jwtString)
+        let jwt = try await JWT.verify(jwtString: jwtString)
         switch jwt.format {
         case .jws(let jws):
             XCTAssertEqual(jws.protectedHeader.algorithm!, .none)
@@ -24,7 +24,7 @@ final class JWTTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder.jwt.decode(DefaultJWTClaimsImpl.self, from: jwt.payload).iss, "testAlice")
     }
     
-    func testSignAndVerify() throws {
+    func testSignAndVerify() async throws {
         let issuedAt = Date(timeIntervalSince1970: 200)
         let mockClaims = MockExampleClaims(
             iss: "testAlice",
@@ -46,7 +46,7 @@ final class JWTTests: XCTestCase {
         XCTAssertTrue(jwtString.contains("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9"))
         XCTAssertTrue(jwtString.contains("eyJpYXQiOjIwMCwiaXNzIjoidGVzdEFsaWNlIiwic3ViIjoiQWxpY2UiLCJ0ZXN0Q2xhaW0iOiJ0ZXN0ZWRDbGFpbSJ9"))
         
-        let verifiedJWT = try JWT.verify(jwtString: jwtString, senderKey: key)
+        let verifiedJWT = try await JWT.verify(jwtString: jwtString, senderKey: key)
         let verifiedPayload = try JSONDecoder.jwt.decode(MockExampleClaims.self, from: verifiedJWT.payload)
         XCTAssertEqual(verifiedPayload.iss, "testAlice")
         XCTAssertEqual(verifiedPayload.sub, "Alice")
@@ -60,7 +60,7 @@ final class JWTTests: XCTestCase {
         }
     }
     
-    func testFailExpirationValidation() throws {
+    func testFailExpirationValidation() async throws {
         let expiredAt = Date(timeIntervalSince1970: 0)
         let mockClaims = DefaultJWTClaimsImpl(
             iss: "testAlice",
@@ -77,11 +77,16 @@ final class JWTTests: XCTestCase {
         )
         
         let jwtString = jwt.jwtString
-
-        XCTAssertThrowsError(try JWT.verify(jwtString: jwtString, senderKey: key))
+        
+        do {
+            _ = try await JWT.verify(jwtString: jwtString, senderKey: key)
+        } catch {
+            return
+        }
+        XCTFail("Did not throw error")
     }
     
-    func testFailNotBeforeValidation() throws {
+    func testFailNotBeforeValidation() async throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
             iss: "testAlice",
@@ -99,10 +104,15 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT.verify(jwtString: jwtString, senderKey: key))
+        do {
+            _ = try await JWT.verify(jwtString: jwtString, senderKey: key)
+        } catch {
+            return
+        }
+        XCTFail("Did not throw error")
     }
     
-    func testFailIssuedAtValidation() throws {
+    func testFailIssuedAtValidation() async throws {
         let issuedAt = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
             iss: "testAlice",
@@ -120,10 +130,15 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT.verify(jwtString: jwtString, senderKey: key))
+        do {
+            _ = try await JWT.verify(jwtString: jwtString, senderKey: key)
+        } catch {
+            return
+        }
+        XCTFail("Did not throw error")
     }
     
-    func testFailIssuerValidation() throws {
+    func testFailIssuerValidation() async throws {
         let nbf = Date(timeIntervalSinceNow: 1000)
         let mockClaims = DefaultJWTClaimsImpl(
             iss: "testAlice",
@@ -141,14 +156,19 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT.verify(
-            jwtString: jwtString,
-            senderKey: key,
-            validators: [.iss(expectedIssuer: "Bob", required: false)]
-        ))
+        do {
+            _ = try await JWT.verify(
+                jwtString: jwtString,
+                senderKey: key,
+                validators: [.iss(expectedIssuer: "Bob", required: false)]
+            )
+        } catch {
+            return
+        }
+        XCTFail("Did not throw error")
     }
     
-    func testFailAudienceValidation() throws {
+    func testFailAudienceValidation() async throws {
         let mockClaims = DefaultJWTClaimsImpl(
             iss: "testAlice",
             sub: "Alice",
@@ -165,11 +185,16 @@ final class JWTTests: XCTestCase {
         
         let jwtString = jwt.jwtString
 
-        XCTAssertThrowsError(try JWT.verify(
-            jwtString: jwtString,
-            senderKey: key,
-            validators: [.aud(expectedAudience: ["Bob"], required: false)]
-        ))
+        do {
+            _ = try await try JWT.verify(
+                jwtString: jwtString,
+                senderKey: key,
+                validators: [.aud(expectedAudience: ["Bob"], required: false)]
+            )
+        } catch {
+            return
+        }
+        XCTFail("Did not throw error")
     }
     
     @JWTClaimsBuilder var resultTestClaims: ObjectClaim {

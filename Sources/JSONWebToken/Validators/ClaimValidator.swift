@@ -24,5 +24,5 @@ public protocol ClaimValidator {
     ///
     /// - Parameter jwtString: The JWT string containing the claim to be validated.
     /// - Throws: An error if the claim is missing (when required) or does not meet the validation criteria.
-    func isValid(_ jwtString: String) throws
+    func isValid(_ jwtString: String) async throws
 }

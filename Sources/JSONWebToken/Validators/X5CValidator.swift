@@ -101,7 +101,7 @@ public struct X5CValidator<Policy: VerifierPolicy>: ClaimValidator, Sendable {
     /// - Throws: An error if the x5c header is required but missing,
     ///           if any certificate in the chain is invalid,
     ///           or if the certificate chain fails verification.
-    public func isValid(_ jwtString: String) throws {
+    public func isValid(_ jwtString: String) async throws {
         let jwt = try JWT(jwtString: jwtString)
         let x5c: [String]
         
@@ -137,7 +137,7 @@ public struct X5CValidator<Policy: VerifierPolicy>: ClaimValidator, Sendable {
             date = Date()
         }
         
-        let result = try verify(
+        let result = try await verify(
             trustedStore: trustedStore,
             certificates: certificates,
             policy: {
@@ -152,51 +152,27 @@ public struct X5CValidator<Policy: VerifierPolicy>: ClaimValidator, Sendable {
         
         let pemKey = try certificates[0].publicKey.serializeAsPEM().pemString
         let key = try JWK(pem: pemKey)
-        _ = try JWT.verify(jwtString: jwt.jwtString, signerKey: key)
+        _ = try await JWT.verify(jwtString: jwt.jwtString, signerKey: key)
     }
     
-    /// Verifies the certificate chain by invoking an asynchronous chain verification function in a synchronous manner.
+    /// Asynchronously verifies the certificate chain using the provided trusted store and verification policy.
     ///
     /// - Parameters:
-    ///   - trustedStore: The certificate store containing trusted root certificates.
-    ///   - certificates: An array of certificates extracted from the x5c header.
-    ///   - policy: A closure that produces a `VerifierPolicy` used to verify the chain.
-    /// - Returns: A `VerificationResult` if available, or `nil` if verification was not completed.
-    /// - Throws: Any error encountered during verification.
+    ///   - trustedStore: The trusted certificate store containing the root certificates.
+    ///   - certificates: An array of certificates to be validated.
+    ///   - policy: A closure that produces a `VerifierPolicy` used for chain verification.
+    /// - Returns: A `VerificationResult` indicating whether the certificate chain could be validated.
+    /// - Throws: Any error encountered during the asynchronous verification process.
     private func verify(
         trustedStore: CertificateStore,
         certificates: [Certificate],
         @PolicyBuilder policy: @escaping @Sendable () throws -> some VerifierPolicy
-    ) throws -> VerificationResult? {
-        nonisolated(unsafe) var result: VerificationResult?
-        let semaphore = DispatchSemaphore(value: 0)
-        Task {
-            result = try await verifyChain(trustedStore: trustedStore, certificates: certificates, policy: policy)
-            semaphore.signal()
-        }
-        semaphore.wait()
-        return result
+    ) async throws -> VerificationResult? {
+        let untrustedChain = CertificateStore(certificates)
+        var verifier = try Verifier(rootCertificates: trustedStore, policy: policy)
+        return await verifier.validate(
+            leafCertificate: certificates[0],
+            intermediates: untrustedChain
+        )
     }
-}
-
-/// Asynchronously verifies the certificate chain using the provided trusted store and verification policy.
-///
-/// - Parameters:
-///   - trustedStore: The trusted certificate store containing the root certificates.
-///   - certificates: An array of certificates to be validated.
-///   - policy: A closure that produces a `VerifierPolicy` used for chain verification.
-/// - Returns: A `VerificationResult` indicating whether the certificate chain could be validated.
-/// - Throws: Any error encountered during the asynchronous verification process.
-private func verifyChain(
-    trustedStore: CertificateStore,
-    certificates: [Certificate],
-    policy: @escaping @Sendable () throws -> some VerifierPolicy
-) async throws -> VerificationResult {
-    let untrustedChain = CertificateStore(certificates)
-    var verifier = try Verifier(rootCertificates: trustedStore, policy: policy)
-    let result = await verifier.validate(
-        leafCertificate: certificates[0],
-        intermediates: untrustedChain
-    )
-    return result
 }

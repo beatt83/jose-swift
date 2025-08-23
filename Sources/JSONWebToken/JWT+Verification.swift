@@ -113,7 +113,7 @@ extension JWT {
             .nbf(required: false),
             .iat(required: false)
         ]
-    ) throws -> JWT {
+    ) async throws -> JWT {
         let components = jwtString.components(separatedBy: ".")
         switch components.count {
         case 3:
@@ -123,7 +123,7 @@ extension JWT {
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jws.protectedHeader
                 ) else {
-                    return try verifyNestedWithMultipleKeys(
+                    return try await verifyNestedWithMultipleKeys(
                         jwtString: jws.payload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
@@ -132,7 +132,7 @@ extension JWT {
                     )
                 }
                 
-                return try verify(
+                return try await verify(
                     jwtString: jws.payload.tryToString(),
                     senderKey: key,
                     recipientKey: nil,
@@ -144,7 +144,7 @@ extension JWT {
             guard try jws.verify(key: senderKey) else {
                 throw JWTError.invalidSignature
             }
-            try validateClaimsCluster(jwtString, validators: validators.map(\.validator))
+            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             return .init(payload: jws.payload, format: .jws(jws))
         case 5:
             let jwe = try JWE(compactString: jwtString)
@@ -159,7 +159,7 @@ extension JWT {
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jwe.protectedHeader
                 ) else {
-                    return try verifyNestedWithMultipleKeys(
+                    return try await verifyNestedWithMultipleKeys(
                         jwtString: decryptedPayload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
@@ -168,7 +168,7 @@ extension JWT {
                     )
                 }
                 
-                return try verify(
+                return try await verify(
                     jwtString: decryptedPayload.tryToString(),
                     senderKey: senderKey,
                     recipientKey: key,
@@ -176,7 +176,7 @@ extension JWT {
                     validators: validators
                 )
             }
-            try validateClaimsCluster(jwtString, validators: validators.map(\.validator))
+            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             
             return .init(payload: decryptedPayload, format: .jwe(jwe))
         default:
@@ -211,7 +211,7 @@ extension JWT {
             .nbf(required: false),
             .iat(required: false)
         ]
-    ) throws -> JWT {
+    ) async throws -> JWT {
         let components = jwtString.components(separatedBy: ".")
         switch components.count {
         case 3:
@@ -221,7 +221,7 @@ extension JWT {
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jws.protectedHeader
                 ) else {
-                    return try verifyNestedWithMultipleKeys(
+                    return try await verifyNestedWithMultipleKeys(
                         jwtString: jws.payload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
@@ -230,7 +230,7 @@ extension JWT {
                     )
                 }
                 
-                return try verify(
+                return try await verify(
                     jwtString: jws.payload.tryToString(),
                     senderKey: key,
                     recipientKey: nil,
@@ -242,7 +242,7 @@ extension JWT {
             guard try jws.verify(key: signerKey) else {
                 throw JWTError.invalidSignature
             }
-            try validateClaimsCluster(jwtString, validators: validators.map(\.validator))
+            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             return .init(payload: jws.payload, format: .jws(jws))
         case 5:
             let jwe = try JWE(compactString: jwtString)
@@ -257,7 +257,7 @@ extension JWT {
                     keys: try nestedKeys.map { try $0.jwk },
                     header: jwe.protectedHeader
                 ) else {
-                    return try verifyNestedWithMultipleKeys(
+                    return try await verifyNestedWithMultipleKeys(
                         jwtString: decryptedPayload.tryToString(),
                         senderKey: senderKey,
                         recipientKey: recipientKey,
@@ -266,7 +266,7 @@ extension JWT {
                     )
                 }
                 
-                return try verify(
+                return try await verify(
                     jwtString: decryptedPayload.tryToString(),
                     senderKey: senderKey,
                     recipientKey: key,
@@ -274,7 +274,7 @@ extension JWT {
                     validators: validators
                 )
             }
-            try validateClaimsCluster(jwtString, validators: validators.map(\.validator))
+            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             
             return .init(payload: decryptedPayload, format: .jwe(jwe))
         default:
@@ -290,8 +290,8 @@ extension JWT {
     ///
     /// - Parameter validators: An array of `Validator` used to validate specific claims within the JWT.
     /// - Throws: A `JWT.JWTError` if any of the validations fail, such as when a required claim is missing or invalid.
-    public func validateClaims(validators: [Validator]) throws {
-        try Self.validateClaims(self.jwtString, validators: validators)
+    public func validateClaims(validators: [Validator]) async throws {
+        try await Self.validateClaims(self.jwtString, validators: validators)
     }
 
     /// Validates the claims of a JWT string using the provided validators.
@@ -304,8 +304,8 @@ extension JWT {
     ///   - jwtString: The JWT string whose claims are to be validated.
     ///   - validators: An array of `Validator` used to validate specific claims within the JWT.
     /// - Throws: A `JWT.JWTError` if any of the claim validations fail.
-    public static func validateClaims(_ jwtString: String, validators: [Validator]) throws {
-        try validateClaimsCluster(jwtString, validators: validators.map(\.validator))
+    public static func validateClaims(_ jwtString: String, validators: [Validator]) async throws {
+        try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
     }
     
     private static func verifyNestedWithMultipleKeys(
@@ -314,12 +314,12 @@ extension JWT {
         recipientKey: KeyRepresentable?,
         nestedKeys: [KeyRepresentable],
         validators: [Validator]
-    ) throws -> JWT {
+    ) async throws -> JWT {
         for key in nestedKeys {
             do {
                 switch try jwtFormat(jwtString: jwtString) {
                 case .jws:
-                    return try verify(
+                    return try await verify(
                         jwtString: jwtString,
                         senderKey: key,
                         recipientKey: recipientKey,
@@ -327,7 +327,7 @@ extension JWT {
                         validators: validators
                     )
                 case .jwe:
-                    return try verify(
+                    return try await verify(
                         jwtString: jwtString,
                         senderKey: senderKey,
                         recipientKey: key,
@@ -344,11 +344,11 @@ extension JWT {
     }
 }
 
-private func validateClaimsCluster(_ jwtString: String, validators: [ClaimValidator]) throws {
+private func validateClaimsCluster(_ jwtString: String, validators: [ClaimValidator]) async throws {
     var collectedErrors = [Error]()
-    validators.forEach {
+    for validator in validators {
         do {
-            try $0.isValid(jwtString)
+            try await validator.isValid(jwtString)
         } catch {
             collectedErrors.append(error)
         }
