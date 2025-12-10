@@ -15,6 +15,7 @@ let package = Package(
     products: [
         .library(
             name: "jose-swift",
+            type: .dynamic,
             targets: [
                 "JSONWebKey",
                 "JSONWebAlgorithms",
