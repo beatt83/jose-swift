@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import JSONWebAlgorithms
 
 extension JWT {
     /// `JWTError` is an enumeration representing various errors that can occur while processing JSON Web Tokens (JWTs).
@@ -74,5 +75,12 @@ extension JWT {
         
         /// Error indicating that could not validate chain
         case invalidX5Chain(errors: [String])
+        
+        /// Error indicating that the header of the JWT requires an algorithm
+        case algorithmIsRequired
+        
+        /// Error indicating the specific algorithm is black listed, by default this will be the `SigningAlgorithm.none`.
+        /// Please especify a set of validators if you dont wish this behaviour.
+        case algorithmIsBlackListed(algorithm: SigningAlgorithm)
     }
 }

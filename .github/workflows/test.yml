@@ -19,12 +19,11 @@ jobs:
     - name: Build
       run: swift test
   build_android:
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
     - name: Check out code
       uses: actions/checkout@v4
     - name: Run unit tests
-      uses: skiptools/swift-android-action@main
+      uses: skiptools/swift-android-action@v2
       with:
-        swift-version: 6.1
-        ndk-version: 27.3.13750724
+        swift-version: 6.2
