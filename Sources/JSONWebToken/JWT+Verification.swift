@@ -45,6 +45,8 @@ extension JWT {
             rootCertificates: [Certificate],
             required: Bool = true
         )
+        /// Validates if the JWT header has a algorithm set and its not `none`.
+        case blackListedAlgorithms(blackList: [SigningAlgorithm] = [.none], algorithmRequired: Bool = true)
         /// Uses a custom validator conforming to `ClaimValidator`.
         case custom(ClaimValidator)
         
@@ -57,7 +59,8 @@ extension JWT {
                  .exp(required: let required),
                  .nbf(required: let required),
                  .iat(required: let required),
-                 .x5c(rootCertificates: _, required: let required):
+                 .x5c(rootCertificates: _, required: let required),
+                 .blackListedAlgorithms(_, let required):
                 return required
             case .custom(let validator):
                 return validator.required
@@ -81,9 +84,20 @@ extension JWT {
                 return IssuedAtValidator(required: required)
             case .x5c(rootCertificates: let certificates, required: let required):
                 return X5CValidator(rootCertificates: certificates, required: required)
+            case .blackListedAlgorithms(let blackList, let required):
+                return SigningAlgorithmBlackListValidator(blackList: blackList, algorithmRequired: required)
             case .custom(let claimValidator):
                 return claimValidator
             }
+        }
+        
+        public static var defaultValidatorCluster: [Validator] {
+            [
+                .blackListedAlgorithms(algorithmRequired: true),
+                .exp(required: false),
+                .nbf(required: false),
+                .iat(required: false)
+            ]
         }
     }
     
@@ -108,11 +122,7 @@ extension JWT {
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
         nestedKeys: [KeyRepresentable] = [],
-        validators: [Validator] = [
-            .exp(required: false),
-            .nbf(required: false),
-            .iat(required: false)
-        ]
+        validators: [Validator] = Validator.defaultValidatorCluster
     ) async throws -> JWT {
         let components = jwtString.components(separatedBy: ".")
         switch components.count {
@@ -140,11 +150,10 @@ extension JWT {
                     validators: validators
                 )
             }
-            
+            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             guard try jws.verify(key: senderKey) else {
                 throw JWTError.invalidSignature
             }
-            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             return .init(payload: jws.payload, format: .jws(jws))
         case 5:
             let jwe = try JWE(compactString: jwtString)
@@ -176,8 +185,8 @@ extension JWT {
                     validators: validators
                 )
             }
-            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             
+            try await validateClaimsCluster(jwtString, validators: validators.map(\.validator))
             return .init(payload: decryptedPayload, format: .jwe(jwe))
         default:
             throw JWTError.somethingWentWrong
@@ -206,11 +215,7 @@ extension JWT {
         senderKey: KeyRepresentable? = nil,
         recipientKey: KeyRepresentable? = nil,
         nestedKeys: [KeyRepresentable] = [],
-        validators: [Validator] = [
-            .exp(required: false),
-            .nbf(required: false),
-            .iat(required: false)
-        ]
+        validators: [Validator] = Validator.defaultValidatorCluster
     ) async throws -> JWT {
         let components = jwtString.components(separatedBy: ".")
         switch components.count {

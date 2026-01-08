@@ -11,7 +11,7 @@ final class JWTTests: XCTestCase {
         eyJhbGciOiJub25lIn0.eyJpc3MiOiJ0ZXN0QWxpY2UiLCJzdWIiOiJBbGljZSIsInRlc3RDbGFpbSI6InRlc3RlZENsYWltIn0.
         """
         
-        let jwt = try await JWT.verify(jwtString: jwtString)
+        let jwt = try await JWT.verify(jwtString: jwtString, validators: [])
         switch jwt.format {
         case .jws(let jws):
             XCTAssertEqual(jws.protectedHeader.algorithm!, .none)

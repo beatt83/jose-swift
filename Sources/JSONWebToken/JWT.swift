@@ -18,6 +18,7 @@ import Foundation
 import JSONWebSignature
 import JSONWebEncryption
 import JSONWebKey
+import Tools
 
 /// `JWT` represents a JSON Web Token (JWT) structure as defined in [RFC7519](https://tools.ietf.org/html/rfc7519).
 public struct JWT {
@@ -78,11 +79,13 @@ public struct JWT {
 
 public extension JWT {
     /// Retrieves the payload from a JWT string and decodes it to a specified type.
-    /// - Parameter jwtString: The compact string representation of the JWT.
+    /// - Parameters:
+    ///    - jwtString: The compact string representation of the JWT.
+    ///    - decoder: JSONDecoder for the decoding, it defaults to `jwt` decoder.
     /// - Throws: An error if the decoding process fails.
     /// - Returns: The decoded payload.
-    static func getPayload<Payload: Decodable>(jwtString: String) throws -> Payload {
-        return try JSONDecoder.jwt.decode(Payload.self, from: getPayload(jwtString: jwtString))
+    static func getPayload<Payload: Decodable>(jwtString: String, decoder: JSONDecoder = .jwt) throws -> Payload {
+        return try decoder.decode(Payload.self, from: getPayload(jwtString: jwtString))
     }
     
     /// Retrieves the payload data from a JWT string.
@@ -171,6 +174,21 @@ public extension JWT {
             return jwe.protectedHeaderData
         case .jws(let jws):
             return jws.protectedHeaderData
+        }
+    }
+    
+    /// Retrieves the header as type from a JWT string.
+    /// - Parameters:
+    ///    - jwtString: The compact string representation of the JWT.
+    ///    - decoder: JSONDecoder for the decoding, it defaults to `jwt` decoder.
+    /// - Throws: An error if the decoding process fails.
+    /// - Returns: The header data.
+    static func getHeader<T: Decodable>(jwtString: String, decoder: JSONDecoder = .jwt) throws -> T {
+        switch try jwtFormat(jwtString: jwtString) {
+        case .jwe(let jwe):
+            return try decoder.decode(T.self, from: jwe.protectedHeaderData)
+        case .jws(let jws):
+            return try decoder.decode(T.self, from: jws.protectedHeaderData)
         }
     }
     

@@ -55,6 +55,11 @@ extension JWS {
         /// Indicates a failure in decoding either the complete JSON or the flattened JSON structure.
         case couldNotDecodeCompleteJsonOrFlattened
         
+        /// Indicates the header is not corretly formatted
         case customHeaderIsNotCorrectlyFormatted(error: Error)
+        
+        /// Indicates a malformed JSON Web Signature that has a signature but algorithm is NONE.
+        /// This can indicate a potential attack.
+        case algorithmNoneButSignatureFound
     }
 }

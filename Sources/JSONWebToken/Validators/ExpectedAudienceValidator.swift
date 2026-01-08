@@ -17,7 +17,7 @@
 /// A validator that checks the 'aud' (audience) claim in a JWT.
 ///
 /// This validator verifies that the JWT's audience claim contains the expected audience(s).
-/// If the audience claim is missing and marked as required, a `JWT.JWTError.requiredClaimMissing("iss")` error is thrown.
+/// If the audience claim is missing and marked as required, a `JWT.JWTError.requiredClaimMissing("aud")` error is thrown.
 /// If the JWT's audience does not include the expected audience(s), a `JWT.JWTError.audienceMismatch` error is thrown.
 public struct ExpectedAudienceValidator: ClaimValidator, Sendable {
     /// Indicates whether the audience claim is required.
@@ -48,12 +48,12 @@ public struct ExpectedAudienceValidator: ClaimValidator, Sendable {
     /// Validates the audience claim in the provided JWT string.
     ///
     /// - Parameter jwtString: The JWT string to validate.
-    /// - Throws: `JWT.JWTError.requiredClaimMissing("iss")` if the claim is missing when required,
+    /// - Throws: `JWT.JWTError.requiredClaimMissing("aud")` if the claim is missing when required,
     ///           or `JWT.JWTError.audienceMismatch` if the expected audience is not present.
     public func isValid(_ jwtString: String) throws {
         guard let aud = try? JWT.getAudience(jwtString: jwtString) else {
             if required {
-                throw JWT.JWTError.requiredClaimMissing("iss")
+                throw JWT.JWTError.requiredClaimMissing("aud")
             }
             return
         }

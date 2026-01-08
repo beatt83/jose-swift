@@ -32,6 +32,9 @@ extension JWS {
     /// - Throws: An error if the verification process fails due to a missing key, unsupported algorithm, or other issues.
     /// - Returns: A Boolean value indicating whether the signature is valid (`true`) or not (`false`).
     public func verify<Key>(key: Key?) throws -> Bool {
+        if SigningAlgorithm.none == protectedHeader.algorithm, !signature.isEmpty {
+            throw JWSError.algorithmNoneButSignatureFound
+        }
         guard SigningAlgorithm.none != protectedHeader.algorithm else {
             return true
         }

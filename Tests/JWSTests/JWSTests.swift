@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import JSONWebAlgorithms
 import JSONWebKey
 @testable import JSONWebSignature
 import Tools
@@ -136,5 +137,12 @@ final class JWSTests: XCTestCase {
         let testJWS = try JWS(payload: payload.data(using: .utf8)!, key: keyPair, options: [.unencodedPayload])
         XCTAssertTrue(testJWS.compactSerialization.contains(".."))
         XCTAssertTrue(try JWS.verify(jwsString: testJWS.compactSerialization, payload: payload.data(using: .utf8)!, key: keyPair))
+    }
+    
+    func testMalformedJWSAlgNoneWithSignature() throws {
+        let header = DefaultJWSHeaderImpl(algorithm: SigningAlgorithm.none, type: "JWT")
+        let payload = #"{"sub":"user123","admin":true}"#.data(using: .utf8)!
+        let jws = try JWS(protectedHeader: header, data: payload, signature: "forgedSignature".tryToData())
+        XCTAssertThrowsError(try jws.verify(key: nil as JWK?))
     }
 }
