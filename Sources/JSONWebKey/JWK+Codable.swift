@@ -13,7 +13,7 @@ extension JWK: Codable {
     enum CodingKeys: String, CodingKey {
         case keyType = "kty"
         case publicKeyUse = "use"
-        case keyOperations = "keyOps"
+        case keyOperations = "key_ops"
         case algorithm = "alg"
         case key = "k"
         case keyID = "kid"
