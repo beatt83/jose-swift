@@ -39,7 +39,7 @@ let package = Package(
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.9.0")),
         .package(url: "https://github.com/apple/swift-certificates.git", from: "1.7.0"),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
-        .package(url: "https://github.com/DLTAStudio/zlib.git",from:"1.0.1"),
+        .package(url: "https://github.com/beatt83/swift-zlib.git",branch: "fix/fix-ios-not-building"),
         .package(url: "https://github.com/apple/swift-asn1.git", .upToNextMajor(from: "1.3.1"))
     ],
     targets: [
@@ -51,7 +51,7 @@ let package = Package(
                 .product(name: "CryptoSwift", package: "CryptoSwift"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "_CryptoExtras", package: "swift-crypto"),
-                .product(name: "Zlib", package: "ZLib"),
+                .product(name: "Zlib", package: "swift-zlib"),
  ]
         ),
         .testTarget(
