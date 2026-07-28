@@ -61,5 +61,32 @@ extension JWS {
         /// Indicates a malformed JSON Web Signature that has a signature but algorithm is NONE.
         /// This can indicate a potential attack.
         case algorithmNoneButSignatureFound
+
+        /// Indicates that a key supplied as raw `Data` was going to be interpreted as a symmetric
+        /// (HMAC) secret based solely on the untrusted JWS header. The caller must pin the expected
+        /// algorithm(s) so the key type cannot be chosen by the token. This blocks the classic
+        /// RS256/ES256 → HS256 algorithm-confusion attack.
+        case dataKeyRequiresExplicitAlgorithm(algorithm: String)
+
+        /// Indicates that the algorithm declared in the JWS header is not part of the caller-provided
+        /// allow-list of accepted algorithms.
+        case algorithmNotAllowed(algorithm: String, allowed: [String])
+    }
+}
+
+extension JWS.JWSError {
+    public var errorDescription: String? {
+        switch self {
+        case .dataKeyRequiresExplicitAlgorithm(let algorithm):
+            return """
+            Refusing to interpret a raw `Data` key as a symmetric (\(algorithm)) secret based on the \
+            token header. Pin the expected algorithm(s) via `verify(key:algorithms:)` (or pass a typed \
+            key) to prevent an algorithm-confusion attack.
+            """
+        case .algorithmNotAllowed(let algorithm, let allowed):
+            return "Header algorithm '\(algorithm)' is not in the allowed list \(allowed)."
+        default:
+            return nil
+        }
     }
 }

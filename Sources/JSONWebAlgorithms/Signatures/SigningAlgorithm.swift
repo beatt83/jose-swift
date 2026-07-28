@@ -73,7 +73,25 @@ public enum SigningAlgorithm: String, Codable, Sendable {
     
     /// Invalid algorithm that will always fail
     case invalid = "invalid"
-    
+
+    /// Indicates whether the algorithm is a symmetric (HMAC) algorithm.
+    ///
+    /// Symmetric algorithms use the same secret for producing and verifying a signature.
+    /// This distinction is security relevant: a raw byte buffer must never be interpreted as
+    /// a symmetric secret based solely on an untrusted JWS header, otherwise a public
+    /// (asymmetric) key can be abused as an HMAC secret (algorithm-confusion attack).
+    public var isSymmetric: Bool {
+        switch self {
+        case .HS256, .HS384, .HS512:
+            return true
+        case .RS256, .RS384, .RS512,
+             .ES256, .ES384, .ES512, .ES256K,
+             .PS256, .PS384, .PS512,
+             .EdDSA, .none, .invalid:
+            return false
+        }
+    }
+
     public var cryptoSigner: Signer? {
         switch self {
         case .HS256:

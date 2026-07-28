@@ -384,50 +384,82 @@ func prepareHeaderForJWK(header: Data, jwk: JWK?) throws -> Data {
     }
 }
 
-func prepareJWK<Key>(header: Data?, key: Key, isPrivate: Bool = false) throws -> JWK {
+/// Builds a `JWK` from a caller-supplied key.
+///
+/// - Parameters:
+///   - header: The JWS protected header (used only as a fallback source of the algorithm).
+///   - key: The key, either raw `Data` or any `KeyRepresentable`.
+///   - isPrivate: Whether the key material represents a private key.
+///   - expectedAlgorithm: An algorithm the caller has pinned out of band. When provided, raw `Data`
+///     is interpreted according to *this* algorithm and the header algorithm must match it.
+///   - trustHeaderAlgorithm: Whether the header algorithm may be trusted to decide how to interpret
+///     raw `Data`. This is `true` on the signing path (the signer controls the header) and MUST be
+///     `false` on the verification path (the header is attacker controlled). When `false` and no
+///     `expectedAlgorithm` is pinned, a symmetric (HMAC) interpretation of raw `Data` is rejected to
+///     prevent the RS256/ES256 → HS256 algorithm-confusion attack.
+func prepareJWK<Key>(
+    header: Data?,
+    key: Key,
+    isPrivate: Bool = false,
+    expectedAlgorithm: SigningAlgorithm? = nil,
+    trustHeaderAlgorithm: Bool = true
+) throws -> JWK {
     switch key {
     case let value as Data:
         guard
             let header,
             let jsonObj = try JSONSerialization.jsonObject(with: header) as? [String: Any],
             let algStr = jsonObj["alg"] as? String,
-            let signingAlg = SigningAlgorithm(rawValue: algStr)
+            let headerAlgorithm = SigningAlgorithm(rawValue: algStr)
         else {
             throw JWS.JWSError.missingAlgorithm
         }
-        
+
+        // Decide which algorithm governs how the raw bytes are interpreted.
+        // SECURITY: the untrusted header must never solely decide whether bytes become an HMAC
+        // secret or an asymmetric key.
+        let signingAlg: SigningAlgorithm
+        if let expectedAlgorithm {
+            guard expectedAlgorithm == headerAlgorithm else {
+                throw JWS.JWSError.keyAlgorithmAndHeaderAlgorithmAreNotEqual(
+                    header: headerAlgorithm.rawValue,
+                    key: expectedAlgorithm.rawValue
+                )
+            }
+            signingAlg = expectedAlgorithm
+        } else if !trustHeaderAlgorithm, headerAlgorithm.isSymmetric {
+            // Ambiguous: raw bytes + an attacker-chosen HMAC algorithm is the confusion vector.
+            throw JWS.JWSError.dataKeyRequiresExplicitAlgorithm(algorithm: headerAlgorithm.rawValue)
+        } else {
+            signingAlg = headerAlgorithm
+        }
+
+        let jwk: JWK
         switch signingAlg {
-        case .HS256:
-            return try DataKey(type: .octSequence, isPrivate: false, isKeyAgreement: false, key: value).jwk
-        case .HS384:
-            return try DataKey(type: .octSequence, isPrivate: false, isKeyAgreement: false, key: value).jwk
-        case .HS512:
-            return try DataKey(type: .octSequence, isPrivate: false, isKeyAgreement: false, key: value).jwk
-        case .RS256:
-            return try DataKey(type: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
-        case .RS384:
-            return try DataKey(type: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
-        case .RS512:
-            return try DataKey(type: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
+        case .HS256, .HS384, .HS512:
+            jwk = try DataKey(type: .octSequence, isPrivate: false, isKeyAgreement: false, key: value).jwk
+        case .RS256, .RS384, .RS512, .PS256, .PS384, .PS512:
+            jwk = try DataKey(type: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
         case .ES256:
-            return try DataKey(type: .p256, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
+            jwk = try DataKey(type: .p256, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
         case .ES384:
-            return try DataKey(type: .p384, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
+            jwk = try DataKey(type: .p384, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
         case .ES512:
-            return try DataKey(type: .p521, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
+            jwk = try DataKey(type: .p521, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
         case .ES256K:
-            return try DataKey(type: .secp256k1, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
-        case .PS256:
-            return try DataKey(type: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
-        case .PS384:
-            return try DataKey(type: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
-        case .PS512:
-            return try DataKey(type: .rsa, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
+            jwk = try DataKey(type: .secp256k1, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
         case .EdDSA:
-            return try DataKey(type: .curve25519, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
+            jwk = try DataKey(type: .curve25519, isPrivate: isPrivate, isKeyAgreement: false, key: value).jwk
         case .invalid, .none:
             throw JWS.JWSError.unsupportedAlgorithm(keyType: nil, algorithm: algStr, curve: nil)
         }
+
+        // Bind the resolved algorithm onto the key so verification can fail closed on a mismatch.
+        var boundJWK = jwk
+        if boundJWK.algorithm == nil {
+            boundJWK.algorithm = signingAlg.rawValue
+        }
+        return boundJWK
     case let value as KeyRepresentable:
         return try value.jwk
     default:

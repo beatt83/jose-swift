@@ -28,10 +28,15 @@ extension JWS {
     ///
     /// - Parameters:
     ///   - key: The cryptographic key used for signing, which can be of type `Data` and `KeyRepresentable`.
+    ///   - algorithms: An optional allow-list of accepted signing algorithms. When provided, the JWS is
+    ///     rejected unless its header `alg` is one of these, and the pinned algorithm — not the token
+    ///     header — decides how a raw `Data` key is interpreted. Pinning is **required** when verifying
+    ///     with a raw `Data` key using a symmetric (HMAC) algorithm; otherwise the call fails closed to
+    ///     prevent the RS256/ES256 → HS256 algorithm-confusion attack.
     ///
     /// - Throws: An error if the verification process fails due to a missing key, unsupported algorithm, or other issues.
     /// - Returns: A Boolean value indicating whether the signature is valid (`true`) or not (`false`).
-    public func verify<Key>(key: Key?) throws -> Bool {
+    public func verify<Key>(key: Key?, algorithms: [SigningAlgorithm]? = nil) throws -> Bool {
         if SigningAlgorithm.none == protectedHeader.algorithm, !signature.isEmpty {
             throw JWSError.algorithmNoneButSignatureFound
         }
@@ -39,22 +44,56 @@ extension JWS {
             return true
         }
         guard let key else { throw JWSError.missingKey }
-        let jwkKey = try prepareJWK(header: protectedHeaderData, key: key)
-        try jwkKey.algorithm.map {
-            guard $0 == protectedHeader.algorithm?.rawValue else {
-                throw JWSError.keyAlgorithmAndHeaderAlgorithmAreNotEqual(
-                    header: protectedHeader.algorithm?.rawValue ?? "",
-                    key: $0
+        guard let headerAlgorithm = protectedHeader.algorithm else {
+            throw JWSError.missingAlgorithm
+        }
+
+        // Enforce the caller-provided algorithm allow-list (fail closed).
+        if let algorithms {
+            guard algorithms.contains(headerAlgorithm) else {
+                throw JWSError.algorithmNotAllowed(
+                    algorithm: headerAlgorithm.rawValue,
+                    allowed: algorithms.map(\.rawValue)
                 )
             }
         }
-        
+
+        // A pinned algorithm (an allow-list containing the header alg) is used to interpret a raw
+        // `Data` key instead of trusting the attacker-controlled token header.
+        let expectedAlgorithm = (algorithms?.contains(headerAlgorithm) ?? false) ? headerAlgorithm : nil
+
+        let jwkKey = try prepareJWK(
+            header: protectedHeaderData,
+            key: key,
+            expectedAlgorithm: expectedAlgorithm,
+            trustHeaderAlgorithm: false
+        )
+
+        // Defense in depth: if the key carries a bound algorithm, it must match the header.
+        if let keyAlgorithm = jwkKey.algorithm {
+            guard keyAlgorithm == headerAlgorithm.rawValue else {
+                throw JWSError.keyAlgorithmAndHeaderAlgorithmAreNotEqual(
+                    header: headerAlgorithm.rawValue,
+                    key: keyAlgorithm
+                )
+            }
+        }
+
+        // Defense in depth: never allow an asymmetric key to be consumed by a symmetric (HMAC)
+        // algorithm or vice versa, regardless of how the key was supplied.
+        guard headerAlgorithm.isSymmetric == (jwkKey.keyType == .octetSequence) else {
+            throw JWSError.keyAlgorithmAndHeaderAlgorithmAreNotEqual(
+                header: headerAlgorithm.rawValue,
+                key: jwkKey.keyType.rawValue
+            )
+        }
+
         guard
-            let verifier = protectedHeader.algorithm?.cryptoVerifier
+            let verifier = headerAlgorithm.cryptoVerifier
         else {
             throw JWSError.unsupportedAlgorithm(
                 keyType: protectedHeader.jwk?.keyType.rawValue,
-                algorithm: protectedHeader.algorithm?.rawValue,
+                algorithm: headerAlgorithm.rawValue,
                 curve: protectedHeader.jwk?.curve?.rawValue
             )
         }
@@ -75,13 +114,18 @@ extension JWS {
     ///   - validateAll: If `true`, validates all signatures; otherwise, validates at least one.
     /// - Returns: `true` if the signature(s) are valid according to the provided parameters, `false` otherwise.
     /// - Throws: `JWSError` for errors encountered during verification.
-    public static func verify<Key>(jwsJson: Data, key: Key, validateAll: Bool = false) throws -> Bool {
+    public static func verify<Key>(jwsJson: Data, key: Key, validateAll: Bool = false, algorithms: [SigningAlgorithm]? = nil) throws -> Bool {
         let json: JWSJson<DefaultJWSHeaderImpl, DefaultJWSHeaderImpl> = try decodeFullOrFlattenedJson(json: jwsJson)
-        let jwkKey = try prepareJWK(header: JSONEncoder.jose.encode(json), key: key)
+        // The serialized header is attacker controlled, so raw `Data` keys must not be typed from it.
+        let jwkKey = try prepareJWK(
+            header: JSONEncoder.jose.encode(json),
+            key: key,
+            trustHeaderAlgorithm: false
+        )
         if validateAll {
             guard try json.signatures
                 .map({ try $0.jws(payload: json.payload) })
-                .contains(where: { (try? $0.verify(key: jwkKey)) ?? false })
+                .contains(where: { (try? $0.verify(key: jwkKey, algorithms: algorithms)) ?? false })
             else {
                 return false
             }
@@ -91,7 +135,7 @@ extension JWS {
             guard !filteredSignatures.isEmpty else {
                 throw JWSError.noSignatureForJWK(jwkAlg: jwkKey.algorithm, jwkKid: jwkKey.keyID)
             }
-            return try filteredSignatures.map { try $0.jws(payload: json.payload) }.allSatisfy { try $0.verify(key: jwkKey) }
+            return try filteredSignatures.map { try $0.jws(payload: json.payload) }.allSatisfy { try $0.verify(key: jwkKey, algorithms: algorithms) }
         }
     }
     
