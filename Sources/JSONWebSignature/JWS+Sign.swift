@@ -428,13 +428,12 @@ func prepareJWK<Key>(
             }
             signingAlg = expectedAlgorithm
         } else if !trustHeaderAlgorithm, headerAlgorithm.isSymmetric {
-            // Ambiguous: raw bytes + an attacker-chosen HMAC algorithm is the confusion vector.
             throw JWS.JWSError.dataKeyRequiresExplicitAlgorithm(algorithm: headerAlgorithm.rawValue)
         } else {
             signingAlg = headerAlgorithm
         }
 
-        let jwk: JWK
+        var jwk: JWK
         switch signingAlg {
         case .HS256, .HS384, .HS512:
             jwk = try DataKey(type: .octSequence, isPrivate: false, isKeyAgreement: false, key: value).jwk
@@ -454,12 +453,10 @@ func prepareJWK<Key>(
             throw JWS.JWSError.unsupportedAlgorithm(keyType: nil, algorithm: algStr, curve: nil)
         }
 
-        // Bind the resolved algorithm onto the key so verification can fail closed on a mismatch.
-        var boundJWK = jwk
-        if boundJWK.algorithm == nil {
-            boundJWK.algorithm = signingAlg.rawValue
+        if jwk.algorithm == nil {
+            jwk.algorithm = signingAlg.rawValue
         }
-        return boundJWK
+        return jwk
     case let value as KeyRepresentable:
         return try value.jwk
     default:

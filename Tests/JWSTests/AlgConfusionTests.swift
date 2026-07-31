@@ -68,7 +68,7 @@ final class AlgConfusionTests: XCTestCase {
         )
         let jws = try JWS(jwsString: forged)
 
-        XCTAssertThrowsError(try jws.verify(key: publicKeyData, algorithms: [.ES256])) { error in
+        XCTAssertThrowsError(try jws.verify(key: publicKeyData, allowed: [.ES256])) { error in
             guard case JWS.JWSError.algorithmNotAllowed = error else {
                 return XCTFail("Expected algorithmNotAllowed, got \(error)")
             }
@@ -83,7 +83,7 @@ final class AlgConfusionTests: XCTestCase {
         let jws = try JWS(payload: #"{"sub":"alice"}"#.data(using: .utf8)!, key: privateKey.jwkRepresentation)
 
         XCTAssertTrue(try jws.verify(key: publicKeyData))
-        XCTAssertTrue(try jws.verify(key: publicKeyData, algorithms: [.ES256]))
+        XCTAssertTrue(try jws.verify(key: publicKeyData, allowed: [.ES256]))
     }
 
     /// Regression: legitimate HMAC verification with a `Data` key still works once the caller
@@ -101,6 +101,6 @@ final class AlgConfusionTests: XCTestCase {
             }
         }
         // ...but succeeds when the caller states intent.
-        XCTAssertTrue(try jws.verify(key: secret, algorithms: [.HS256]))
+        XCTAssertTrue(try jws.verify(key: secret, allowed: [.HS256]))
     }
 }
