@@ -31,28 +31,29 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "4.0.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
         // For `secp256k1` support
-        .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", .upToNextMinor(from: "0.15.0")),
+        .package(url: "https://github.com/GigaBitcoin/secp256k1.swift.git", from: "0.23.0"),
         // For `AES_CBC_HMAC_SHA2`, `PBES2` and RSA DER encoding support
         // Changing to a fork I made while I create a PR, since I found a bug
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.9.0")),
-        .package(url: "https://github.com/apple/swift-certificates.git", from: "1.7.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.10.0"),
+        .package(url: "https://github.com/apple/swift-certificates.git", from: "1.19.0"),
         // FOR `A256_CBC_HS512` with `ECDH-1PU-A256KW`
-        .package(url: "https://github.com/beatt83/swift-zlib.git", exact: "1.0.2"),
-        .package(url: "https://github.com/apple/swift-asn1.git", .upToNextMajor(from: "1.3.1"))
+        .package(url: "https://github.com/DLTAStudio/zlib.git", exact: "1.0.2"),
+        .package(url: "https://github.com/apple/swift-asn1.git", from: "1.7.1")
     ],
     targets: [
         .target(
             name: "JSONWebAlgorithms",
             dependencies: [
                 "JSONWebKey",
-                .product(name: "secp256k1", package: "secp256k1.swift"),
+                .product(name: "libsecp256k1", package: "secp256k1.swift"),
+                .product(name: "P256K", package: "secp256k1.swift"),
                 .product(name: "CryptoSwift", package: "CryptoSwift"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "_CryptoExtras", package: "swift-crypto"),
-                .product(name: "Zlib", package: "swift-zlib"),
- ]
+                .product(name: "Zlib", package: "zlib")
+            ]
         ),
         .testTarget(
             name: "JWATests",
@@ -86,11 +87,10 @@ let package = Package(
             dependencies: [
                 "CryptoSwift",
                 "Tools",
-                .product(name: "secp256k1", package: "secp256k1.swift"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "_CryptoExtras", package: "swift-crypto"),
-                .product(name: "SwiftASN1", package: "swift-asn1"),
-    ]
+                .product(name: "SwiftASN1", package: "swift-asn1")
+            ]
         ),
         .testTarget(
             name: "JWKTests",

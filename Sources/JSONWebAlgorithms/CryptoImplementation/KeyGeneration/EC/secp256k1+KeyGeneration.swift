@@ -16,9 +16,9 @@
 
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
-/// `Secp256k1KeyGeneration` provides methods to generate random keys, private keys, and key pairs in JWK format for secp256k1.
+/// `Secp256k1KeyGeneration` provides methods to generate random keys, private keys, and key pairs in JWK format for P256K.
 public struct Secp256k1KeyGeneration: KeyGeneration {
 
     /// Generates a random key.
@@ -35,9 +35,9 @@ public struct Secp256k1KeyGeneration: KeyGeneration {
     public func generatePrivateKey(purpose: KeyGenerationPurpose) throws -> Data {
         switch purpose {
         case .signing:
-            return try secp256k1.Signing.PrivateKey().dataRepresentation
+            return try P256K.Signing.PrivateKey().dataRepresentation
         case .keyAgreement:
-            return try secp256k1.KeyAgreement.PrivateKey().rawRepresentation
+            return try P256K.KeyAgreement.PrivateKey().rawRepresentation
         }
     }
 
@@ -48,9 +48,9 @@ public struct Secp256k1KeyGeneration: KeyGeneration {
     public func generateKeyPairJWK(purpose: KeyGenerationPurpose) throws -> JWK {
         switch purpose {
         case .signing:
-            return try secp256k1.Signing.PrivateKey(format: .uncompressed).jwkRepresentation
+            return try P256K.Signing.PrivateKey(format: .uncompressed).jwkRepresentation
         case .keyAgreement:
-            return try secp256k1.KeyAgreement.PrivateKey(format: .uncompressed).jwkRepresentation
+            return try P256K.KeyAgreement.PrivateKey(format: .uncompressed).jwkRepresentation
         }
     }
 }

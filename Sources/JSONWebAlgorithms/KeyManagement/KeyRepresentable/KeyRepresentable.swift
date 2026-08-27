@@ -18,7 +18,7 @@ import Crypto
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 #if canImport(Security)
 import Security
 #endif
@@ -83,16 +83,16 @@ extension P521.KeyAgreement.PrivateKey: KeyRepresentable {
 extension P521.KeyAgreement.PublicKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
-extension secp256k1.Signing.PrivateKey: KeyRepresentable {
+extension P256K.Signing.PrivateKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
-extension secp256k1.Signing.PublicKey: KeyRepresentable {
+extension P256K.Signing.PublicKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
-extension secp256k1.KeyAgreement.PrivateKey: KeyRepresentable {
+extension P256K.KeyAgreement.PrivateKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
-extension secp256k1.KeyAgreement.PublicKey: KeyRepresentable {
+extension P256K.KeyAgreement.PublicKey: KeyRepresentable {
     public var jwk: JWK { self.jwkRepresentation }
 }
 extension SymmetricKey: KeyRepresentable {

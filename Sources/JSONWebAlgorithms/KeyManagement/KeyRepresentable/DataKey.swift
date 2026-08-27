@@ -18,7 +18,7 @@
 import Crypto
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
 public struct DataKey {
     public enum SupportedKeyType {
@@ -132,15 +132,15 @@ private func buildCurve25519Key(isPrivate: Bool, isKeyAgreement: Bool, keyData: 
 private func buildSecp256k1Key(isPrivate: Bool, isKeyAgreement: Bool, keyData: Data) throws -> JWK {
     if isPrivate {
         if !isKeyAgreement {
-            return try secp256k1.Signing.PrivateKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
+            return try P256K.Signing.PrivateKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
         } else {
-            return try secp256k1.KeyAgreement.PrivateKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
+            return try P256K.KeyAgreement.PrivateKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
         }
     }
     
     if !isKeyAgreement {
-        return try secp256k1.Signing.PublicKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
+        return try P256K.Signing.PublicKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
     } else {
-        return try secp256k1.KeyAgreement.PublicKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
+        return try P256K.KeyAgreement.PublicKey.init(dataRepresentation: keyData, format: .uncompressed).jwkRepresentation
     }
 }

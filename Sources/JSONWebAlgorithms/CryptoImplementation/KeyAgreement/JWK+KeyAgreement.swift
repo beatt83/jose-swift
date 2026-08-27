@@ -17,7 +17,7 @@
 import Crypto
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
 extension JWK {
     /// A computed property that returns a `SharedKeyAgreement` object if the JWK supports key agreement.
@@ -33,7 +33,7 @@ extension JWK {
             case .p521:
                 return try? cryptoKitRepresentation(type: P521.KeyAgreement.PrivateKey.self)
             case .secp256k1:
-                return try? cryptoKitRepresentation(type: secp256k1.KeyAgreement.PrivateKey.self)
+                return try? cryptoKitRepresentation(type: P256K.KeyAgreement.PrivateKey.self)
             default:
                 return nil
             }

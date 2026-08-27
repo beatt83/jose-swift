@@ -5,7 +5,7 @@ import JSONWebSignature
 import JSONWebEncryption
 import Crypto
 import CryptoSwift
-import secp256k1
+import P256K
 import XCTest
 
 final class ExamplesTests: XCTestCase {
@@ -132,7 +132,7 @@ final class ExamplesTests: XCTestCase {
     }
     
     func testExample2_3() throws {
-        let key = try secp256k1.Signing.PrivateKey()
+        let key = try P256K.Signing.PrivateKey()
         let payload = "Hello, World!".data(using: .utf8)!
 
         var header = DefaultJWSHeaderImpl(algorithm: .ES256K)
@@ -643,7 +643,7 @@ final class ExamplesTests: XCTestCase {
     
     func exampleReadme1() throws {
         let payload = "Hello world".data(using: .utf8)!
-        let key = try secp256k1.Signing.PrivateKey()
+        let key = try P256K.Signing.PrivateKey()
 
         let jws = try JWS(payload: payload, key: key)
 
@@ -654,7 +654,7 @@ final class ExamplesTests: XCTestCase {
     
     func exampleReadme2() throws {
         let payload = "Hello world".data(using: .utf8)!
-        let key = try secp256k1.Signing.PrivateKey()
+        let key = try P256K.Signing.PrivateKey()
 
         let jws = try JWS(payload: payload, key: key, options: [.unencodedPayload])
 
