@@ -18,7 +18,7 @@
 import Crypto
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
 extension JWK {
     static var testingES256Pair: JWK {
@@ -37,7 +37,7 @@ extension JWK {
     }
     
     static var testingES256KPair: JWK {
-        let privateKey = try! secp256k1.KeyAgreement.PrivateKey()
+        let privateKey = try! P256K.KeyAgreement.PrivateKey()
         return privateKey.jwkRepresentation
     }
     

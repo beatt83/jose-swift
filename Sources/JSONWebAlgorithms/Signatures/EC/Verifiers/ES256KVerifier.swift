@@ -16,7 +16,8 @@
 
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
+import libsecp256k1
 
 /// `ES256KVerifier` provides methods to verify signatures using the ES256K algorithm.
 public struct ES256KVerifier: Verifier {
@@ -40,7 +41,7 @@ public struct ES256KVerifier: Verifier {
     /// - Returns: A boolean value indicating whether the signature is valid.
     public func verify(data: Data, signature: Data, key: JWK?) throws -> Bool {
         guard let x = key?.x, let y = key?.y else { throw CryptoError.notValidPublicKey }
-        let publicKey = try secp256k1.Signing.PublicKey(dataRepresentation: [0x04] + x + y, format: .uncompressed)
+        let publicKey = try P256K.Signing.PublicKey(dataRepresentation: [0x04] + x + y, format: .uncompressed)
         let hash = SHA256.hash(data: data)
         let objSignature = try getSignature(signature).normalize
         guard publicKey.isValidSignature(objSignature, for: hash) else {
@@ -54,34 +55,36 @@ public struct ES256KVerifier: Verifier {
     }
     
     // This function helps transcode the signature from bouncy castle to bitcoin
-    private func transcodeBCSignatureToBitcoin(signature: Data) throws -> secp256k1.Signing.ECDSASignature {
+    private func transcodeBCSignatureToBitcoin(signature: Data) throws -> P256K.Signing.ECDSASignature {
         let signature = try getSignature(signature)
         let signatureInvertedRS = invertR_S(signatureData: signature.dataRepresentation)
         return try .init(dataRepresentation: signatureInvertedRS).normalize
     }
 }
 
-private func getSignature(_ data: Data) throws -> secp256k1.Signing.ECDSASignature {
-    if let signature = try? secp256k1.Signing.ECDSASignature(dataRepresentation: data){
+private func getSignature(_ data: Data) throws -> P256K.Signing.ECDSASignature {
+    if let signature = try? P256K.Signing.ECDSASignature(dataRepresentation: data){
         return signature
-    } else if let signature = try? secp256k1.Signing.ECDSASignature(derRepresentation: data) {
+    } else if let signature = try? P256K.Signing.ECDSASignature(derRepresentation: data) {
         return signature
-    } else if let signature = try? secp256k1.Signing.ECDSASignature(compactRepresentation: data) {
+    } else if let signature = try? P256K.Signing.ECDSASignature(compactRepresentation: data) {
         return signature
     } else {
         throw CryptoError.invalidSignature
     }
 }
 
-private extension secp256k1.Signing.ECDSASignature {
+private extension P256K.Signing.ECDSASignature {
     /// Convert a signature into a normal signature.
-    var normalize: secp256k1.Signing.ECDSASignature {
+    var normalize: P256K.Signing.ECDSASignature {
         get throws {
-            let context = secp256k1.Context.rawRepresentation
+            let context = P256K.Context.rawRepresentation
             var signature = secp256k1_ecdsa_signature()
             var resultSignature = secp256k1_ecdsa_signature()
 
-            dataRepresentation.copyToUnsafeMutableBytes(of: &signature.data)
+            withUnsafeMutableBytes(of: &signature.data) { destination in
+                dataRepresentation.copyBytes(to: destination)
+            }
 
             guard secp256k1_ecdsa_signature_normalize(
                 context,
@@ -91,7 +94,8 @@ private extension secp256k1.Signing.ECDSASignature {
                 return self
             }
 
-            return try secp256k1.Signing.ECDSASignature(dataRepresentation: resultSignature.dataValue)
+            let normalizedData = Swift.withUnsafeBytes(of: resultSignature.data) { Data($0) }
+            return try P256K.Signing.ECDSASignature(dataRepresentation: normalizedData)
         }
     }
 }

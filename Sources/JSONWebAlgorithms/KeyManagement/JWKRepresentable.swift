@@ -10,7 +10,7 @@ import Crypto
 @preconcurrency import CryptoSwift
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
 /// A protocol for types that can be represented as a JWK.
 ///
@@ -36,8 +36,8 @@ public extension JWKRepresentable where Self == JWK {
     }
 }
 
-extension secp256k1.KeyAgreement.PrivateKey: JWKRepresentable {
-    /// Returns the JWK representation of a `secp256k1.KeyAgreement.PrivateKey` instance.
+extension P256K.KeyAgreement.PrivateKey: JWKRepresentable {
+    /// Returns the JWK representation of a `P256K.KeyAgreement.PrivateKey` instance.
     public var jwkRepresentation: JWK {
         // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
         let publicKeyRawRepresentation = publicKey.dataRepresentation.dropFirst(1)
@@ -101,28 +101,10 @@ extension P521.KeyAgreement.PrivateKey: JWKRepresentable {
     }
 }
 
-extension secp256k1.Signing.PrivateKey: JWKRepresentable {
-    /// Returns the JWK representation of a `secp256k1.KeyAgreement.PrivateKey` instance.
+extension P256K.Signing.PrivateKey: JWKRepresentable {
+    /// Returns the JWK representation of a `P256K.KeyAgreement.PrivateKey` instance.
     public var jwkRepresentation: JWK {
-        let publicKeyData: Data
-        switch publicKey.format {
-        case .compressed:
-            // If public key is compressed, uncompress it first
-            var pubKey = publicKey.rawRepresentation
-            var keyLength = secp256k1.Format.uncompressed.length
-            var bytes = [UInt8](repeating: 0, count: keyLength)
-
-            secp256k1_ec_pubkey_serialize(
-                secp256k1.Context.rawRepresentation,
-                &bytes,
-                &keyLength,
-                &pubKey,
-                secp256k1.Format.uncompressed.rawValue
-            )
-            publicKeyData = Data(bytes)
-        case .uncompressed:
-            publicKeyData = publicKey.dataRepresentation
-        }
+        let publicKeyData = publicKey.uncompressedRepresentation
         // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
         let publicKeyRawRepresentation = publicKeyData.count == 65 ? publicKeyData.dropFirst(1) : publicKeyData
         let x = publicKeyRawRepresentation.prefix(publicKeyRawRepresentation.count / 2)
@@ -197,8 +179,8 @@ extension Curve25519.KeyAgreement.PrivateKey: JWKRepresentable {
     }
 }
 
-extension secp256k1.KeyAgreement.PublicKey: JWKRepresentable {
-    /// Returns the JWK representation of a `secp256k1.KeyAgreement.PublicKey` instance.
+extension P256K.KeyAgreement.PublicKey: JWKRepresentable {
+    /// Returns the JWK representation of a `P256K.KeyAgreement.PublicKey` instance.
     public var jwkRepresentation: JWK {
         // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
         let publicKeyRawRepresentation = dataRepresentation.dropFirst(1)
@@ -269,8 +251,8 @@ extension Curve25519.KeyAgreement.PublicKey: JWKRepresentable {
     }
 }
 
-extension secp256k1.Signing.PublicKey: JWKRepresentable {
-    /// Returns the JWK representation of a `secp256k1.KeyAgreement.PublicKey` instance.
+extension P256K.Signing.PublicKey: JWKRepresentable {
+    /// Returns the JWK representation of a `P256K.KeyAgreement.PublicKey` instance.
     public var jwkRepresentation: JWK {
         // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
         let publicKeyRawRepresentation = dataRepresentation.count == 65 ? dataRepresentation.dropFirst(1) : dataRepresentation

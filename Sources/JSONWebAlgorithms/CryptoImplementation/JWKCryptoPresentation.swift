@@ -9,7 +9,7 @@
 import Crypto
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
 /// An extension for `JWK` providing convenience functions for working with `CryptoKit`.
 public extension JWK {
@@ -28,12 +28,12 @@ public extension JWK {
             is P256.Signing.PrivateKey.Type,
             is P384.Signing.PrivateKey.Type,
             is P521.Signing.PrivateKey.Type,
-            is secp256k1.Signing.PrivateKey.Type,
+            is P256K.Signing.PrivateKey.Type,
             is Curve25519.Signing.PrivateKey.Type,
             is P256.KeyAgreement.PrivateKey.Type,
             is P384.KeyAgreement.PrivateKey.Type,
             is P521.KeyAgreement.PrivateKey.Type,
-            is secp256k1.KeyAgreement.PrivateKey.Type,
+            is P256K.KeyAgreement.PrivateKey.Type,
             is Curve25519.KeyAgreement.PrivateKey.Type:
             
             guard let d else {
@@ -46,8 +46,8 @@ public extension JWK {
                 return try P384.Signing.PrivateKey(rawRepresentation: d) as! T
             case is P521.Signing.PrivateKey.Type:
                 return try P521.Signing.PrivateKey(rawRepresentation: d) as! T
-            case is secp256k1.Signing.PrivateKey.Type:
-                return try secp256k1.Signing.PrivateKey(dataRepresentation: d, format: .uncompressed) as! T
+            case is P256K.Signing.PrivateKey.Type:
+                return try P256K.Signing.PrivateKey(dataRepresentation: d, format: .uncompressed) as! T
             case is Curve25519.Signing.PrivateKey.Type:
                 return try Curve25519.Signing.PrivateKey(rawRepresentation: d) as! T
             case is P256.KeyAgreement.PrivateKey.Type:
@@ -56,8 +56,8 @@ public extension JWK {
                 return try P384.KeyAgreement.PrivateKey(rawRepresentation: d) as! T
             case is P521.KeyAgreement.PrivateKey.Type:
                 return try P521.KeyAgreement.PrivateKey(rawRepresentation: d) as! T
-            case is secp256k1.KeyAgreement.PrivateKey.Type:
-                return try secp256k1.KeyAgreement.PrivateKey(dataRepresentation: d, format: .uncompressed) as! T
+            case is P256K.KeyAgreement.PrivateKey.Type:
+                return try P256K.KeyAgreement.PrivateKey(dataRepresentation: d, format: .uncompressed) as! T
             case is Curve25519.KeyAgreement.PrivateKey.Type:
                 return try Curve25519.KeyAgreement.PrivateKey(rawRepresentation: d) as! T
             default:
@@ -67,11 +67,11 @@ public extension JWK {
         case is P256.Signing.PublicKey.Type,
             is P384.Signing.PublicKey.Type,
             is P521.Signing.PublicKey.Type,
-            is secp256k1.Signing.PublicKey.Type,
+            is P256K.Signing.PublicKey.Type,
             is P256.KeyAgreement.PublicKey.Type,
             is P384.KeyAgreement.PublicKey.Type,
             is P521.KeyAgreement.PublicKey.Type,
-            is secp256k1.KeyAgreement.PublicKey.Type:
+            is P256K.KeyAgreement.PublicKey.Type:
             
             guard let x else {
                 throw JWK.Error.missingXComponent
@@ -87,9 +87,9 @@ public extension JWK {
                 return try P384.Signing.PublicKey(rawRepresentation: data) as! T
             case is P521.Signing.PublicKey.Type:
                 return try P521.Signing.PublicKey(rawRepresentation: data) as! T
-            case is secp256k1.Signing.PublicKey.Type:
+            case is P256K.Signing.PublicKey.Type:
                 // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
-                return try secp256k1.Signing.PublicKey(
+                return try P256K.Signing.PublicKey(
                     dataRepresentation: [0x04] + data,
                     format: .uncompressed
                 ) as! T
@@ -99,9 +99,9 @@ public extension JWK {
                 return try P384.KeyAgreement.PublicKey(rawRepresentation: data) as! T
             case is P521.KeyAgreement.PublicKey.Type:
                 return try P521.KeyAgreement.PublicKey(rawRepresentation: data) as! T
-            case is secp256k1.KeyAgreement.PublicKey.Type:
+            case is P256K.KeyAgreement.PublicKey.Type:
                 // The uncompressed public key is 65 bytes long: a single byte prefix (0x04) followed by the two 32-byte coordinates.
-                return try secp256k1.KeyAgreement.PublicKey(
+                return try P256K.KeyAgreement.PublicKey(
                     dataRepresentation: [0x04] + data,
                     format: .uncompressed
                 ) as! T

@@ -16,7 +16,7 @@
 
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
 /// `ES256KSigner` provides methods to sign data using the ES256K algorithm.
 public struct ES256KSigner: Signer {
@@ -52,7 +52,7 @@ public struct ES256KSigner: Signer {
     /// - Returns: The signature as a `Data` object.
     public func sign(data: Data, key: JWK) throws -> Data {
         guard let d = key.d else { throw CryptoError.notValidPrivateKey }
-        let privateKey = try secp256k1.Signing.PrivateKey(dataRepresentation: d)
+        let privateKey = try P256K.Signing.PrivateKey(dataRepresentation: d)
         let hash = SHA256.hash(data: data)
         let signature = try privateKey.signature(for: hash)
         
@@ -65,7 +65,7 @@ public struct ES256KSigner: Signer {
         case .der:
             guard !Self.invertedBytesR_S else {
                 let inverted = invertR_S(signatureData: signature.dataRepresentation)
-                let signature = try secp256k1.Signing.ECDSASignature(dataRepresentation: inverted)
+                let signature = try P256K.Signing.ECDSASignature(dataRepresentation: inverted)
                 return try signature.derRepresentation
             }
             return try signature.derRepresentation

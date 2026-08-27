@@ -16,19 +16,19 @@
 
 import Foundation
 import JSONWebKey
-import secp256k1
+import P256K
 
-/// Extension to make `secp256k1.KeyAgreement.PrivateKey` conform to `SharedKeyAgreement`.
-extension secp256k1.KeyAgreement.PrivateKey: SharedKeyAgreement {
+/// Extension to make `P256K.KeyAgreement.PrivateKey` conform to `SharedKeyAgreement`.
+extension P256K.KeyAgreement.PrivateKey: SharedKeyAgreement {
     
     /// Computes the shared secret from the key agreement with the provided public key share.
     /// - Parameter publicKeyShare: The public key share as a `JWK`.
-    /// - Throws: An error if the conversion to `secp256k1.KeyAgreement.PublicKey` fails or the key agreement fails.
+    /// - Throws: An error if the conversion to `P256K.KeyAgreement.PublicKey` fails or the key agreement fails.
     /// - Returns: The shared secret as a `Data` object.
     public func sharedSecretFromKeyAgreement(
         publicKeyShare: JWK
     ) throws -> Data {
-        let sharedSecret = try publicKeyShare.cryptoKitRepresentation(type: secp256k1.KeyAgreement.PublicKey.self)
+        let sharedSecret = try publicKeyShare.cryptoKitRepresentation(type: P256K.KeyAgreement.PublicKey.self)
         return try sharedSecretFromKeyAgreement(with: sharedSecret)
             .withUnsafeBytes { .init($0) }
     }
