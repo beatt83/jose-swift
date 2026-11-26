@@ -328,7 +328,7 @@ extension SymmetricKey: JWKRepresentable {
     public var jwkRepresentation: JWK {
         JWK(
             keyType: .octetSequence,
-            key: Data(bytes)
+            key: withUnsafeBytes { Data($0) }
         )
     }
 }
